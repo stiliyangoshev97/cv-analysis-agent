@@ -5,7 +5,7 @@ import { ScoreRing } from './ScoreRing';
 
 interface ScorecardProps {
   result: CVResult;
-  onDismiss: (id: string) => void;
+  onDismiss: () => void;
 }
 
 export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
@@ -70,7 +70,7 @@ export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
 
       {/* Footer */}
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-        <Button variant="ghost" size="sm" onClick={() => onDismiss(result.id)}>
+        <Button variant="ghost" size="sm" onClick={onDismiss}>
           Dismiss
         </Button>
       </div>

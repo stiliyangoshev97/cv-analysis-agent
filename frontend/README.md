@@ -46,7 +46,7 @@ npm run preview
 
 - Drag & drop PDF upload
 - Real-time upload progress indicator
-- Multiple CV evaluation support
+- Single CV evaluation (replaces previous result)
 - Visual scorecard with pass/fail status
 - Circular score ring visualization
 - Detailed criteria breakdown

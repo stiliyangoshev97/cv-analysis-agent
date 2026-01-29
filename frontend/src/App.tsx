@@ -5,23 +5,23 @@ import { Scorecard } from './features/scorecard';
 import type { CVResult } from './types';
 
 const App = () => {
-  const [results, setResults] = useState<CVResult[]>([]);
+  const [result, setResult] = useState<CVResult | null>(null);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const { upload, isUploading, progress, error, reset } = useUploadCV();
 
   const handleFileSelect = useCallback((file: File) => {
     setCurrentFile(file.name);
+    setResult(null); // Clear previous result
     
     upload(file, {
       onSuccess: (data) => {
         if (data.success && data.evaluation) {
-          const newResult: CVResult = {
+          setResult({
             id: crypto.randomUUID(),
             filename: file.name,
             evaluation: data.evaluation,
             uploadedAt: new Date(),
-          };
-          setResults((prev) => [newResult, ...prev]);
+          });
         }
         setCurrentFile(null);
         reset();
@@ -32,8 +32,8 @@ const App = () => {
     });
   }, [upload, reset]);
 
-  const handleDismiss = useCallback((id: string) => {
-    setResults((prev) => prev.filter((r) => r.id !== id));
+  const handleDismiss = useCallback(() => {
+    setResult(null);
   }, []);
 
   return (
@@ -77,32 +77,17 @@ const App = () => {
         </section>
 
         {/* Results Section */}
-        {results.length > 0 && (
+        {result && (
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Results ({results.length})
-              </h2>
-              {results.length > 1 && (
-                <button
-                  onClick={() => setResults([])}
-                  className="text-sm text-gray-500 hover:text-gray-700"
-                >
-                  Clear all
-                </button>
-              )}
+              <h2 className="text-lg font-semibold text-gray-900">Result</h2>
             </div>
-            
-            <div className="space-y-4">
-              {results.map((result) => (
-                <Scorecard key={result.id} result={result} onDismiss={handleDismiss} />
-              ))}
-            </div>
+            <Scorecard result={result} onDismiss={handleDismiss} />
           </section>
         )}
 
         {/* Empty State */}
-        {results.length === 0 && !isUploading && (
+        {!result && !isUploading && (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
