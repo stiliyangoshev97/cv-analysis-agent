@@ -3,11 +3,12 @@ import { clsx } from 'clsx';
 
 interface FileDropzoneProps {
   onFileSelect: (file: File) => void;
+  onError?: (message: string) => void;
   disabled?: boolean;
   accept?: string;
 }
 
-export const FileDropzone = ({ onFileSelect, disabled = false, accept = '.pdf' }: FileDropzoneProps) => {
+export const FileDropzone = ({ onFileSelect, onError, disabled = false, accept = '.pdf' }: FileDropzoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -30,21 +31,38 @@ export const FileDropzone = ({ onFileSelect, disabled = false, accept = '.pdf' }
     if (disabled) return;
 
     const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type === 'application/pdf') {
-        onFileSelect(file);
-      }
+    
+    // Check for multiple files
+    if (files.length > 1) {
+      onError?.('Only 1 file is allowed. Please upload a single PDF.');
+      return;
     }
-  }, [disabled, onFileSelect]);
+    
+    if (files.length === 1) {
+      const file = files[0];
+      if (file.type !== 'application/pdf') {
+        onError?.('Invalid file type. Only PDF files are accepted.');
+        return;
+      }
+      onFileSelect(file);
+    }
+  }, [disabled, onFileSelect, onError]);
 
   const handleFileInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
+    
+    // Check for multiple files
+    if (files && files.length > 1) {
+      onError?.('Only 1 file is allowed. Please upload a single PDF.');
+      e.target.value = '';
+      return;
+    }
+    
+    if (files && files.length === 1) {
       onFileSelect(files[0]);
     }
     e.target.value = '';
-  }, [onFileSelect]);
+  }, [onFileSelect, onError]);
 
   return (
     <div

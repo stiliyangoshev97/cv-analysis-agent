@@ -7,9 +7,11 @@ import type { CVResult } from './types';
 const App = () => {
   const [result, setResult] = useState<CVResult | null>(null);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const { upload, isUploading, progress, error, reset } = useUploadCV();
 
   const handleFileSelect = useCallback((file: File) => {
+    setFileError(null); // Clear any previous file error
     setCurrentFile(file.name);
     setResult(null); // Clear previous result
     
@@ -31,6 +33,10 @@ const App = () => {
       },
     });
   }, [upload, reset]);
+
+  const handleFileError = useCallback((message: string) => {
+    setFileError(message);
+  }, []);
 
   const handleDismiss = useCallback(() => {
     setResult(null);
@@ -64,13 +70,17 @@ const App = () => {
           {isUploading && progress && currentFile ? (
             <UploadProgress filename={currentFile} progress={progress} />
           ) : (
-            <FileDropzone onFileSelect={handleFileSelect} disabled={isUploading} />
+            <FileDropzone 
+              onFileSelect={handleFileSelect} 
+              onError={handleFileError}
+              disabled={isUploading} 
+            />
           )}
 
-          {error && (
+          {(error || fileError) && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-700">
-                <span className="font-medium">Error:</span> {error.message}
+                <span className="font-medium">Error:</span> {fileError || error?.message}
               </p>
             </div>
           )}
