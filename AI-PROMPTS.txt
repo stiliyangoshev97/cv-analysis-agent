@@ -1,19 +1,43 @@
-I'm working on JNGLZ.FUN - a decentralized prediction market launchpad on BNB Chain.
+I'm working on CV SCREENING AGENT - an AI-powered CV/resume screening platform.
 
 Please read these files to understand the project:
 
-1. /PROJECT.md - Summary of the project
+1. /README.md - Project overview and quick start
 2. /TODO.md - What's done and what's pending
-3. /contracts/PROJECT_CONTEXT.md - Smart contract details
-4. /contracts/CHANGELOG.md - Contract version history
-5. /contracts/README.MD - Detailed explanation of how smart contracts work and business model
-6. /frontend/PROJECT_CONTEXT.md - Frontend architecture
-7. /frontend/CHANGELOG.md - Frontend changes
-8. /PROJECT_CONTEXT_SUBGRAPH.md - Subgraph setup
-9. /subgraph/CHANGELOG.md - Subgraph changes
-10. /frontend/supabase/PROJECT_CONTEXT_SUPABASE.md - Supabase architecture
-11. /frontend/supabase/CHANGELOG.md - Supabase changes
-
-
+3. /backend/README.md - Backend API details
+4. /backend/PROJECT_CONTEXT.md - Backend architecture
+5. /backend/CHANGELOG.md - Backend version history
+6. /frontend/README.md - Frontend details
+7. /frontend/PROJECT_CONTEXT.md - Frontend architecture
+8. /frontend/CHANGELOG.md - Frontend changes
 
 After reading, summarize the current state and ask what I want to work on.
+
+================================================================================
+QUICK COMMANDS
+================================================================================
+
+# Backend
+cd backend && source venv/bin/activate && uvicorn app.main:app --reload
+
+# Frontend
+cd frontend && npm run dev
+
+# API Docs
+http://localhost:8000/docs
+
+================================================================================
+INSTRUCTIONS
+================================================================================
+
+When starting a new chat:
+1. Read /TODO.md to see current status
+2. Ask user what they want to work on
+3. Read relevant PROJECT_CONTEXT.md for patterns to follow
+
+When making changes:
+- Follow existing patterns (check PROJECT_CONTEXT.md files)
+- Use existing shared components (frontend: shared/components/ui/)
+- Add documentation (JSDoc for TS, docstrings for Python)
+- Update CHANGELOG.md for significant changes
+

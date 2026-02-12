@@ -1,109 +1,184 @@
-# CV Screening Agent
+# CV Screening Agent 🤖📄
 
-An AI-powered CV screening application that evaluates resumes against predefined hiring criteria using Claude AI.
+An AI-powered CV screening platform that evaluates resumes against modern hiring criteria using Claude AI. Built for AI-first fintech companies looking for candidates who embrace modern development practices.
 
-## How It Works
+## 🎯 What It Does
 
-1. **Upload** - User uploads a PDF CV via drag & drop or file picker
-2. **Extract** - Backend extracts text content from the PDF
-3. **Evaluate** - Claude AI analyzes the CV against 5 criteria:
-   - **Education** - High School Diploma or higher
-   - **Fintech Experience** - Finance, Banking, Crypto, or Fintech background
-   - **Technical Skills** - TypeScript or Python proficiency
-   - **Soft Skills & Adaptability** - Fast learner, work under pressure, team player
-   - **AI-Native Development** - Uses AI coding tools (Copilot, Claude Code, Cursor), understands RAG, MCP, can build AI agents
-4. **Display** - Frontend shows a scorecard with pass/fail status, score, and detailed reasoning
+Upload a PDF resume and get an instant AI-powered evaluation with:
+- **Pass/Fail status** with confidence score (0-100)
+- **5 evaluation criteria** tailored for modern tech roles
+- **Detailed reasoning** explaining the AI's decision
+- **Candidate name extraction** for quick reference
 
-## Tech Stack
+## 📊 Evaluation Criteria
 
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| Python | Runtime |
-| FastAPI | REST API framework |
-| pdfplumber | PDF text extraction |
-| Anthropic SDK | Claude AI integration |
-| Pydantic | Data validation |
+| Criterion | Points | What We Look For |
+|-----------|--------|------------------|
+| **Education** | 15 | High School+, bootcamps, self-taught with portfolio |
+| **Fintech Experience** | 20 | Finance, banking, crypto, DeFi, fintech startups |
+| **Technical Skills** | 25 | TypeScript, Python, React, Node.js, FastAPI |
+| **Soft Skills & Adaptability** | 20 | Fast learner, work under pressure, team player |
+| **AI-Native Development** | 20 | AI coding tools, RAG, MCP, AI agents |
 
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| React | UI library |
-| TypeScript | Type safety |
-| Vite | Build tool |
-| Tailwind CSS | Styling |
-| TanStack Query | Server state |
-| Axios | HTTP client |
+### AI-Native Development Criteria (What Sets This Apart)
+We specifically look for candidates who:
+- Use **AI coding tools**: Claude Code, GitHub Copilot, Cursor, Windsurf
+- Practice **vibe coding**: AI pair programming, prompt engineering
+- Understand **RAG systems**: Vector databases, embeddings, retrieval
+- Know **MCP**: Model Context Protocol, tool-use, function calling
+- Can build **AI agents**: LangChain, LlamaIndex, autonomous systems
+- Have **LLM integration** experience: OpenAI, Anthropic APIs in production
 
-## Quick Start
+### Pass/Fail Logic
+- ✅ **PASS**: Score ≥ 60 AND 3+ criteria met (must include Technical Skills)
+- ❌ **FAIL**: Score < 60 OR fewer than 3 criteria OR no Technical Skills
 
-### 1. Backend
+## 🚀 Quick Start
 
+### Prerequisites
+- Python 3.11+ with pip
+- Node.js 18+ with npm
+- Anthropic API key ([get one here](https://console.anthropic.com/))
+
+### 1. Backend Setup
 ```bash
 cd backend
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Add your Anthropic API key to .env
+# Create .env file with your API key
+echo "ANTHROPIC_API_KEY=sk-ant-your-key-here" > .env
+
+# Start the server
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 2. Frontend
-
+### 2. Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 3. Open App
+### 3. Open the App
+| URL | Description |
+|-----|-------------|
+| http://localhost:5173 | Frontend UI |
+| http://localhost:8000 | Backend API |
+| http://localhost:8000/docs | Swagger API Docs |
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+## 🏗️ Tech Stack
 
-## Running the Servers
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| **Python 3.13** | Runtime |
+| **FastAPI** | Async REST API framework |
+| **pdfplumber** | PDF text extraction |
+| **Anthropic SDK** | Claude AI integration |
+| **Pydantic** | Data validation & schemas |
+| **python-jose** | JWT authentication |
+| **bcrypt** | Password hashing |
 
-### Start Backend (Terminal 1)
-```bash
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload --port 8000
-```
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| **React 18** | UI library |
+| **TypeScript** | Type safety |
+| **Vite** | Build tool & dev server |
+| **Tailwind CSS** | Utility-first styling |
+| **TanStack Query** | Server state management |
+| **Zustand** | Client state (auth) |
+| **Axios** | HTTP client |
+| **CVA** | Variant-based components |
+| **Zod** | Schema validation |
 
-### Start Frontend (Terminal 2)
-```bash
-cd frontend
-npm run dev
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 CV Analysis Agent/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI entry point
-│   │   ├── config.py            # Environment settings
-│   │   ├── models/schemas.py    # Pydantic models
-│   │   ├── services/            # PDF & AI services
-│   │   └── routers/             # API endpoints
-│   ├── .env                     # API keys (not committed)
+│   │   ├── main.py                 # FastAPI entry point
+│   │   ├── config.py               # Environment settings
+│   │   ├── core/                   # Shared infrastructure
+│   │   │   ├── security.py         # JWT & password utils
+│   │   │   ├── exceptions.py       # Custom exceptions
+│   │   │   └── dependencies.py     # Shared dependencies
+│   │   ├── shared/schemas/         # Base response schemas
+│   │   └── features/
+│   │       ├── auth/               # Authentication module
+│   │       │   ├── auth_routes.py
+│   │       │   ├── auth_controller.py
+│   │       │   ├── auth_service.py
+│   │       │   └── auth_schemas.py
+│   │       └── cv/                 # CV screening module
+│   │           ├── cv_routes.py
+│   │           ├── cv_controller.py
+│   │           ├── cv_service.py
+│   │           └── services/
+│   │               ├── pdf_service.py
+│   │               └── evaluation_service.py
 │   └── requirements.txt
 │
-└── frontend/
-    ├── src/
-    │   ├── components/ui/       # Reusable components
-    │   ├── features/            # Feature modules
-    │   ├── lib/api.ts           # API client
-    │   └── types/               # TypeScript types
-    └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── providers/              # React Query provider
+│   │   ├── router/                 # Routing & guards
+│   │   ├── shared/
+│   │   │   ├── api/                # Axios client
+│   │   │   ├── components/ui/      # Button, Card, Badge, etc.
+│   │   │   ├── schemas/            # Zod validation schemas
+│   │   │   ├── types/              # TypeScript types
+│   │   │   └── utils/              # cn() utility
+│   │   └── features/
+│   │       ├── auth/               # Login, Register, UserMenu
+│   │       └── cv/                 # Upload, Scorecard
+│   └── package.json
+│
+├── TODO.md                         # Development roadmap
+└── README.md                       # This file
 ```
 
-## API Endpoints
+## 🔌 API Endpoints
 
+### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/cv/upload` | Upload PDF and get evaluation |
+| `POST` | `/api/auth/register` | Register new user |
+| `POST` | `/api/auth/login` | Login with email/password |
+| `POST` | `/api/auth/refresh` | Refresh access token |
+| `POST` | `/api/auth/google` | Google OAuth |
+| `GET` | `/api/auth/me` | Get current user |
+
+### CV Screening
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/cv/upload` | Upload PDF & get evaluation |
 | `GET` | `/api/cv/health` | Health check |
+
+## 🛣️ Roadmap
+
+- [x] **Phase 1**: Authentication (JWT + Email/Password + Google OAuth)
+- [x] **Phase 1.5**: Project restructuring (Controller-Service-Model pattern)
+- [ ] **Phase 2**: Database layer (PostgreSQL + pgvector)
+- [ ] **Phase 3**: LangChain integration
+- [ ] **Phase 4**: Multi-agent architecture
+- [ ] **Phase 5**: Notifications (Email + WhatsApp)
+- [ ] **Phase 6**: Dashboard & semantic search
+- [ ] **Phase 7**: Candidate match-up & comparison
+
+## 📝 License
+
+MIT
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request

@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-02-12 🏗️ REFACTORING + UI COMPONENTS
+
+### Added
+
+**Shared UI Component Library (CVA-based)**
+- `Button` - 5 variants (primary, secondary, outline, ghost, danger), 3 sizes, loading state
+- `Badge` - 5 variants (default, success, warning, error, info), 3 sizes
+- `Card` - 3 variants, sub-components (CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
+- `Input` - forwardRef, label, error, helperText support
+- `Textarea` - forwardRef, label, error support
+- `Select` - forwardRef, custom arrow, options array
+- `Text` - 4 sizes, 4 colors, 3 weights, polymorphic `as` prop
+- `Heading` - levels 1-6, auto semantic h1-h6 element
+- `Spinner` - 4 sizes, accessible
+- `Container` - 4 size variants (sm, md, lg, full)
+- `ProgressBar` - with accessibility attributes
+
+**Path Aliases**
+- Added `@/` alias to `tsconfig.app.json` and `vite.config.ts`
+- Clean imports: `import { Button } from '@/shared/components/ui'`
+
+**Documentation**
+- Comprehensive JSDoc comments for all components
+- Updated README.md with component examples
+- Updated PROJECT_CONTEXT.md with architecture
+
+### Changed
+
+**Project Structure Refactoring**
+- Merged `cv-upload/` + `scorecard/` → unified `cv/` feature
+- Moved `lib/api.ts` → `shared/api/apiClient.ts`
+- Moved `components/ui/` → `shared/components/ui/`
+- Moved `schemas/` → `shared/schemas/`
+- Moved `types/` → `shared/types/`
+- Created `providers/` directory for QueryProvider
+- Created `router/` directory with RootLayout and guards
+
+**Components Refactored to Use Shared UI**
+- `RootLayout` → uses Container, Text, Heading
+- `CVPage` → uses Heading, Text
+- `Scorecard` → uses Card, CardContent, CardFooter, Text, Heading, Badge, Button
+- `CriteriaItem` → uses Badge, Text
+- `UploadProgress` → uses Card, ProgressBar, Spinner, Text
+- `LoginForm` / `RegisterForm` → uses Button
+- `FileDropzone` → uses `cn()` utility
+
+**Dependencies**
+- Added `class-variance-authority` for variant-based styling
+- Added `tailwind-merge` for class merging
+- Added `clsx` for conditional classes
+
+### Removed
+- Old `lib/` directory
+- Old `components/` directory at root
+- Old `schemas/` and `types/` at root
+- `features/cv-upload/` and `features/scorecard/` (merged)
+
+---
+
 ## [0.2.0] - 2025-02-12 🔐 AUTHENTICATION UI
 
 ### Added

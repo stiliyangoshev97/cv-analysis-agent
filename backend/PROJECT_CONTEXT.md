@@ -1,13 +1,15 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2025 (v0.2.0 - Authentication)
+> Last Updated: February 2026 (v0.3.0 - Refactoring + Expanded Criteria)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable criteria. The system extracts text from PDF CVs, sends it to Claude for intelligent analysis, and returns a detailed scorecard with pass/fail recommendations.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The system extracts text from PDF CVs, sends it to Claude for intelligent analysis, and returns a detailed scorecard with pass/fail recommendations.
+
+**Target Use Case**: AI-first fintech companies screening for candidates who embrace modern development practices, including AI-assisted coding.
 
 ---
 
@@ -17,22 +19,30 @@
 |-----------|----------|-------|
 | Project Setup | ✅ 100% | FastAPI + Python 3.13 |
 | PDF Processing | ✅ 100% | pdfplumber extraction |
-| AI Evaluation | ✅ 100% | Claude API integration |
+| AI Evaluation | ✅ 100% | Claude API with 5 criteria |
 | CV Upload API | ✅ 100% | Single CV upload + evaluation |
 | Health Check | ✅ 100% | Basic health endpoint |
 | CORS Config | ✅ 100% | Frontend integration ready |
 | Environment Config | ✅ 100% | pydantic-settings |
-| **Authentication** | ✅ 100% | JWT + Email/Password + Google OAuth ready |
+| **Authentication** | ✅ 100% | JWT + Email/Password + Google OAuth |
+| **Project Structure** | ✅ 100% | Controller-Service-Model pattern |
 | **Database Layer** | ⏳ 0% | Phase 2 - PostgreSQL + pgvector |
 | **LangChain Integration** | ⏳ 0% | Phase 3 |
 | **Multi-Agent System** | ⏳ 0% | Phase 4 |
 | **Notification System** | ⏳ 0% | Phase 5 - Email + WhatsApp |
 
-**Overall Progress: ~30%** (MVP + Auth Complete)
+**Overall Progress: ~35%** (MVP + Auth + Refactoring Complete)
 
 ---
 
 ## 🏗️ Architecture
+
+### Controller-Service-Model Pattern
+```
+Request Flow: Routes → Controller → Service → Model/External APIs
+                ↓          ↓           ↓
+              Thin    HTTP Logic   Business Logic
+```
 
 ### Tech Stack
 | Layer | Technology | Purpose |
@@ -43,79 +53,83 @@
 | AI | Anthropic Claude | CV evaluation & reasoning |
 | Validation | Pydantic | Schema validation & serialization |
 | Config | pydantic-settings | Environment management |
+| Auth | python-jose + bcrypt | JWT tokens + password hashing |
 
 ### Project Structure
 ```
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── config.py              # Settings with pydantic-settings
-│   ├── main.py                # FastAPI app entry point
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── schemas.py         # Pydantic models
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   └── cv_router.py       # CV upload endpoints
-│   └── services/
-│       ├── __init__.py
-│       ├── pdf_service.py     # PDF text extraction
-│       └── evaluation_service.py  # Claude AI integration
-├── requirements.txt
-├── .env                       # API keys (gitignored)
-├── .env.example              # Template for environment vars
-├── README.md
-├── CHANGELOG.md
-└── PROJECT_CONTEXT.md
+backend/app/
+├── main.py                     # FastAPI app entry point
+├── config.py                   # Settings with pydantic-settings
+│
+├── core/                       # Shared infrastructure
+│   ├── security.py             # JWT utils, password hashing
+│   ├── exceptions.py           # Custom exception classes
+│   └── dependencies.py         # Shared FastAPI dependencies
+│
+├── shared/                     # Shared business logic
+│   └── schemas/
+│       └── base.py             # BaseResponse, ErrorResponse
+│
+└── features/
+    ├── auth/                   # Authentication feature
+    │   ├── auth_routes.py      # Route definitions (thin)
+    │   ├── auth_controller.py  # HTTP handlers
+    │   ├── auth_service.py     # Business logic
+    │   ├── auth_schemas.py     # Pydantic schemas
+    │   ├── auth_models.py      # User model (in-memory)
+    │   └── auth_dependencies.py # get_current_user
+    │
+    └── cv/                     # CV Screening feature
+        ├── cv_routes.py        # Route definitions
+        ├── cv_controller.py    # HTTP handlers
+        ├── cv_service.py       # Orchestration service
+        ├── cv_schemas.py       # Pydantic schemas
+        └── services/
+            ├── pdf_service.py        # PDF text extraction
+            └── evaluation_service.py # Claude AI evaluation
 ```
+
+---
+
+## 📝 Evaluation Criteria (5 Total)
+
+| Criterion | Points | Weight | Description |
+|-----------|--------|--------|-------------|
+| Education | 15 | 15% | High School+, bootcamps, self-taught |
+| Fintech Experience | 20 | 20% | Finance, crypto, banking, DeFi |
+| Technical Skills | 25 | 25% | TypeScript, Python, React, FastAPI |
+| Soft Skills & Adaptability | 20 | 20% | Fast learner, stress handling, teamwork |
+| AI-Native Development | 20 | 20% | AI tools, RAG, MCP, agents |
+
+### Scoring Thresholds
+- **PASS**: Score ≥ 60 AND 3+ criteria met (must include Technical Skills)
+- **FAIL**: Score < 60 OR fewer than 3 criteria OR no Technical Skills
+
+### AI-Native Development Specifics
+- AI coding tools: Claude Code, GitHub Copilot, Cursor, Windsurf
+- Vibe coding: AI pair programming, prompt engineering
+- RAG systems: Vector databases, embeddings, retrieval
+- MCP: Model Context Protocol, tool-use, function calling
+- AI agents: LangChain, LlamaIndex, autonomous systems
 
 ---
 
 ## 🔌 API Endpoints
 
-### Current Endpoints (v0.1.0)
-
+### Authentication (`/api/auth/`)
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/api/cv/upload` | Upload PDF CV for evaluation | None |
-| `GET` | `/api/cv/health` | Health check | None |
+| `POST` | `/register` | Register with email/password | ❌ |
+| `POST` | `/login` | Login with credentials | ❌ |
+| `POST` | `/refresh` | Refresh access token | ❌ |
+| `POST` | `/google` | Google OAuth exchange | ❌ |
+| `GET` | `/me` | Get current user | ✅ |
 
-### Upload Response Schema
-```json
-{
-  "status": "success",
-  "data": {
-    "candidate_name": "John Doe",
-    "overall_score": 75,
-    "pass_fail": "pass",
-    "criteria": [
-      {
-        "name": "Education Background",
-        "score": 15,
-        "max_score": 20,
-        "met": true,
-        "reasoning": "..."
-      }
-    ],
-    "overall_reasoning": "...",
-    "recommendation": "..."
-  }
-}
-```
-
----
-
-## 📝 Evaluation Criteria
-
-| Criterion | Max Score | Weight | Description |
-|-----------|-----------|--------|-------------|
-| Education Background | 20 | 20% | Degree level and relevance |
-| Fintech Experience | 40 | 40% | Years and quality of industry experience |
-| Technical Skills | 40 | 40% | Programming languages, frameworks, tools |
-
-### Scoring Thresholds
-- **Pass**: ≥ 60 points
-- **Fail**: < 60 points
+### CV Screening (`/api/cv/`)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/upload` | Upload PDF & evaluate | ❌ |
+| `GET` | `/health` | Health check | ❌ |
 
 ---
 
@@ -124,72 +138,44 @@ backend/
 ### Running the Server
 ```bash
 cd backend
-pip install -r requirements.txt
+source venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 ```
 
 ### Environment Variables
 ```env
+# Required
 ANTHROPIC_API_KEY=sk-ant-...
+
+# Optional
+CLAUDE_MODEL=claude-sonnet-4-20250514
+JWT_SECRET_KEY=your-secret-key
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
 ---
 
 ## 📋 Planned Features (Roadmap)
 
-### Phase 1: Authentication
-- [ ] JWT authentication with python-jose
-- [ ] Email/password registration
-- [ ] Google OAuth
-- [ ] Password hashing (bcrypt)
-
 ### Phase 2: Database Layer
 - [ ] PostgreSQL with SQLAlchemy
 - [ ] pgvector for embeddings
-- [ ] User model
-- [ ] CV model (store uploads)
-- [ ] Evaluation model (store results)
+- [ ] User, CV, Evaluation models
 - [ ] Alembic migrations
 
 ### Phase 3: LangChain Integration
-- [ ] LangChain orchestration
-- [ ] Structured output chains
-- [ ] Prompt templates
-- [ ] Memory for chat context
+- [ ] Document processing chain
+- [ ] Structured output parsing
+- [ ] Conversation chain for "Why?" explanations
 
 ### Phase 4: Multi-Agent System
-- [ ] Parser Agent
-- [ ] Scorer Agent
-- [ ] Notification Agent
-- [ ] Chat Agent
+- [ ] Parser Agent (PDF extraction)
+- [ ] Scorer Agent (evaluation + embeddings)
+- [ ] Notification Agent (alerts)
 
-### Phase 5: Notification System
-- [ ] Email notifications (SendGrid/Resend)
+### Phase 5: Notifications
+- [ ] Email notifications (SendGrid/SES)
 - [ ] WhatsApp notifications (Twilio)
-- [ ] User notification preferences
-
-### Phase 6: Signature Features
-- [ ] Candidate Match-Up (compare 2 CVs)
-- [ ] Explainable Scoring (detailed breakdowns)
-- [ ] High-Flyer Alerts (exceptional candidates)
-- [ ] Adaptive Personas (different evaluator styles)
-- [ ] Semantic Search (search across all CVs)
-
----
-
-## 🔒 Security Considerations
-
-- API keys stored in `.env` (gitignored)
-- CORS configured for specific frontend origin
-- File type validation (PDF only)
-- File size limits to be implemented
-- Rate limiting planned for production
-
----
-
-## 📚 Related Documentation
-
-- [Main README](/README.md) - Project overview
-- [TODO.md](/TODO.md) - Detailed 8-phase roadmap
-- [CV-Scanner.md](/CV-Scanner.md) - Feature elevation plan
-- [Frontend PROJECT_CONTEXT](/frontend/PROJECT_CONTEXT.md) - Frontend documentation
+- [ ] Configurable thresholds

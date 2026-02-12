@@ -1,33 +1,99 @@
-# CV Screening Agent - Frontend
+# CV Screening Agent - Frontend ⚛️
 
-React-based frontend for uploading PDF CVs and displaying AI-powered evaluation results.
+React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
-## Tech Stack
+## 🎯 Features
 
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Build tool & dev server
-- **Tailwind CSS** - Utility-first styling
-- **TanStack Query** - Server state management
-- **Axios** - HTTP client with upload progress
-- **class-variance-authority** - Variant-based component styling
+- **Drag & Drop Upload**: Intuitive PDF upload with progress tracking
+- **Real-time Evaluation**: Instant AI-powered CV scoring
+- **Visual Scorecard**: Beautiful display of pass/fail status and criteria
+- **Authentication**: Secure login, registration, and session management
+- **Responsive Design**: Works on desktop and mobile
 
-## Project Structure
+## 🏗️ Architecture
 
+### Tech Stack
+| Technology | Purpose |
+|------------|---------|
+| **React 18** | UI library with hooks |
+| **TypeScript** | Type safety |
+| **Vite** | Fast build tool & dev server |
+| **Tailwind CSS** | Utility-first styling |
+| **TanStack Query** | Server state management |
+| **Zustand** | Client state (auth) |
+| **Axios** | HTTP client with interceptors |
+| **Zod** | Schema validation |
+| **CVA** | Variant-based component styling |
+
+### Project Structure
 ```
-src/
-├── components/ui/       # Reusable UI components (Button, Badge, ProgressBar)
-├── features/
-│   ├── cv-upload/       # File upload feature (dropzone, progress, hooks)
-│   └── scorecard/       # Results display feature (scorecard, score ring)
-├── lib/                 # API client configuration
-├── types/               # TypeScript interfaces
-├── App.tsx              # Main application
-└── main.tsx             # Entry point
+frontend/src/
+├── App.tsx                     # Main app component
+├── main.tsx                    # Entry point with providers
+├── index.css                   # Global styles (Tailwind)
+│
+├── providers/                  # React providers
+│   └── QueryProvider.tsx       # TanStack Query setup
+│
+├── router/                     # Routing
+│   ├── index.ts                # Route definitions
+│   ├── RootLayout.tsx          # Layout with header
+│   └── guards/
+│       └── ProtectedRoute.tsx  # Auth guard
+│
+├── shared/                     # Shared utilities
+│   ├── api/
+│   │   └── apiClient.ts        # Axios instance with auth
+│   ├── components/ui/          # UI primitives
+│   │   ├── Button.tsx          # 5 variants, 3 sizes
+│   │   ├── Badge.tsx           # Status badges
+│   │   ├── Card.tsx            # Card with sub-components
+│   │   ├── Input.tsx           # Form input
+│   │   ├── Select.tsx          # Dropdown select
+│   │   ├── Textarea.tsx        # Multi-line input
+│   │   ├── Text.tsx            # Typography (polymorphic)
+│   │   ├── Heading.tsx         # h1-h6 semantic headings
+│   │   ├── Spinner.tsx         # Loading indicator
+│   │   ├── Container.tsx       # Layout container
+│   │   └── ProgressBar.tsx     # Linear progress
+│   ├── schemas/                # Zod validation
+│   │   ├── auth.schemas.ts
+│   │   └── cv.schemas.ts
+│   ├── types/                  # TypeScript types
+│   └── utils/
+│       └── index.ts            # cn() class merger
+│
+└── features/
+    ├── auth/                   # Authentication
+    │   ├── api/authApi.ts
+    │   ├── components/
+    │   │   ├── LoginForm.tsx
+    │   │   ├── RegisterForm.tsx
+    │   │   ├── AuthPage.tsx
+    │   │   └── UserMenu.tsx
+    │   ├── hooks/useAuth.ts
+    │   ├── store/authStore.ts
+    │   └── pages/AuthPage.tsx
+    │
+    └── cv/                     # CV Screening
+        ├── api/cv.api.ts
+        ├── components/
+        │   ├── FileDropzone.tsx
+        │   ├── UploadProgress.tsx
+        │   ├── Scorecard.tsx
+        │   ├── ScoreRing.tsx
+        │   └── CriteriaItem.tsx
+        ├── hooks/useUploadCV.ts
+        └── pages/CVPage.tsx
 ```
 
-## Commands
+## 🚀 Quick Start
 
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
 ```bash
 # Install dependencies
 npm install
@@ -42,70 +108,92 @@ npm run build
 npm run preview
 ```
 
-## Features
+## 🎨 Design System
 
-- Drag & drop PDF upload
-- Real-time upload progress indicator
-- Single CV evaluation (replaces previous result)
-- Visual scorecard with pass/fail status
-- Circular score ring visualization
-- Detailed criteria breakdown
+### Button Variants
+```tsx
+<Button variant="primary">Upload CV</Button>
+<Button variant="secondary">Cancel</Button>
+<Button variant="outline">Details</Button>
+<Button variant="ghost">Dismiss</Button>
+<Button variant="danger">Delete</Button>
+<Button isLoading>Submitting...</Button>
+```
 
-## API Integration
+### Badge Variants
+```tsx
+<Badge variant="success">Pass</Badge>
+<Badge variant="error">Fail</Badge>
+<Badge variant="warning">Review</Badge>
+<Badge variant="info">New</Badge>
+```
 
-The frontend communicates with the backend via REST API using Axios.
+### Card Components
+```tsx
+<Card variant="elevated">
+  <CardHeader>
+    <CardTitle>Evaluation Result</CardTitle>
+    <CardDescription>AI-powered analysis</CardDescription>
+  </CardHeader>
+  <CardContent>
+    {/* Content */}
+  </CardContent>
+  <CardFooter>
+    <Button>View Details</Button>
+  </CardFooter>
+</Card>
+```
+
+### Typography
+```tsx
+<Heading level={1}>Page Title</Heading>
+<Heading level={2}>Section Title</Heading>
+<Text size="lg" weight="semibold">Large bold text</Text>
+<Text size="sm" color="muted">Small muted text</Text>
+```
+
+## 🔌 API Integration
 
 ### Configuration
+The API client is configured in `shared/api/apiClient.ts`:
+- Base URL: `http://localhost:8000`
+- Auto-attaches JWT token to requests
+- Handles 401 errors with automatic logout
 
-API client is configured in `src/lib/api.ts`:
-
-```typescript
-const API_BASE_URL = 'http://localhost:8000';
-
-export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-});
+### Path Aliases
+The project uses `@/` as an alias to `src/`:
+```tsx
+import { Button } from '@/shared/components/ui';
+import { useAuth } from '@/features/auth/hooks';
 ```
 
-### Endpoints Used
+## 📦 Dependencies
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/cv/upload` | POST | Upload PDF and receive evaluation |
-| `/api/cv/health` | GET | Check backend service status |
+### Production
+- `react` / `react-dom` - UI library
+- `@tanstack/react-query` - Server state
+- `zustand` - Client state
+- `axios` - HTTP client
+- `zod` - Schema validation
+- `class-variance-authority` - Component variants
+- `clsx` + `tailwind-merge` - Class utilities
 
-### Data Flow
+### Development
+- `typescript` - Type checking
+- `vite` - Build tool
+- `tailwindcss` - CSS framework
+- `eslint` - Linting
+- `@types/*` - Type definitions
 
-1. **Upload** - User drops/selects a PDF file
-2. **Request** - Axios sends `multipart/form-data` POST to `/api/cv/upload`
-3. **Progress** - `onUploadProgress` callback updates UI with upload percentage
-4. **Response** - Backend returns JSON with evaluation results
-5. **Display** - TanStack Query mutation handles state, UI renders scorecard
+## 🛣️ Roadmap
 
-### Response Type
-
-```typescript
-interface UploadResponse {
-  success: boolean;
-  message: string;
-  evaluation: {
-    status: 'pass' | 'fail';
-    match_score: number;
-    reasoning: string;
-    criteria: Array<{
-      name: string;
-      passed: boolean;
-      details: string;
-    }>;
-    candidate_name: string | null;
-  } | null;
-}
-```
-
-### Custom Hook
-
-The `useUploadCV` hook (TanStack Query mutation) manages:
-- Upload state (`isUploading`)
-- Progress tracking (`progress`)
-- Error handling (`error`)
-- Success callbacks
+- [x] File upload with drag & drop
+- [x] Upload progress tracking
+- [x] Scorecard visualization
+- [x] Authentication UI
+- [x] Shared UI component library
+- [x] Path aliases (@/)
+- [ ] Dashboard with history
+- [ ] Semantic search UI
+- [ ] Candidate comparison
+- [ ] Chat interface
