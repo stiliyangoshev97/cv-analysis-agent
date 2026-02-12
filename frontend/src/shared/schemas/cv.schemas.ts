@@ -32,15 +32,21 @@ export const passFailStatusSchema = z.enum(['pass', 'fail']);
 /**
  * Individual evaluation criterion schema.
  *
- * Represents a single criterion (Education, Fintech, Technical Skills)
- * with its pass/fail status and reasoning.
+ * Represents a single criterion with its pass/fail status and reasoning.
+ * 
+ * Current criteria evaluated:
+ * - Education (High School+)
+ * - Fintech Experience
+ * - Technical Skills (TypeScript/Python)
+ * - Soft Skills & Adaptability (fast learner, stress, teamwork)
+ * - AI-Native Development (AI tools, RAG, MCP, agents)
  *
  * @example
  * ```typescript
  * const criterion: EvaluationCriteria = {
- *   name: 'Education',
+ *   name: 'AI-Native Development',
  *   passed: true,
- *   details: "Bachelor's degree in Computer Science"
+ *   details: "Uses GitHub Copilot, experience with LangChain agents"
  * };
  * ```
  */

@@ -6,10 +6,12 @@ An AI-powered CV screening application that evaluates resumes against predefined
 
 1. **Upload** - User uploads a PDF CV via drag & drop or file picker
 2. **Extract** - Backend extracts text content from the PDF
-3. **Evaluate** - Claude AI analyzes the CV against 3 criteria:
-   - Education (High School Diploma or higher)
-   - Fintech Experience (Finance, Banking, or Crypto background)
-   - Technical Skills (TypeScript or Python proficiency)
+3. **Evaluate** - Claude AI analyzes the CV against 5 criteria:
+   - **Education** - High School Diploma or higher
+   - **Fintech Experience** - Finance, Banking, Crypto, or Fintech background
+   - **Technical Skills** - TypeScript or Python proficiency
+   - **Soft Skills & Adaptability** - Fast learner, work under pressure, team player
+   - **AI-Native Development** - Uses AI coding tools (Copilot, Claude Code, Cursor), understands RAG, MCP, can build AI agents
 4. **Display** - Frontend shows a scorecard with pass/fail status, score, and detailed reasoning
 
 ## Tech Stack

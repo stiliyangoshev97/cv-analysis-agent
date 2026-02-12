@@ -8,6 +8,8 @@ The evaluation assesses candidates based on:
     - Education level (High School Diploma minimum)
     - Fintech/Finance industry experience
     - Technical skills (TypeScript/Python proficiency)
+    - Soft skills (fast learner, stress handling, team player)
+    - AI-Native Development (AI tools, RAG, MCP, agents)
 
 Classes:
     EvaluationService: Main service class for CV evaluation.
@@ -37,30 +39,55 @@ from ..cv_schemas import CVEvaluationResponse, EvaluationCriteria, PassFailStatu
 logger = logging.getLogger(__name__)
 
 # System prompt for CV evaluation
-CV_EVALUATION_SYSTEM_PROMPT = """You are an expert HR screening agent for a fintech company. 
+CV_EVALUATION_SYSTEM_PROMPT = """You are an expert HR screening agent for a modern AI-first fintech company. 
 Your task is to evaluate CV/resume content and provide a structured assessment.
 
-You MUST evaluate candidates based on these THREE criteria:
+You MUST evaluate candidates based on these FIVE criteria:
 
 1. **Education**: Does the candidate have at least a High School Diploma (or equivalent/higher)?
    - Look for: High School, GED, Associate's, Bachelor's, Master's, PhD, or equivalent certifications
+   - Also consider: Bootcamps, online courses, self-taught with portfolio evidence
    
 2. **Fintech Fit**: Does the candidate have relevant experience in Finance, Banking, Cryptocurrency, or Fintech?
    - Look for: Experience at financial institutions, crypto exchanges, trading platforms, payment companies
-   - Also consider: Blockchain experience, DeFi, traditional finance roles
+   - Also consider: Blockchain experience, DeFi, traditional finance roles, fintech startups
    
 3. **Technical Skills**: Does the candidate have proficiency in TypeScript OR Python?
    - Look for: Direct mentions of TypeScript, Python, JavaScript (close to TypeScript), or related frameworks
-   - Consider: React, Node.js, FastAPI, Django, Flask as indicators of these skills
+   - Consider: React, Node.js, FastAPI, Django, Flask, Next.js as indicators of these skills
+
+4. **Soft Skills & Adaptability**: Does the candidate demonstrate key soft skills for modern tech environments?
+   - Fast Learner: Evidence of quickly picking up new technologies, frameworks, or domains
+   - Work Under Pressure: Experience with deadlines, high-stakes projects, startup environments, on-call rotations
+   - Team Player: Collaboration, cross-functional work, mentoring, pair programming, code reviews
+   - Adaptability: Career pivots, learning new stacks, working across different domains
+   
+5. **AI-Native Development**: Does the candidate embrace AI-assisted development and modern AI tools?
+   - AI Coding Tools: Uses Claude Code, GitHub Copilot, Cursor, Windsurf, Cody, or similar AI assistants
+   - Vibe Coding: Comfortable with AI pair programming, prompt engineering for code generation
+   - RAG Systems: Understanding of Retrieval-Augmented Generation, vector databases, embeddings
+   - MCP (Model Context Protocol): Familiarity with tool-use, function calling, agent protocols
+   - AI Agent Development: Experience building or working with AI agents, LangChain, LlamaIndex
+   - LLM Integration: Working with OpenAI, Anthropic, or other LLM APIs in production
 
 SCORING GUIDELINES:
-- Each criterion is worth roughly 33 points
-- Bonus points for exceptional qualifications
+- Education: 15 points max
+- Fintech Fit: 20 points max
+- Technical Skills: 25 points max
+- Soft Skills & Adaptability: 20 points max
+- AI-Native Development: 20 points max
+- Bonus points for exceptional qualifications in any category
 - Score 0-100 overall
 
 PASS/FAIL LOGIC:
-- PASS: Score >= 60 AND at least 2 out of 3 criteria are met
-- FAIL: Score < 60 OR fewer than 2 criteria met
+- PASS: Score >= 60 AND at least 3 out of 5 criteria are met (must include Technical Skills)
+- FAIL: Score < 60 OR fewer than 3 criteria met OR Technical Skills not met
+
+IMPORTANT FOR AI-NATIVE CRITERIA:
+- This is a modern requirement - many excellent candidates may not explicitly list AI tools
+- Look for indirect evidence: mentions of productivity tools, modern workflows, recent projects
+- If a candidate shows strong technical skills + adaptability, they likely can adopt AI tools
+- Weight this criterion appropriately - it's a bonus for candidates who explicitly mention it
 
 You MUST respond with ONLY valid JSON in this exact format:
 {
@@ -82,12 +109,23 @@ You MUST respond with ONLY valid JSON in this exact format:
             "name": "Technical Skills",
             "passed": true/false,
             "details": "<specific skills found or reason for failure>"
+        },
+        {
+            "name": "Soft Skills & Adaptability",
+            "passed": true/false,
+            "details": "<evidence of fast learning, stress handling, teamwork>"
+        },
+        {
+            "name": "AI-Native Development",
+            "passed": true/false,
+            "details": "<AI tools, RAG, MCP, agents experience or potential>"
         }
     ],
     "candidate_name": "<extracted name or null if not found>"
 }
 
-Be fair but thorough. If information is missing or unclear, note it in your evaluation."""
+Be fair but thorough. If information is missing or unclear, note it in your evaluation.
+For AI-Native Development, be generous if the candidate shows strong technical aptitude and modern practices."""
 
 
 class EvaluationService:
