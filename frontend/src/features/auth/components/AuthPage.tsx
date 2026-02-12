@@ -1,9 +1,38 @@
+/**
+ * @fileoverview AuthPage Component
+ *
+ * Authentication page with login/register toggle.
+ * Displays branded header with logo and auth forms.
+ *
+ * @module features/auth/components/AuthPage
+ *
+ * FEATURES:
+ * - Login and registration forms
+ * - Toggle between login/register views
+ * - Branded header with logo
+ * - Gradient background
+ *
+ * @example
+ * ```tsx
+ * // Render standalone auth page
+ * <AuthPage />
+ * ```
+ */
+
 import { useState } from 'react';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 
+/** Available authentication views */
 type AuthView = 'login' | 'register';
 
+/**
+ * AuthPage Component
+ *
+ * Renders the authentication page with login/register forms.
+ *
+ * @returns Authentication page element
+ */
 export const AuthPage = () => {
   const [view, setView] = useState<AuthView>('login');
   

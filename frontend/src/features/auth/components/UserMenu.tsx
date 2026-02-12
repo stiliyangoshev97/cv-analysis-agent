@@ -1,6 +1,35 @@
+/**
+ * @fileoverview UserMenu Component
+ *
+ * Dropdown menu displaying user info and logout action.
+ * Shows in the app header when user is authenticated.
+ *
+ * @module features/auth/components/UserMenu
+ *
+ * FEATURES:
+ * - User avatar or initials display
+ * - Dropdown menu on click
+ * - User name and email display
+ * - Logout action with loading state
+ * - Click outside to close
+ *
+ * @example
+ * ```tsx
+ * // In header component
+ * <UserMenu />
+ * ```
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { useLogout, useAuthState } from '../hooks';
 
+/**
+ * UserMenu Component
+ *
+ * Dropdown menu for authenticated user actions.
+ *
+ * @returns User menu element or null if not authenticated
+ */
 export const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -23,7 +52,7 @@ export const UserMenu = () => {
   
   const initials = user.full_name
     .split(' ')
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);

@@ -23,7 +23,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { User, TokenResponse } from '../../../types';
+import type { User, TokenResponse } from '@/shared/types';
 
 /**
  * Auth store state interface.

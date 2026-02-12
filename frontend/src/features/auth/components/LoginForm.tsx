@@ -1,11 +1,44 @@
+/**
+ * @fileoverview LoginForm Component
+ *
+ * Email/password login form for user authentication.
+ * Includes form validation, error display, and loading states.
+ *
+ * @module features/auth/components/LoginForm
+ *
+ * FEATURES:
+ * - Email/password login
+ * - Form validation
+ * - Loading state during submission
+ * - API error display
+ * - Switch to registration link
+ *
+ * @example
+ * ```tsx
+ * <LoginForm onSwitchToRegister={() => setView('register')} />
+ * ```
+ */
+
 import { useState } from 'react';
 import { useLogin } from '../hooks';
-import { Button } from '../../../components/ui';
+import { Button } from '@/shared/components/ui';
 
+/**
+ * LoginForm component props.
+ */
 interface LoginFormProps {
+  /** Callback to switch to registration view */
   onSwitchToRegister: () => void;
 }
 
+/**
+ * LoginForm Component
+ *
+ * Renders a login form with email and password fields.
+ *
+ * @param props - Component props
+ * @returns Login form element
+ */
 export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

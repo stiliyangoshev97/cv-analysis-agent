@@ -1,15 +1,22 @@
-"""
-CV Screening Agent - Main FastAPI Application.
-A production-ready API for AI-powered CV evaluation.
+"""CV Screening Agent - Main FastAPI Application.
+
+A production-ready API for AI-powered CV evaluation. Provides endpoints
+for user authentication and CV upload/evaluation.
+
+Features:
+    - User authentication (email/password, Google OAuth)
+    - PDF CV upload and text extraction
+    - AI-powered CV evaluation using Claude
+    - Structured scorecard with pass/fail status
 """
 
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from .config import get_settings
-from .routers import cv_router
-from .features.auth import auth_router
+from .features import auth_router, cv_router
 
 # Configure logging
 logging.basicConfig(
@@ -46,7 +53,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="CV Screening Agent",
     description="""
-    ## XBO.com Internal CV Screening Agent
+    ## CV Screening Agent
     
     An AI-powered CV evaluation system that screens candidates based on:
     

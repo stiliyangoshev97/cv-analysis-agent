@@ -11,7 +11,7 @@
  * @module features/auth/api
  */
 
-import { apiClient } from '../../../lib/api';
+import { apiClient } from '@/shared/api';
 import type {
   AuthResponse,
   LoginRequest,
@@ -20,7 +20,7 @@ import type {
   GoogleAuthRequest,
   TokenResponse,
   User,
-} from '../../../types';
+} from '@/shared/types';
 
 /**
  * Register a new user with email and password.

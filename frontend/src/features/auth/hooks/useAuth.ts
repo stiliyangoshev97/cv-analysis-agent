@@ -22,7 +22,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../store';
 import * as authApi from '../api';
-import type { LoginRequest, RegisterRequest, GoogleAuthRequest } from '../../../types';
+import type { LoginRequest, RegisterRequest, GoogleAuthRequest } from '@/shared/types';
 
 /**
  * Hook for user registration.

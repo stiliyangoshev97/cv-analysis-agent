@@ -1,11 +1,45 @@
+/**
+ * @fileoverview RegisterForm Component
+ *
+ * User registration form with email, password, and name fields.
+ * Includes client-side validation and error handling.
+ *
+ * @module features/auth/components/RegisterForm
+ *
+ * FEATURES:
+ * - Full name, email, password fields
+ * - Password confirmation validation
+ * - Password strength validation (min 8 chars)
+ * - Loading state during submission
+ * - API error display
+ * - Switch to login link
+ *
+ * @example
+ * ```tsx
+ * <RegisterForm onSwitchToLogin={() => setView('login')} />
+ * ```
+ */
+
 import { useState } from 'react';
 import { useRegister } from '../hooks';
-import { Button } from '../../../components/ui';
+import { Button } from '@/shared/components/ui';
 
+/**
+ * RegisterForm component props.
+ */
 interface RegisterFormProps {
+  /** Callback to switch to login view */
   onSwitchToLogin: () => void;
 }
 
+/**
+ * RegisterForm Component
+ *
+ * Renders a registration form with validation.
+ *
+ * @param props - Component props
+ * @returns Registration form element
+ */
 export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
