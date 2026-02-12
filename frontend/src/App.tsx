@@ -1,10 +1,10 @@
-
 import { useState, useCallback } from 'react';
 import { FileDropzone, UploadProgress, useUploadCV } from './features/cv-upload';
 import { Scorecard } from './features/scorecard';
+import { ProtectedRoute, UserMenu } from './features/auth';
 import type { CVResult } from './types';
 
-const App = () => {
+const CVUploadApp = () => {
   const [result, setResult] = useState<CVResult | null>(null);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -43,26 +43,29 @@ const App = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">CV Screening Agent</h1>
+                <p className="text-sm text-gray-500">AI-Powered Resume Evaluation</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">CV Screening Agent</h1>
-              <p className="text-sm text-gray-500">AI-Powered Resume Evaluation</p>
-            </div>
+            <UserMenu />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-8 flex-1 w-full">
         {/* Upload Section */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Upload CV</h2>
@@ -111,7 +114,7 @@ const App = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white mt-auto">
+      <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <p className="text-sm text-gray-500 text-center">
             Powered by Claude AI
@@ -119,6 +122,14 @@ const App = () => {
         </div>
       </footer>
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <ProtectedRoute>
+      <CVUploadApp />
+    </ProtectedRoute>
   );
 };
 

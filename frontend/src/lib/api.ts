@@ -7,6 +7,37 @@ export const apiClient = axios.create({
   baseURL: API_BASE_URL,
 });
 
+// Add auth token to requests
+apiClient.interceptors.request.use((config) => {
+  // Get token from localStorage (Zustand persists there)
+  const authStorage = localStorage.getItem('cv-agent-auth');
+  if (authStorage) {
+    try {
+      const parsed = JSON.parse(authStorage);
+      const accessToken = parsed?.state?.tokens?.access_token;
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+  return config;
+});
+
+// Handle 401 responses (token expired)
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Clear auth state on 401
+      localStorage.removeItem('cv-agent-auth');
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const uploadCV = async (
   file: File,
   onProgress?: (progress: UploadProgress) => void

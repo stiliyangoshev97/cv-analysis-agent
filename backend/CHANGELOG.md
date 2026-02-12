@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2025-02-12 🔐 AUTHENTICATION
+
+### Added
+
+**JWT Authentication System**
+- `POST /api/auth/register` - User registration with email/password
+- `POST /api/auth/login` - User login with email/password
+- `POST /api/auth/refresh` - Refresh access token
+- `POST /api/auth/google` - Google OAuth authentication
+- `GET /api/auth/me` - Get current user profile
+- `POST /api/auth/logout` - Logout (client-side token discard)
+
+**User Management**
+- In-memory user storage (temporary, database in Phase 2)
+- Password hashing with bcrypt (12 rounds)
+- JWT access tokens (30 min expiry)
+- JWT refresh tokens (7 day expiry)
+
+**Auth Schemas**
+- `RegisterRequest` - Email, password, full name
+- `LoginRequest` - Email, password
+- `AuthResponse` - User + tokens
+- `TokenResponse` - Access/refresh tokens
+- `UserResponse` - Public user data
+
+**Security Features**
+- Bearer token authentication via HTTP header
+- Token type validation (access vs refresh)
+- Password length truncation for bcrypt (72 byte limit)
+
+### Configuration
+- `JWT_SECRET_KEY` - Secret for signing tokens
+- `JWT_ALGORITHM` - HS256 by default
+- `ACCESS_TOKEN_EXPIRE_MINUTES` - 30 minutes
+- `REFRESH_TOKEN_EXPIRE_DAYS` - 7 days
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Optional OAuth
+
+---
+
 ## [0.1.0] - 2025-01-XX 🚀 MVP RELEASE
 
 ### Added

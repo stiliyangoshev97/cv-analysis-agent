@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2025-02-12 🔐 AUTHENTICATION UI
+
+### Added
+
+**Auth Store (Zustand)**
+- `useAuthStore` - Persistent auth state management
+- Stores user, tokens, authentication status
+- Persists to localStorage for session persistence
+- Auto-rehydration on app load
+
+**Auth API Integration**
+- `register()` - Register new user
+- `login()` - Login with email/password
+- `refreshToken()` - Refresh access token
+- `googleAuth()` - Google OAuth exchange
+- `getMe()` - Get current user
+- `logout()` - Server logout acknowledgement
+
+**Auth Hooks**
+- `useRegister()` - Registration mutation
+- `useLogin()` - Login mutation
+- `useLogout()` - Logout mutation
+- `useGoogleAuth()` - Google OAuth mutation
+- `useAuthState()` - Get auth state
+
+**Auth Components**
+- `LoginForm` - Email/password login form
+- `RegisterForm` - User registration form with validation
+- `AuthPage` - Combined auth page with form switching
+- `UserMenu` - Dropdown menu with user info and logout
+- `ProtectedRoute` - Route wrapper requiring authentication
+
+**API Client Updates**
+- Added auth token interceptor (auto-attach Bearer token)
+- Added 401 response handler (auto-logout on expired token)
+
+### Changed
+- Wrapped main app in `ProtectedRoute`
+- Added `UserMenu` to header for authenticated users
+
+### Dependencies
+- Added `zustand` for state management
+- Added `react-router-dom` for routing
+- Added `@react-oauth/google` for Google OAuth
+
+---
+
 ## [0.1.0] - 2025-01-XX 🚀 MVP RELEASE
 
 ### Added

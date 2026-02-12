@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .routers import cv_router
+from .features.auth import auth_router
 
 # Configure logging
 logging.basicConfig(
@@ -78,6 +79,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_router)
 app.include_router(cv_router)
 
 
