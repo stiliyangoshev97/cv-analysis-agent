@@ -1,6 +1,30 @@
-"""
-CV Evaluation Service.
-Handles the AI-powered evaluation of CV content using Claude.
+"""CV Evaluation Service using Claude AI.
+
+This module provides AI-powered CV/resume evaluation using Anthropic's
+Claude model. It analyzes CV content against predefined criteria and
+returns a structured assessment with pass/fail status and detailed scoring.
+
+The evaluation is tailored for XBO.com (a fintech company) and assesses:
+    - Education level (High School Diploma minimum)
+    - Fintech/Finance industry experience
+    - Technical skills (TypeScript/Python proficiency)
+
+Classes:
+    EvaluationService: Main service class for CV evaluation.
+
+Example:
+    Evaluating a CV::
+    
+        service = EvaluationService()
+        result = service.evaluate_cv(
+            cv_text="John Doe\\nSoftware Engineer at Coinbase...",
+            filename="john_doe_cv.pdf"
+        )
+        print(f"Status: {result.status}, Score: {result.match_score}")
+
+Note:
+    Requires ANTHROPIC_API_KEY environment variable to be set.
+    Uses Claude Sonnet 4 model by default (configurable via CLAUDE_MODEL).
 """
 
 import json
@@ -67,26 +91,69 @@ Be fair but thorough. If information is missing or unclear, note it in your eval
 
 
 class EvaluationService:
-    """Service for evaluating CV content using Claude AI."""
+    """Service for evaluating CV content using Claude AI.
     
-    def __init__(self):
-        """Initialize the evaluation service with Anthropic client."""
+    Provides AI-powered CV analysis with structured output including
+    pass/fail status, numeric score, and detailed criteria breakdown.
+    
+    Attributes:
+        settings: Application settings containing API keys and model config.
+        client: Anthropic API client instance.
+    
+    Example:
+        >>> service = EvaluationService()
+        >>> result = service.evaluate_cv(cv_text, "resume.pdf")
+        >>> if result.status == "pass":
+        ...     print(f"Candidate passed with {result.match_score}%")
+    
+    Note:
+        The evaluation prompt is tailored for fintech company requirements.
+        Modify CV_EVALUATION_SYSTEM_PROMPT to customize criteria.
+    """
+    
+    def __init__(self) -> None:
+        """Initialize the evaluation service with Anthropic client.
+        
+        Loads settings from environment and creates the API client.
+        
+        Raises:
+            ValueError: If ANTHROPIC_API_KEY is not configured.
+        """
         self.settings = get_settings()
         self.client = Anthropic(api_key=self.settings.anthropic_api_key)
         
     def evaluate_cv(self, cv_text: str, filename: str) -> CVEvaluationResponse:
-        """
-        Evaluate CV content using Claude AI.
+        """Evaluate CV content using Claude AI.
+        
+        Sends the CV text to Claude with a structured prompt and parses
+        the JSON response into a CVEvaluationResponse model.
         
         Args:
-            cv_text: Extracted text content from the CV
-            filename: Original filename for context
-            
+            cv_text: Extracted text content from the CV/resume PDF.
+            filename: Original filename for logging and context.
+        
         Returns:
-            Structured evaluation response
-            
+            CVEvaluationResponse containing:
+                - status: "pass" or "fail"
+                - match_score: 0-100 numeric score
+                - reasoning: Detailed explanation
+                - criteria: List of evaluated criteria with pass/fail
+                - candidate_name: Extracted name (if found)
+        
         Raises:
-            ValueError: If evaluation fails
+            ValueError: If evaluation fails due to:
+                - API error
+                - Invalid JSON response from Claude
+                - Missing required fields in response
+        
+        Example:
+            >>> service = EvaluationService()
+            >>> result = service.evaluate_cv(
+            ...     cv_text="Jane Smith\\nSenior Python Developer...",
+            ...     filename="jane_smith_cv.pdf"
+            ... )
+            >>> print(result.match_score)  # 85
+            >>> print(result.criteria[0].name)  # "Education"
         """
         try:
             # Prepare the user message
@@ -142,15 +209,25 @@ Provide your structured evaluation as JSON."""
             raise ValueError(f"Failed to evaluate CV: {e}")
     
     def _parse_evaluation_response(self, response_text: str) -> dict:
-        """
-        Parse the Claude response text to extract JSON.
-        Handles cases where JSON might be wrapped in markdown code blocks.
+        """Parse Claude response text to extract JSON.
+        
+        Handles cases where JSON might be wrapped in markdown code blocks
+        (```json ... ```) which Claude sometimes includes.
         
         Args:
-            response_text: Raw response from Claude
-            
+            response_text: Raw text response from Claude API.
+        
         Returns:
-            Parsed JSON as dictionary
+            Parsed JSON as a dictionary with evaluation data.
+        
+        Raises:
+            json.JSONDecodeError: If response is not valid JSON.
+        
+        Example:
+            >>> text = '```json\\n{"status": "pass"}\\n```'
+            >>> result = service._parse_evaluation_response(text)
+            >>> result["status"]
+            'pass'
         """
         # Clean up the response - remove markdown code blocks if present
         text = response_text.strip()
@@ -170,11 +247,22 @@ Provide your structured evaluation as JSON."""
         return json.loads(text)
     
     def health_check(self) -> bool:
-        """
-        Check if the Anthropic API is accessible.
+        """Check if the Anthropic API is accessible.
+        
+        Performs a basic validation that the API key is configured.
+        Does not make an actual API call to avoid costs.
         
         Returns:
-            True if API is accessible, False otherwise
+            True if API key appears valid, False otherwise.
+        
+        Example:
+            >>> service = EvaluationService()
+            >>> if service.health_check():
+            ...     print("API ready")
+        
+        Note:
+            This only validates key format, not actual API access.
+            A real health check would require a test API call.
         """
         try:
             # Simple API check - just verify the key format

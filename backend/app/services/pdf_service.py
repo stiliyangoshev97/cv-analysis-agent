@@ -1,6 +1,21 @@
-"""
-PDF Processing Service.
-Handles extraction of text content from PDF files using pdfplumber.
+"""PDF Processing Service for CV text extraction.
+
+This module provides functionality to extract text content from PDF files
+using the pdfplumber library. It handles both single and multi-page PDFs.
+
+Classes:
+    PDFService: Static service class for PDF operations.
+
+Example:
+    Extracting text from uploaded file::
+    
+        pdf_bytes = await file.read()
+        text = PDFService.extract_text_from_bytes(pdf_bytes)
+        print(f"Extracted {len(text)} characters")
+
+Note:
+    Supports standard PDF formats. May not handle scanned documents
+    (image-only PDFs) - consider adding OCR in future.
 """
 
 import pdfplumber
@@ -12,21 +27,47 @@ logger = logging.getLogger(__name__)
 
 
 class PDFService:
-    """Service for processing PDF files and extracting text content."""
+    """Service for processing PDF files and extracting text content.
+    
+    Provides static methods for PDF validation and text extraction.
+    Uses pdfplumber for reliable text extraction from PDF documents.
+    
+    Example:
+        >>> is_valid, error = PDFService.validate_pdf(pdf_bytes)
+        >>> if is_valid:
+        ...     text = PDFService.extract_text_from_bytes(pdf_bytes)
+    
+    Note:
+        All methods are static - no instance needed.
+    """
     
     @staticmethod
     def extract_text_from_bytes(pdf_bytes: bytes) -> str:
-        """
-        Extract all text content from a PDF file given as bytes.
+        """Extract all text content from a PDF file.
+        
+        Processes each page of the PDF and concatenates the extracted
+        text with double newlines between pages.
         
         Args:
-            pdf_bytes: Raw bytes of the PDF file
-            
+            pdf_bytes: Raw bytes of the PDF file (e.g., from file upload).
+        
         Returns:
-            Extracted text content as a single string
-            
+            Extracted text content as a single string with pages
+            separated by double newlines.
+        
         Raises:
-            ValueError: If the PDF cannot be processed
+            ValueError: If the PDF cannot be processed or contains
+                no extractable text.
+        
+        Example:
+            >>> with open("resume.pdf", "rb") as f:
+            ...     pdf_bytes = f.read()
+            >>> text = PDFService.extract_text_from_bytes(pdf_bytes)
+            >>> print(text[:100])  # First 100 characters
+        
+        Note:
+            Empty pages are skipped. If all pages are empty (e.g.,
+            scanned document), raises ValueError.
         """
         try:
             # Open PDF from bytes using io.BytesIO
@@ -57,14 +98,26 @@ class PDFService:
     
     @staticmethod
     def validate_pdf(pdf_bytes: bytes) -> tuple[bool, Optional[str]]:
-        """
-        Validate that the provided bytes represent a valid PDF.
+        """Validate that bytes represent a valid PDF file.
+        
+        Attempts to open the PDF and verify it has at least one page.
         
         Args:
-            pdf_bytes: Raw bytes to validate
-            
+            pdf_bytes: Raw bytes to validate.
+        
         Returns:
-            Tuple of (is_valid, error_message)
+            Tuple of (is_valid, error_message):
+                - (True, None) if valid PDF
+                - (False, "error description") if invalid
+        
+        Example:
+            >>> is_valid, error = PDFService.validate_pdf(pdf_bytes)
+            >>> if not is_valid:
+            ...     return {"error": error}
+        
+        Note:
+            This only validates PDF structure, not content quality.
+            A valid PDF may still have no extractable text.
         """
         try:
             pdf_file = io.BytesIO(pdf_bytes)

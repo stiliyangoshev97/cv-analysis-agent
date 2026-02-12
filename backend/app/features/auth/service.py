@@ -1,5 +1,28 @@
 """
 Authentication service - handles user registration, login, and token management.
+
+This module provides the core authentication business logic:
+- Password hashing with bcrypt
+- JWT token creation and validation
+- User registration and login
+- Google OAuth integration
+
+Example:
+    >>> from app.features.auth.service import auth_service
+    >>> response = auth_service.register(RegisterRequest(
+    ...     email="user@example.com",
+    ...     password="securepassword",
+    ...     full_name="John Doe"
+    ... ))
+    >>> print(response.user.email)
+    user@example.com
+
+Attributes:
+    auth_service: Global AuthService instance for use across the application.
+
+Note:
+    User data is stored in-memory (UserStore). This will be replaced
+    with PostgreSQL in Phase 2.
 """
 
 import logging
@@ -24,23 +47,72 @@ logger = logging.getLogger(__name__)
 
 
 class AuthService:
-    """Service for authentication operations."""
+    """
+    Service for authentication operations.
     
-    def __init__(self):
+    Handles all authentication-related business logic including:
+    - Password hashing and verification
+    - JWT token creation and validation
+    - User registration and login
+    - Token refresh
+    - Google OAuth authentication
+    
+    Attributes:
+        settings: Application settings from environment.
+    
+    Example:
+        >>> service = AuthService()
+        >>> tokens = service.create_tokens("user_123")
+        >>> print(tokens.token_type)
+        bearer
+    """
+    
+    def __init__(self) -> None:
+        """Initialize the authentication service with application settings."""
         self.settings = get_settings()
     
     # ============== Password Hashing ==============
     
     def hash_password(self, password: str) -> str:
-        """Hash a password using bcrypt."""
-        # Truncate to 72 bytes (bcrypt limit) and hash
+        """
+        Hash a password using bcrypt.
+        
+        Uses bcrypt with 12 rounds for secure password hashing.
+        Automatically truncates to 72 bytes (bcrypt limit).
+        
+        Args:
+            password: Plain text password to hash.
+            
+        Returns:
+            Bcrypt hash string suitable for storage.
+            
+        Example:
+            >>> hashed = service.hash_password("mypassword")
+            >>> hashed.startswith("$2b$")
+            True
+        """
         password_bytes = password.encode('utf-8')[:72]
         salt = bcrypt.gensalt(rounds=12)
         return bcrypt.hashpw(password_bytes, salt).decode('utf-8')
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        """Verify a password against its hash."""
-        # Truncate to 72 bytes (bcrypt limit)
+        """
+        Verify a password against its hash.
+        
+        Args:
+            plain_password: Plain text password to verify.
+            hashed_password: Bcrypt hash to compare against.
+            
+        Returns:
+            True if password matches, False otherwise.
+            
+        Example:
+            >>> hashed = service.hash_password("mypassword")
+            >>> service.verify_password("mypassword", hashed)
+            True
+            >>> service.verify_password("wrongpassword", hashed)
+            False
+        """
         password_bytes = plain_password.encode('utf-8')[:72]
         hashed_bytes = hashed_password.encode('utf-8')
         return bcrypt.checkpw(password_bytes, hashed_bytes)
@@ -48,7 +120,22 @@ class AuthService:
     # ============== JWT Token Management ==============
     
     def create_access_token(self, user_id: str, expires_delta: Optional[timedelta] = None) -> str:
-        """Create a JWT access token."""
+        """
+        Create a JWT access token.
+        
+        Args:
+            user_id: User ID to encode in the token.
+            expires_delta: Optional custom expiration time. Defaults to
+                          ACCESS_TOKEN_EXPIRE_MINUTES from settings.
+                          
+        Returns:
+            Encoded JWT access token string.
+            
+        Example:
+            >>> token = service.create_access_token("usr_abc123")
+            >>> token.startswith("eyJ")
+            True
+        """
         if expires_delta is None:
             expires_delta = timedelta(minutes=self.settings.access_token_expire_minutes)
         
@@ -65,7 +152,18 @@ class AuthService:
         )
     
     def create_refresh_token(self, user_id: str) -> str:
-        """Create a JWT refresh token."""
+        """
+        Create a JWT refresh token.
+        
+        Refresh tokens have a longer expiration (default 7 days)
+        and are used to obtain new access tokens.
+        
+        Args:
+            user_id: User ID to encode in the token.
+            
+        Returns:
+            Encoded JWT refresh token string.
+        """
         expires_delta = timedelta(days=self.settings.refresh_token_expire_days)
         expire = datetime.utcnow() + expires_delta
         to_encode = {
@@ -80,7 +178,18 @@ class AuthService:
         )
     
     def create_tokens(self, user_id: str) -> TokenResponse:
-        """Create both access and refresh tokens."""
+        """
+        Create both access and refresh tokens.
+        
+        Convenience method that generates both tokens at once,
+        typically used after successful login or registration.
+        
+        Args:
+            user_id: User ID to encode in both tokens.
+            
+        Returns:
+            TokenResponse containing both tokens and metadata.
+        """
         access_token = self.create_access_token(user_id)
         refresh_token = self.create_refresh_token(user_id)
         return TokenResponse(
@@ -91,7 +200,21 @@ class AuthService:
         )
     
     def decode_token(self, token: str) -> Optional[dict]:
-        """Decode and validate a JWT token."""
+        """
+        Decode and validate a JWT token.
+        
+        Args:
+            token: JWT token string to decode.
+            
+        Returns:
+            Decoded payload dict if valid, None if invalid or expired.
+            
+        Example:
+            >>> token = service.create_access_token("usr_123")
+            >>> payload = service.decode_token(token)
+            >>> payload["sub"]
+            'usr_123'
+        """
         try:
             payload = jwt.decode(
                 token,
@@ -106,12 +229,33 @@ class AuthService:
     # ============== User Operations ==============
     
     def register(self, request: RegisterRequest) -> AuthResponse:
-        """Register a new user with email/password."""
-        # Check if user exists
+        """
+        Register a new user with email/password.
+        
+        Creates a new user account and returns authentication tokens.
+        The user is automatically logged in after registration.
+        
+        Args:
+            request: Registration data with email, password, and name.
+            
+        Returns:
+            AuthResponse with user data and tokens.
+            
+        Raises:
+            ValueError: If email is already registered.
+            
+        Example:
+            >>> response = service.register(RegisterRequest(
+            ...     email="new@example.com",
+            ...     password="securepass123",
+            ...     full_name="New User"
+            ... ))
+            >>> response.user.email
+            'new@example.com'
+        """
         if user_store.exists(request.email):
             raise ValueError("Email already registered")
         
-        # Create user
         user = User(
             email=request.email.lower(),
             full_name=request.full_name,
@@ -122,7 +266,6 @@ class AuthService:
         
         logger.info(f"New user registered: {user.email}")
         
-        # Generate tokens
         tokens = self.create_tokens(user.id)
         
         return AuthResponse(
@@ -131,7 +274,21 @@ class AuthService:
         )
     
     def login(self, request: LoginRequest) -> AuthResponse:
-        """Login with email/password."""
+        """
+        Login with email/password.
+        
+        Validates credentials and returns authentication tokens.
+        
+        Args:
+            request: Login credentials with email and password.
+            
+        Returns:
+            AuthResponse with user data and tokens.
+            
+        Raises:
+            ValueError: If credentials are invalid, account is deactivated,
+                       or user should login with different provider.
+        """
         user = user_store.get_by_email(request.email.lower())
         
         if not user:
@@ -148,7 +305,6 @@ class AuthService:
         
         logger.info(f"User logged in: {user.email}")
         
-        # Generate tokens
         tokens = self.create_tokens(user.id)
         
         return AuthResponse(
@@ -157,7 +313,20 @@ class AuthService:
         )
     
     def refresh_tokens(self, refresh_token: str) -> TokenResponse:
-        """Refresh access token using refresh token."""
+        """
+        Refresh access token using refresh token.
+        
+        Validates the refresh token and issues new token pair.
+        
+        Args:
+            refresh_token: Valid refresh token string.
+            
+        Returns:
+            New TokenResponse with fresh tokens.
+            
+        Raises:
+            ValueError: If refresh token is invalid, expired, or user inactive.
+        """
         payload = self.decode_token(refresh_token)
         
         if not payload:
@@ -175,13 +344,40 @@ class AuthService:
         return self.create_tokens(user.id)
     
     def get_user_by_id(self, user_id: str) -> Optional[User]:
-        """Get user by ID."""
+        """
+        Get user by ID.
+        
+        Args:
+            user_id: User's unique identifier.
+            
+        Returns:
+            User object if found, None otherwise.
+        """
         return user_store.get_by_id(user_id)
     
     # ============== Google OAuth ==============
     
     async def google_auth(self, code: str, redirect_uri: str) -> AuthResponse:
-        """Handle Google OAuth authentication."""
+        """
+        Handle Google OAuth authentication.
+        
+        Exchanges Google authorization code for tokens, retrieves user
+        info, and creates/updates the user account.
+        
+        Args:
+            code: Authorization code from Google OAuth flow.
+            redirect_uri: Redirect URI used in the OAuth flow.
+            
+        Returns:
+            AuthResponse with user data and tokens.
+            
+        Raises:
+            ValueError: If Google OAuth not configured, code invalid,
+                       or email already registered with different provider.
+                       
+        Note:
+            Requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in env.
+        """
         settings = self.settings
         
         if not settings.google_client_id or not settings.google_client_secret:
@@ -264,7 +460,18 @@ class AuthService:
     # ============== Helpers ==============
     
     def _to_user_response(self, user: User) -> UserResponse:
-        """Convert User model to UserResponse."""
+        """
+        Convert User model to UserResponse.
+        
+        Maps internal User model to public-facing UserResponse,
+        excluding sensitive fields like hashed_password.
+        
+        Args:
+            user: Internal User model.
+            
+        Returns:
+            UserResponse with public fields only.
+        """
         return UserResponse(
             id=user.id,
             email=user.email,
