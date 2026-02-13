@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-02-13 🤖 LANGCHAIN INTEGRATION
+
+### Added
+
+**LangChain Module (`app/langchain/`)**
+- Complete LangChain integration for AI-powered CV processing
+- Support for both Anthropic (Claude) and OpenAI providers
+- BYOK (Bring Your Own Key) support for user-provided API keys
+
+**Configuration (`config.py`)**
+- `LangChainSettings` - Environment-based configuration
+- `get_llm()` - Factory for Claude/OpenAI chat models
+- `get_embeddings()` - Factory for OpenAI embeddings
+- Temperature and max_tokens configuration
+
+**Document Processing (`document_processor.py`)**
+- `DocumentProcessor` - High-level document processing pipeline
+- `load_pdf()` / `load_docx()` - LangChain document loaders
+- `process_documents()` - RecursiveCharacterTextSplitter integration
+- `ProcessedDocument` - Result container with full_text and chunks
+
+**Embeddings (`embeddings.py`)**
+- `EmbeddingService` - pgvector storage integration
+- `embed_text()` / `embed_texts()` - Low-level embedding functions
+- `store_cv_embeddings()` - Store chunks with vectors
+- `search_similar()` - Cosine similarity search within a CV
+- `search_all_cvs()` - Cross-CV semantic search
+
+**Evaluation Chain (`chains/evaluation_chain.py`)**
+- `EvaluationChain` - CV scoring with structured output
+- `CVEvaluationResult` - Pydantic model for evaluation results
+- `CriterionScore` - Per-criterion score with reasoning
+- Dynamic criteria injection from templates
+- PydanticOutputParser for validated LLM output
+
+**Conversation Chain (`chains/conversation_chain.py`)**
+- `ConversationChain` - RAG-powered Q&A about CVs
+- `ExplanationChain` - Detailed score explanations
+- `ChatMessage` - Message model for chat history
+- Context retrieval from CV embeddings
+- Conversation history support
+
+### Dependencies Added
+- `langchain>=0.3.0`
+- `langchain-core>=0.3.0`
+- `langchain-anthropic>=0.3.0`
+- `langchain-openai>=0.2.0`
+- `langchain-postgres>=0.0.12`
+- `langchain-text-splitters>=0.3.0`
+- `langchain-community>=0.3.0`
+- `docx2txt` (for DOCX loading)
+
+---
+
 ## [0.4.0] - 2026-02-13 🗄️ DATABASE LAYER
 
 ### Added

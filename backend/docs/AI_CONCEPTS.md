@@ -300,6 +300,201 @@ response = await claude.messages.create(
 
 ---
 
+## LangChain
+
+### What Is LangChain?
+
+**LangChain** is a framework for building applications with Large Language Models (LLMs). Think of it as **Express.js but for AI** - it provides structure, abstractions, and utilities for common LLM patterns.
+
+Instead of writing raw API calls to Claude/OpenAI, LangChain gives you:
+- **Chains** - Composable sequences of operations
+- **Prompts** - Templated, reusable prompts with variables
+- **Output Parsers** - Convert LLM text output to structured data (JSON, Pydantic)
+- **Document Loaders** - Load PDFs, Word docs, web pages, etc.
+- **Text Splitters** - Break documents into chunks for embeddings
+- **Retrievers** - Search vector databases (RAG)
+- **Memory** - Conversation history management
+- **Agents** - LLMs that can use tools and make decisions
+
+### Why Use LangChain?
+
+**Without LangChain (raw API calls):**
+```python
+# Manual, verbose, hard to maintain
+import anthropic
+
+client = anthropic.Anthropic()
+prompt = f"""
+You are a CV evaluator. Score this CV:
+
+CV Text: {cv_text}
+
+Return JSON with scores for each criterion.
+"""
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    messages=[{"role": "user", "content": prompt}]
+)
+# Manually parse the JSON from response.content[0].text
+# Handle errors, retries, etc.
+```
+
+**With LangChain:**
+```python
+from langchain_anthropic import ChatAnthropic
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
+
+# Structured, reusable, composable
+llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+parser = PydanticOutputParser(pydantic_object=CVEvaluation)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a CV evaluator. {format_instructions}"),
+    ("human", "Evaluate this CV:\n\n{cv_text}")
+])
+
+chain = prompt | llm | parser  # Composable pipeline!
+
+result: CVEvaluation = chain.invoke({
+    "cv_text": cv_text,
+    "format_instructions": parser.get_format_instructions()
+})
+# result is already a Pydantic object, validated!
+```
+
+### LangChain Core Concepts
+
+| Concept | What It Does | Example |
+|---------|--------------|---------|
+| **LLM/Chat Model** | Wrapper around AI providers | `ChatAnthropic`, `ChatOpenAI` |
+| **Prompt Template** | Reusable prompts with variables | `"Evaluate this CV: {cv_text}"` |
+| **Output Parser** | Converts text → structured data | JSON, Pydantic models |
+| **Chain** | Sequence of operations | `prompt \| llm \| parser` |
+| **Document Loader** | Loads files into text | `PyPDFLoader`, `Docx2txtLoader` |
+| **Text Splitter** | Chunks text for embeddings | `RecursiveCharacterTextSplitter` |
+| **Embeddings** | Generate vectors from text | `OpenAIEmbeddings` |
+| **Vector Store** | Store & search embeddings | `PGVector` (pgvector) |
+| **Retriever** | Search for relevant documents | `vectorstore.as_retriever()` |
+| **Memory** | Conversation history | `ConversationBufferMemory` |
+| **Agent** | LLM that uses tools | Tool-calling, decision making |
+
+### How We Use LangChain in CV Screening Agent
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      CV PROCESSING PIPELINE                     │
+└─────────────────────────────────────────────────────────────────┘
+
+    [PDF Upload]
+          ↓
+    [PyPDFLoader] ──────────────────── Document Loader
+          ↓
+    [RecursiveCharacterTextSplitter] ─ Text Splitter (chunks)
+          ↓
+    [OpenAIEmbeddings] ────────────── Embedding Model
+          ↓
+    [PGVector] ────────────────────── Vector Store (pgvector)
+          ↓
+    [ChatAnthropic + PydanticParser] ─ Evaluation Chain
+          ↓
+    [CVEvaluation] ────────────────── Structured Output
+
+
+┌─────────────────────────────────────────────────────────────────┐
+│                      RAG CHAT PIPELINE                          │
+└─────────────────────────────────────────────────────────────────┘
+
+    [User Question]
+          ↓
+    [PGVector Retriever] ──────────── Find relevant CV chunks
+          ↓
+    [ChatPromptTemplate] ──────────── Build prompt with context
+          ↓
+    [ChatAnthropic] ───────────────── Generate answer
+          ↓
+    [PostgresChatMessageHistory] ──── Store conversation
+```
+
+### LangChain Components We'll Use
+
+| Component | Package | Purpose in Our App |
+|-----------|---------|-------------------|
+| `ChatAnthropic` | `langchain-anthropic` | CV evaluation with Claude |
+| `ChatOpenAI` | `langchain-openai` | Alternative provider |
+| `OpenAIEmbeddings` | `langchain-openai` | Generate embeddings |
+| `PGVector` | `langchain-postgres` | Store/search embeddings in pgvector |
+| `PyPDFLoader` | `langchain-community` | Load PDF files |
+| `RecursiveCharacterTextSplitter` | `langchain-text-splitters` | Chunk documents |
+| `PydanticOutputParser` | `langchain-core` | Parse LLM output to Pydantic |
+| `ChatPromptTemplate` | `langchain-core` | Build prompts |
+| `RunnableSequence` | `langchain-core` | Chain operations with `|` |
+
+### LangChain vs Direct API Calls
+
+| Aspect | Direct API | LangChain |
+|--------|------------|-----------|
+| **Setup** | Simple | More dependencies |
+| **Code** | Verbose | Concise, composable |
+| **Output Parsing** | Manual JSON parsing | Automatic Pydantic validation |
+| **Error Handling** | Manual | Built-in retries |
+| **Provider Switching** | Rewrite code | Change one line |
+| **RAG** | Build from scratch | Built-in retrievers |
+| **Memory** | Implement yourself | Built-in classes |
+| **Best For** | Simple scripts | Production applications |
+
+### Code Example: CV Evaluation Chain
+
+```python
+from langchain_anthropic import ChatAnthropic
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
+from pydantic import BaseModel
+
+# 1. Define output structure
+class CriterionScore(BaseModel):
+    name: str
+    score: int
+    max_score: int
+    reasoning: str
+
+class CVEvaluation(BaseModel):
+    criteria: list[CriterionScore]
+    total_score: int
+    passed: bool
+    recommendation: str
+
+# 2. Set up the chain
+llm = ChatAnthropic(model="claude-sonnet-4-20250514")
+parser = PydanticOutputParser(pydantic_object=CVEvaluation)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a CV evaluator for an AI-first fintech company.
+    
+Evaluate the CV against these criteria:
+{criteria}
+
+{format_instructions}"""),
+    ("human", "CV Text:\n\n{cv_text}")
+])
+
+# 3. Create the chain (composable!)
+evaluation_chain = prompt | llm | parser
+
+# 4. Use the chain
+result = await evaluation_chain.ainvoke({
+    "cv_text": cv_text,
+    "criteria": criteria_description,
+    "format_instructions": parser.get_format_instructions()
+})
+
+# result is a validated CVEvaluation Pydantic object!
+print(result.total_score)  # 75
+print(result.passed)       # True
+```
+
+---
+
 ## Quick Reference
 
 | Term | One-Line Definition |
@@ -311,11 +506,16 @@ response = await claude.messages.create(
 | **RAG** | Pattern: Retrieve context → Augment prompt → Generate response |
 | **HNSW** | Fast index for approximate nearest neighbor search |
 | **Chunk** | A piece of a document (e.g., a paragraph from a CV) |
+| **LangChain** | Framework for building LLM applications with chains |
+| **Chain** | Composable sequence of operations (`prompt \| llm \| parser`) |
+| **Output Parser** | Converts LLM text to structured data (Pydantic) |
 
 ---
 
 ## Further Reading
 
+- [LangChain Documentation](https://python.langchain.com/docs/)
+- [LangChain + Anthropic](https://python.langchain.com/docs/integrations/chat/anthropic/)
 - [pgvector GitHub](https://github.com/pgvector/pgvector)
 - [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings)
 - [RAG Explained (LangChain)](https://python.langchain.com/docs/tutorials/rag/)

@@ -22,3 +22,12 @@ cryptography>=42.0.0
 
 # Email validation
 email-validator>=2.1.0
+
+# LangChain - AI orchestration framework
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-anthropic>=0.3.0
+langchain-openai>=0.2.0
+langchain-postgres>=0.0.12
+langchain-text-splitters>=0.3.0
+langchain-community>=0.3.0

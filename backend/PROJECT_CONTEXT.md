@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.4.0 - Database Layer)
+> Last Updated: February 2026 (v0.5.0 - LangChain Integration)
 
 ---
 
@@ -29,11 +29,11 @@
 | **Database Layer** | ✅ 100% | PostgreSQL + pgvector + SQLAlchemy |
 | **API Key Storage** | ✅ 100% | AES-256 encrypted storage |
 | **Evaluation Templates** | ✅ 100% | System + user templates |
-| **LangChain Integration** | ⏳ 0% | Phase 3 |
+| **LangChain Integration** | ✅ 100% | Chains, embeddings, RAG |
 | **Multi-Agent System** | ⏳ 0% | Phase 4 |
 | **Notification System** | ⏳ 0% | Phase 5 - Email + WhatsApp |
 
-**Overall Progress: ~45%** (MVP + Auth + Refactoring + Database Complete)
+**Overall Progress: ~55%** (MVP + Auth + DB + LangChain Complete)
 
 ---
 
@@ -56,7 +56,9 @@ Request Flow: Routes → Controller → Service → Repository → Database
 | ORM | SQLAlchemy 2.0 (async) | Database models & queries |
 | Migrations | Alembic | Schema version control |
 | PDF Processing | pdfplumber | Text extraction from PDFs |
-| AI | Anthropic Claude | CV evaluation & reasoning |
+| AI Framework | LangChain | Chains, prompts, RAG |
+| LLM Provider | Anthropic Claude | CV evaluation & reasoning |
+| Embeddings | OpenAI text-embedding-3-small | Semantic search vectors |
 | Validation | Pydantic | Schema validation & serialization |
 | Config | pydantic-settings | Environment management |
 | Auth | python-jose + bcrypt | JWT tokens + password hashing |
@@ -88,6 +90,14 @@ backend/
 │   │       ├── chat.py             # ChatHistory
 │   │       └── notification.py     # NotificationSettings
 │   │
+│   ├── langchain/                  # LangChain AI integration
+│   │   ├── config.py               # LLM & embedding configuration
+│   │   ├── document_processor.py   # PDF/DOCX loading & chunking
+│   │   ├── embeddings.py           # Embedding generation & pgvector
+│   │   └── chains/                 # LangChain chains
+│   │       ├── evaluation_chain.py # CV scoring with Pydantic output
+│   │       └── conversation_chain.py # RAG Q&A about CVs
+│   │
 │   ├── shared/                     # Shared business logic
 │   │   └── schemas/
 │   │       └── base.py             # BaseResponse, ErrorResponse
@@ -115,6 +125,7 @@ backend/
 │   └── versions/                   # Migration files
 │
 └── docs/
+    ├── AI_CONCEPTS.md              # Embeddings, RAG, LangChain guide
     └── POSTGRESQL_SETUP.md         # PostgreSQL installation guide
 ```
 
@@ -202,16 +213,18 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 
 ## 📋 Planned Features (Roadmap)
 
-### Phase 2: Database Layer
-- [ ] PostgreSQL with SQLAlchemy
-- [ ] pgvector for embeddings
-- [ ] User, CV, Evaluation models
-- [ ] Alembic migrations
+### Phase 2: Database Layer ✅
+- [x] PostgreSQL with SQLAlchemy
+- [x] pgvector for embeddings
+- [x] User, CV, Evaluation models
+- [x] Alembic migrations
 
-### Phase 3: LangChain Integration
-- [ ] Document processing chain
-- [ ] Structured output parsing
-- [ ] Conversation chain for "Why?" explanations
+### Phase 3: LangChain Integration ✅
+- [x] Document processing chain (PDF/DOCX)
+- [x] Structured output parsing (Pydantic)
+- [x] Embedding generation & storage
+- [x] Conversation chain for RAG Q&A
+- [x] "Why?" explanation chain
 
 ### Phase 4: Multi-Agent System
 - [ ] Parser Agent (PDF extraction)

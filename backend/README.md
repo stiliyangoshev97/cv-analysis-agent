@@ -1,14 +1,22 @@
 # CV Screening Agent - Backend 🐍
 
-FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes and evaluates them using Claude AI against 5 modern hiring criteria.
+FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores them in PostgreSQL with vector embeddings, evaluates using Claude AI, and provides RAG-powered Q&A about candidates.
 
 ## 🎯 Features
 
-- **PDF Processing**: Extract text from uploaded PDF resumes using pdfplumber
-- **AI Evaluation**: Claude AI scores CVs against 5 criteria with detailed reasoning
-- **JWT Authentication**: Secure user registration, login, and token refresh
-- **Google OAuth**: Optional Google sign-in support
-- **RESTful API**: Clean, documented endpoints with OpenAPI/Swagger
+| Feature | Description |
+|---------|-------------|
+| **PDF Processing** | Extract text from PDF/DOCX resumes using LangChain loaders |
+| **AI Evaluation** | Claude AI scores CVs against 5 criteria with detailed reasoning |
+| **Vector Search** | pgvector-powered semantic search for CV content |
+| **RAG Chat** | Ask questions about CVs with context-aware responses |
+| **LangChain** | Composable chains for evaluation, embeddings, and conversation |
+| **JWT Auth** | Secure registration, login, and token refresh |
+| **Google OAuth** | Optional Google sign-in support |
+| **PostgreSQL** | Full persistence with SQLAlchemy 2.0 async + Alembic migrations |
+| **BYOK Support** | Users can bring their own API keys (encrypted storage) |
+
+---
 
 ## 📊 Evaluation Criteria
 
@@ -24,75 +32,283 @@ FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes and 
 - **PASS**: Score ≥ 60 AND 3+ criteria met (must include Technical Skills)
 - **FAIL**: Score < 60 OR fewer than 3 criteria OR no Technical Skills
 
+---
+
 ## 🏗️ Architecture
 
-### Controller-Service-Model Pattern
+### Controller-Service-Repository Pattern
 ```
-Request → Routes → Controller → Service → External APIs/Models
-              ↓          ↓           ↓
-           Thin     HTTP Logic   Business Logic
+Request → Routes → Controller → Service → Repository → Database
+              ↓          ↓           ↓           ↓
+           Thin     HTTP Logic   Business    Database
+                                  Logic      Operations
 ```
 
-### Project Structure
+**Why this pattern?**
+- **Routes**: Thin layer, only defines endpoints and wires dependencies
+- **Controller**: Handles HTTP concerns (request parsing, response formatting, error handling)
+- **Service**: Contains business logic, orchestrates multiple repositories
+- **Repository**: Database operations only, returns domain models
+
+### Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Runtime** | Python 3.13 | Server runtime |
+| **Framework** | FastAPI | Async HTTP server & routing |
+| **Database** | PostgreSQL 17 | Relational data storage |
+| **Vector Store** | pgvector | Semantic search with embeddings |
+| **ORM** | SQLAlchemy 2.0 (async) | Database models & queries |
+| **Migrations** | Alembic | Schema version control |
+| **AI Framework** | LangChain | Chains, prompts, RAG |
+| **LLM** | Anthropic Claude | CV evaluation & chat |
+| **Embeddings** | OpenAI text-embedding-3-small | Semantic vectors |
+| **Auth** | python-jose + bcrypt | JWT tokens + password hashing |
+| **Encryption** | cryptography (Fernet) | AES-256 for API keys |
+
+---
+
+## 📁 Project Structure
+
 ```
-backend/app/
-├── main.py                     # FastAPI entry point
-├── config.py                   # Environment settings
-├── core/                       # Shared infrastructure
-│   ├── security.py             # JWT utils, password hashing
-│   ├── exceptions.py           # Custom exception classes
-│   └── dependencies.py         # Shared FastAPI dependencies
-├── shared/schemas/             # Base response schemas
-│   └── base.py                 # BaseResponse, ErrorResponse
-└── features/
-    ├── auth/                   # Authentication module
-    │   ├── auth_routes.py      # Route definitions
-    │   ├── auth_controller.py  # HTTP handlers
-    │   ├── auth_service.py     # Business logic
-    │   ├── auth_schemas.py     # Pydantic schemas
-    │   ├── auth_models.py      # User model (in-memory)
-    │   └── auth_dependencies.py # get_current_user
-    └── cv/                     # CV screening module
-        ├── cv_routes.py        # Route definitions
-        ├── cv_controller.py    # HTTP handlers
-        ├── cv_service.py       # Orchestration
-        ├── cv_schemas.py       # Pydantic schemas
-        └── services/
-            ├── pdf_service.py        # PDF extraction
-            └── evaluation_service.py # Claude AI evaluation
+backend/
+├── app/
+│   ├── main.py                      # FastAPI app entry point, router registration
+│   ├── config.py                    # Pydantic Settings, environment variables
+│   │
+│   ├── core/                        # 🔧 Shared infrastructure
+│   │   ├── security.py              # JWT creation/validation, password hashing
+│   │   ├── exceptions.py            # Custom exception classes (AppException, etc.)
+│   │   └── dependencies.py          # Shared FastAPI dependencies
+│   │
+│   ├── db/                          # 🗄️ Database layer
+│   │   ├── base.py                  # SQLAlchemy Base class, TimestampMixin
+│   │   ├── session.py               # Async engine, session factory, get_db_session
+│   │   ├── encryption.py            # AES-256 encryption for API keys
+│   │   ├── seed.py                  # Seed data (system templates)
+│   │   └── models/                  # SQLAlchemy ORM models
+│   │       ├── user.py              # User model (email, password, OAuth)
+│   │       ├── api_key.py           # UserApiKey (encrypted BYOK keys)
+│   │       ├── agent_config.py      # UserAgentConfig (per-agent settings)
+│   │       ├── template.py          # EvaluationTemplate + TemplateCriterion
+│   │       ├── cv.py                # CV, CVEvaluation, CVEmbedding
+│   │       ├── chat.py              # ChatHistory (RAG conversations)
+│   │       └── notification.py      # NotificationSettings
+│   │
+│   ├── langchain/                   # 🤖 LangChain AI integration
+│   │   ├── config.py                # LLM/embedding factory (get_llm, get_embeddings)
+│   │   ├── document_processor.py    # PDF/DOCX loading, text chunking
+│   │   ├── embeddings.py            # EmbeddingService (generate & store in pgvector)
+│   │   └── chains/
+│   │       ├── evaluation_chain.py  # CV scoring → CVEvaluationResult (Pydantic)
+│   │       └── conversation_chain.py # RAG Q&A, ExplanationChain
+│   │
+│   ├── shared/                      # 📦 Shared utilities
+│   │   └── schemas/
+│   │       └── base.py              # BaseResponse, ErrorResponse, PaginatedResponse
+│   │
+│   └── features/                    # 🎯 Feature modules
+│       ├── auth/                    # Authentication feature
+│       │   ├── auth_routes.py       # Route definitions (/api/auth/*)
+│       │   ├── auth_controller.py   # HTTP handlers (register, login, etc.)
+│       │   ├── auth_service.py      # Business logic (create user, validate, etc.)
+│       │   ├── auth_repository.py   # Database operations (CRUD for users)
+│       │   ├── auth_schemas.py      # Pydantic schemas (request/response)
+│       │   └── auth_dependencies.py # get_current_user dependency
+│       │
+│       └── cv/                      # CV Screening feature
+│           ├── cv_routes.py         # Route definitions (/api/cv/*)
+│           ├── cv_controller.py     # HTTP handlers (upload, evaluate)
+│           ├── cv_service.py        # Orchestration (PDF → evaluation)
+│           ├── cv_schemas.py        # Pydantic schemas
+│           └── services/
+│               ├── pdf_service.py         # PDF text extraction (pdfplumber)
+│               └── evaluation_service.py  # Claude AI evaluation
+│
+├── alembic/                         # 🔄 Database migrations
+│   ├── env.py                       # Alembic configuration
+│   └── versions/                    # Migration files
+│       └── 2cf0a8d5e5c3_initial_schema.py  # Initial 10 tables
+│
+├── docs/                            # 📚 Documentation
+│   ├── AI_CONCEPTS.md               # Embeddings, RAG, LangChain explained
+│   └── POSTGRESQL_SETUP.md          # PostgreSQL + pgvector installation
+│
+└── requirements.txt                 # Python dependencies
 ```
+
+### Key Files Explained
+
+| File | Purpose |
+|------|---------|
+| `main.py` | Creates FastAPI app, registers routers, CORS, lifespan |
+| `config.py` | Loads `.env`, defines all settings with Pydantic |
+| `db/session.py` | Creates async SQLAlchemy engine and session factory |
+| `db/base.py` | Base model class with `id`, `created_at`, `updated_at` |
+| `db/encryption.py` | Encrypts/decrypts API keys with AES-256 |
+| `langchain/config.py` | Factory functions for Claude/OpenAI models |
+| `langchain/embeddings.py` | Generates embeddings and stores in pgvector |
+| `langchain/chains/evaluation_chain.py` | Evaluates CVs with structured Pydantic output |
+
+---
+
+## 🗄️ Database Schema
+
+### Tables (10 total)
+
+```sql
+users                  -- User accounts (email, password_hash, google_id)
+user_api_keys          -- Encrypted BYOK API keys (Anthropic, OpenAI)
+user_agent_configs     -- Per-user agent settings (model, temperature)
+evaluation_templates   -- System + user-created evaluation templates
+template_criteria      -- Individual criteria within templates
+cvs                    -- Uploaded CV documents (filename, text, status)
+cv_evaluations         -- Evaluation results (scores, reasoning)
+cv_embeddings          -- Vector embeddings for RAG (pgvector)
+chat_history           -- RAG conversation history
+notification_settings  -- Email/WhatsApp alert preferences
+```
+
+### Entity Relationship
+
+```
+User (1) ──────┬──────< CV (many)
+               │             │
+               │             └──< CVEvaluation (many)
+               │             └──< CVEmbedding (many)
+               │             └──< ChatHistory (many)
+               │
+               ├──────< UserApiKey (many)
+               ├──────< UserAgentConfig (many)
+               ├──────< EvaluationTemplate (many, user-created)
+               └──────< NotificationSettings (one)
+
+EvaluationTemplate (1) ──< TemplateCriterion (many)
+```
+
+### Alembic Migrations
+
+```bash
+# Generate new migration after model changes
+alembic revision --autogenerate -m "add_new_field"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback one migration
+alembic downgrade -1
+
+# View migration history
+alembic history
+```
+
+---
+
+## 🤖 LangChain Integration
+
+### Document Processing Pipeline
+
+```
+PDF Upload → PyPDFLoader → RecursiveCharacterTextSplitter → OpenAIEmbeddings → pgvector
+```
+
+| Component | Purpose |
+|-----------|---------|
+| `DocumentProcessor` | High-level class for loading PDF/DOCX and chunking |
+| `EmbeddingService` | Generates embeddings, stores in `cv_embeddings` table |
+| `EvaluationChain` | Scores CV against criteria, returns `CVEvaluationResult` |
+| `ConversationChain` | RAG-powered Q&A using retrieved CV chunks |
+| `ExplanationChain` | Explains why a criterion got a specific score |
+
+### Code Example: Using LangChain Components
+
+```python
+from app.langchain import (
+    DocumentProcessor,
+    EmbeddingService,
+    EvaluationChain,
+    ConversationChain,
+)
+
+# 1. Process uploaded PDF
+processor = DocumentProcessor()
+result = await processor.process_upload(file_content, "resume.pdf")
+# result.full_text, result.chunks
+
+# 2. Store embeddings in pgvector
+embedding_service = EmbeddingService(session)
+await embedding_service.store_cv_embeddings(cv.id, result.chunks)
+
+# 3. Evaluate CV
+eval_chain = EvaluationChain()
+evaluation = await eval_chain.evaluate(
+    cv_text=result.full_text,
+    template_name="AI-First Fintech",
+    criteria=[...],
+)
+# evaluation.total_score, evaluation.passed, evaluation.criteria_scores
+
+# 4. RAG Chat
+chat_chain = ConversationChain(session)
+response = await chat_chain.ask(cv.id, "What is their fintech experience?")
+# response.content
+```
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.11+
+- PostgreSQL 17+ with pgvector extension
 - Anthropic API key
+- OpenAI API key (for embeddings)
 
 ### Installation
-```bash
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
+```bash
+# 1. Clone and setup virtual environment
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# Configure environment
+# 3. Configure environment
 cp .env.example .env
-# Edit .env with your ANTHROPIC_API_KEY
+# Edit .env with your API keys and database URL
 
-# Run development server
+# 4. Set up PostgreSQL database
+createdb cv_screening_agent
+psql cv_screening_agent -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+# 5. Run database migrations
+alembic upgrade head
+
+# 6. Seed system templates (optional)
+python -m app.db.seed
+
+# 7. Start development server
 uvicorn app.main:app --reload --port 8000
 ```
 
 ### Environment Variables
-```env
-# Required
-ANTHROPIC_API_KEY=sk-ant-...
 
-# Optional
+```env
+# === Required ===
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+DATABASE_URL=postgresql+asyncpg://username:password@localhost:5432/cv_screening_agent
+JWT_SECRET_KEY=your-secret-key-here
+ENCRYPTION_KEY=your-32-byte-encryption-key
+
+# === Optional (with defaults) ===
 CLAUDE_MODEL=claude-sonnet-4-20250514
-JWT_SECRET_KEY=your-secret-key
+EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIMENSIONS=1536
+LLM_TEMPERATURE=0.0
+LLM_MAX_TOKENS=4096
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
@@ -100,26 +316,29 @@ GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 ```
 
+---
+
 ## 🔌 API Endpoints
 
-### Authentication
+### Authentication (`/api/auth`)
+
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/api/auth/register` | Register new user | ❌ |
-| `POST` | `/api/auth/login` | Login with email/password | ❌ |
-| `POST` | `/api/auth/refresh` | Refresh access token | ❌ |
-| `POST` | `/api/auth/google` | Google OAuth exchange | ❌ |
-| `GET` | `/api/auth/me` | Get current user | ✅ |
+| `POST` | `/register` | Register new user | ❌ |
+| `POST` | `/login` | Login with email/password | ❌ |
+| `POST` | `/refresh` | Refresh access token | ❌ |
+| `POST` | `/google` | Google OAuth exchange | ❌ |
+| `GET` | `/me` | Get current user profile | ✅ |
 
-### CV Screening
+### CV Screening (`/api/cv`)
+
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/api/cv/upload` | Upload PDF & evaluate | ❌ |
-| `GET` | `/api/cv/health` | Health check | ❌ |
+| `POST` | `/upload` | Upload PDF & evaluate | ❌ |
+| `GET` | `/health` | Health check | ❌ |
 
-### Response Schemas
+### Response Example
 
-#### Upload Response
 ```json
 {
   "success": true,
@@ -127,23 +346,22 @@ GOOGLE_CLIENT_SECRET=...
   "evaluation": {
     "status": "pass",
     "match_score": 78,
-    "reasoning": "Strong candidate with...",
     "criteria": [
       {
-        "name": "Education",
-        "passed": true,
-        "details": "Bachelor's in Computer Science"
-      },
-      {
         "name": "Technical Skills",
+        "score": 22,
+        "max_score": 25,
         "passed": true,
-        "details": "Python, TypeScript, React experience"
+        "reasoning": "Strong Python and React experience"
       }
     ],
+    "recommendation": "Strong Yes",
     "candidate_name": "John Doe"
   }
 }
 ```
+
+---
 
 ## 🧪 Testing
 
@@ -158,19 +376,37 @@ pytest --cov=app
 pytest tests/unit/test_cv_service.py
 ```
 
-## 📚 API Documentation
+---
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
+## 📚 Documentation
+
+| Resource | URL |
+|----------|-----|
+| **Swagger UI** | http://localhost:8000/docs |
+| **ReDoc** | http://localhost:8000/redoc |
+| **OpenAPI JSON** | http://localhost:8000/openapi.json |
+| **AI Concepts Guide** | [docs/AI_CONCEPTS.md](docs/AI_CONCEPTS.md) |
+| **PostgreSQL Setup** | [docs/POSTGRESQL_SETUP.md](docs/POSTGRESQL_SETUP.md) |
+
+---
 
 ## 🛣️ Roadmap
 
-- [x] PDF text extraction
+- [x] PDF text extraction (pdfplumber)
 - [x] Claude AI evaluation
-- [x] JWT authentication
-- [x] Controller-Service-Model refactor
-- [ ] PostgreSQL database
-- [ ] pgvector for embeddings
-- [ ] LangChain integration
-- [ ] Multi-agent architecture
+- [x] JWT authentication + Google OAuth
+- [x] Controller-Service-Repository refactor
+- [x] PostgreSQL database + SQLAlchemy 2.0
+- [x] Alembic migrations
+- [x] pgvector for semantic search
+- [x] LangChain integration (chains, embeddings, RAG)
+- [ ] CV Repository + Evaluation Repository
+- [ ] Chat history persistence (ChatRepository)
+- [ ] Multi-agent architecture (Phase 4)
+- [ ] Email/WhatsApp notifications (Phase 5)
+
+---
+
+## 📄 License
+
+MIT License
