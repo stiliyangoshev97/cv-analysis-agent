@@ -144,3 +144,130 @@ Make sure PostgreSQL service is running:
 ```bash
 brew services list | grep postgresql
 ```
+
+---
+
+## Understanding Alembic & Migrations
+
+### What is Alembic?
+
+**Alembic** is a database migration tool for SQLAlchemy. Think of it as version control for your database schema.
+
+| Concept | Description |
+|---------|-------------|
+| **Migration** | A script that describes a database change (add table, add column, etc.) |
+| **Revision** | A unique version identifier for each migration |
+| **Upgrade** | Apply migrations to move the database forward |
+| **Downgrade** | Revert migrations to move the database backward |
+
+### Why Do We Need Migrations?
+
+**MongoDB (schema-less):**
+```javascript
+// Just add a field - MongoDB doesn't care
+user.phoneNumber = "+1234567890";
+await user.save(); // Works immediately
+```
+
+**PostgreSQL (strict schema):**
+```sql
+-- The database enforces the schema
+-- You CAN'T just add a field without altering the table
+ALTER TABLE users ADD COLUMN phone_number VARCHAR(20);
+```
+
+Alembic generates and runs these `ALTER TABLE` statements for you.
+
+### Migration Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. EDIT MODEL                                                  │
+│     backend/app/db/models/user.py                              │
+│     Add: phone: Mapped[Optional[str]] = mapped_column(...)     │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  2. GENERATE MIGRATION                                          │
+│     alembic revision --autogenerate -m "add_phone_to_users"    │
+│     Creates: alembic/versions/xxxx_add_phone_to_users.py       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  3. REVIEW MIGRATION (optional but recommended)                 │
+│     Check the generated file to ensure it looks correct         │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  4. APPLY MIGRATION                                             │
+│     alembic upgrade head                                        │
+│     Runs: ALTER TABLE users ADD COLUMN phone VARCHAR(20);       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  5. UPDATE PYDANTIC SCHEMA (if API needs the new field)         │
+│     backend/app/features/auth/auth_schemas.py                   │
+│     Add: phone: Optional[str] = None                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Common Alembic Commands
+
+```bash
+# Generate a new migration (auto-detects model changes)
+alembic revision --autogenerate -m "description_of_change"
+
+# Apply all pending migrations
+alembic upgrade head
+
+# Apply just the next migration
+alembic upgrade +1
+
+# Rollback the last migration
+alembic downgrade -1
+
+# Rollback all migrations
+alembic downgrade base
+
+# Show current migration version
+alembic current
+
+# Show migration history
+alembic history
+```
+
+### SQLAlchemy Models vs Pydantic Schemas
+
+These are **two separate things** that don't auto-sync:
+
+| SQLAlchemy Model | Pydantic Schema |
+|------------------|-----------------|
+| Defines **database structure** | Defines **API contract** |
+| Lives in `db/models/` | Lives in `features/*/schemas.py` |
+| Requires migration to change | Just edit the file |
+| `User(Base)` | `UserResponse(BaseModel)` |
+
+**Example - Adding a phone field:**
+
+```python
+# 1. SQLAlchemy Model (db/models/user.py) - NEEDS MIGRATION
+class User(Base):
+    # ...existing fields...
+    phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+
+# 2. Pydantic Schema (features/auth/auth_schemas.py) - NO MIGRATION
+class UserResponse(BaseModel):
+    # ...existing fields...
+    phone: Optional[str] = None  # Add for API response
+```
+
+### MongoDB vs PostgreSQL Mindset
+
+| Aspect | MongoDB | PostgreSQL |
+|--------|---------|------------|
+| **Schema** | Flexible, defined in code | Strict, enforced by database |
+| **Adding a field** | Just add it | Migration required |
+| **Data integrity** | Application's responsibility | Database enforces it |
+| **Relationships** | Manual references, embedding | Foreign keys, JOINs |
+| **Migrations** | Not needed | Essential |
+| **Trade-off** | Faster development | Stronger guarantees |
