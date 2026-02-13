@@ -8,11 +8,13 @@ Features:
     auth: User authentication (email/password, Google OAuth)
     cv: CV upload and AI-powered evaluation
     chat: RAG-powered chat for CV Q&A
+    notification: Email and WhatsApp notifications
 """
 
 from .auth import auth_router
 from .cv import cv_router
 from .chat import chat_router
+from .notification import notification_router
 
-__all__ = ["auth_router", "cv_router", "chat_router"]
+__all__ = ["auth_router", "cv_router", "chat_router", "notification_router"]
 

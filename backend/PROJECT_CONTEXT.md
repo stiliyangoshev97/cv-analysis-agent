@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 13, 2026 (v0.8.0 - Multi-Agent Architecture)
+> Last Updated: February 13, 2026 (v0.9.0 - Notification System)
 
 ---
 
@@ -33,9 +33,9 @@
 | **CV Feature + DB** | ✅ 100% | Full persistence with repositories |
 | **Chat Endpoints (RAG Q&A)** | ✅ 100% | Ask questions, explain scores, compare CVs |
 | **Multi-Agent System** | ✅ 100% | Phase 4 - 4 specialized agents + orchestrator |
-| **Notification System** | ⏳ 0% | Phase 5 - Email + WhatsApp |
+| **Notification System** | ✅ 100% | Phase 5 - Email + WhatsApp via Twilio |
 
-**Overall Progress: ~75%** (MVP + Auth + DB + LangChain + CV + Chat + Agents Complete)
+**Overall Progress: ~85%** (MVP + Auth + DB + LangChain + CV + Chat + Agents + Notifications Complete)
 
 ---
 
@@ -108,7 +108,7 @@ backend/
 │   │   ├── parser_agent.py         # Document parsing agent
 │   │   ├── scorer_agent.py         # Evaluation agent
 │   │   ├── chat_agent.py           # RAG conversation agent
-│   │   ├── notification_agent.py   # Notification agent (stub)
+│   │   ├── notification_agent.py   # Notification dispatch agent
 │   │   └── orchestrator.py         # AgentOrchestrator
 │   │
 │   ├── shared/                     # Shared business logic
@@ -147,6 +147,17 @@ backend/
 │           ├── chat_repository.py      # Chat history operations
 │           ├── chat_dependencies.py    # FastAPI dependencies
 │           └── chat_schemas.py         # Pydantic schemas
+│
+│       └── notification/           # Notification feature (Email + WhatsApp)
+│           ├── __init__.py                 # Barrel exports
+│           ├── notification_routes.py      # Route definitions
+│           ├── notification_controller.py  # HTTP handlers
+│           ├── notification_service.py     # Dispatch orchestration
+│           ├── notification_repository.py  # Settings CRUD
+│           ├── notification_schemas.py     # Pydantic schemas
+│           ├── notification_dependencies.py # FastAPI dependencies
+│           ├── email_service.py            # Async SMTP (aiosmtplib)
+│           └── whatsapp_service.py         # Twilio WhatsApp
 │
 ├── alembic/                        # Database migrations
 │   ├── env.py                      # Migration configuration
@@ -217,6 +228,23 @@ notification_settings -- Alert preferences
 | `POST` | `/{cv_id}/re-evaluate` | Re-evaluate with different template | ✅ |
 | `GET` | `/health` | Health check (LangChain status) | ❌ |
 
+### Chat (`/api/chat/`)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/{cv_id}` | Ask question about CV (RAG) | ✅ |
+| `GET` | `/{cv_id}` | Get chat history | ✅ |
+| `DELETE` | `/{cv_id}` | Clear chat history | ✅ |
+| `POST` | `/{cv_id}/explain/{criterion}` | Explain criterion score | ✅ |
+| `POST` | `/compare` | Compare multiple CVs | ✅ |
+
+### Notifications (`/api/notifications/`)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/` | Get notification settings | ✅ |
+| `PUT` | `/` | Update notification settings | ✅ |
+| `POST` | `/test/{channel}` | Send test notification | ✅ |
+| `GET` | `/status` | Get service configuration status | ✅ |
+
 ---
 
 ## 🛠️ Development
@@ -258,12 +286,15 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 - [x] Conversation chain for RAG Q&A
 - [x] "Why?" explanation chain
 
-### Phase 4: Multi-Agent System
-- [ ] Parser Agent (PDF extraction)
-- [ ] Scorer Agent (evaluation + embeddings)
-- [ ] Notification Agent (alerts)
+### Phase 4: Multi-Agent System ✅
+- [x] Parser Agent (PDF extraction)
+- [x] Scorer Agent (evaluation + embeddings)
+- [x] Chat Agent (RAG conversations)
+- [x] Notification Agent (alerts)
+- [x] Agent Orchestrator (task routing)
 
-### Phase 5: Notifications
-- [ ] Email notifications (SendGrid/SES)
-- [ ] WhatsApp notifications (Twilio)
-- [ ] Configurable thresholds
+### Phase 5: Notifications ✅
+- [x] Email notifications (aiosmtplib)
+- [x] WhatsApp notifications (Twilio)
+- [x] Configurable thresholds
+- [x] User preference settings

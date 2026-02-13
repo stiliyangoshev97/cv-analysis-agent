@@ -8,7 +8,7 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Phase 5 - Notification System
+> **Current Focus**: Phase 5 Frontend - Notification Settings UI
 
 ### Priority 1: Remaining Repositories ✅ COMPLETED
 - [x] Create `CVRepository` - CRUD operations for CV documents
@@ -655,35 +655,49 @@ interface Criterion {
 
 ---
 
-## Phase 5: Notification System
+## Phase 5: Notification System ✅ COMPLETED
 
-### 5.1 Notification Preferences
-- [ ] Add notification settings to user profile
-- [ ] Create settings UI in frontend (email/WhatsApp/both toggle)
-- [ ] Store WhatsApp number in user profile
-- [ ] Store threshold score for alerts (default: 80)
+### 5.1 Notification Preferences ✅
+- [x] Add notification settings to user profile (NotificationSettings model)
+- [x] Create notification API endpoints (`/api/notifications/`)
+- [x] Store WhatsApp number in user profile (`whatsapp_number` field)
+- [x] Store threshold score for alerts (default: 80, `threshold_score` field)
+- [ ] Create settings UI in frontend (Phase 5 Frontend - pending)
 
-### 5.2 Email Notifications
-- [ ] Install email dependencies (`fastapi-mail` or `aiosmtplib`)
-- [ ] Set up SMTP configuration in `.env`
-- [ ] Create email templates (HTML) for high-score alerts
-- [ ] Create `EmailNotificationService`
-- [ ] Implement async email sending
+### 5.2 Email Notifications ✅
+- [x] Install email dependencies (`aiosmtplib>=3.0.0`)
+- [x] Set up SMTP configuration in `config.py` (7 settings)
+- [x] Create email templates (HTML) for high-score alerts
+- [x] Create `EmailService` (`app/features/notification/email_service.py`)
+- [x] Implement async email sending with `aiosmtplib`
 
-### 5.3 WhatsApp Notifications (WhatsApp Business API)
-- [ ] Set up WhatsApp Business API account
-- [ ] Add WhatsApp API credentials to `.env`
-- [ ] Create `WhatsAppNotificationService`
-- [ ] Create message templates for high-score alerts
-- [ ] Implement async WhatsApp sending
+### 5.3 WhatsApp Notifications (Twilio API) ✅
+- [x] Set up Twilio WhatsApp integration
+- [x] Add Twilio API credentials to config (`twilio_account_sid`, `twilio_auth_token`, `twilio_whatsapp_from`)
+- [x] Create `WhatsAppService` (`app/features/notification/whatsapp_service.py`)
+- [x] Create message templates for high-score alerts
+- [x] Implement async WhatsApp sending (sync Twilio SDK in executor)
 
-### 5.4 Background Task Integration
-- [ ] Create FastAPI background task for notifications
-- [ ] Implement notification dispatch logic:
+### 5.4 Notification Service & Agent Integration ✅
+- [x] Create `NotificationService` for dispatch orchestration
+- [x] Create `NotificationRepository` for database operations
+- [x] Create `notification_routes.py` with 4 endpoints:
+  - `GET /api/notifications/` - Get settings
+  - `PUT /api/notifications/` - Update settings
+  - `POST /api/notifications/test/{channel}` - Test notification
+  - `GET /api/notifications/status` - Service status
+- [x] Implement `NotificationAgent` with full task handlers
+- [x] Implement notification dispatch logic:
   - If `score >= threshold`:
     - If `email_enabled`: Send email
     - If `whatsapp_enabled`: Send WhatsApp
     - If both: Send both
+
+### 5.5 Pending: Frontend UI
+- [ ] Create notification settings page
+- [ ] Add email/WhatsApp toggle switches
+- [ ] Add threshold score slider
+- [ ] Add test notification buttons
 
 ---
 

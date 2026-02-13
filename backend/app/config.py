@@ -104,6 +104,20 @@ class Settings(BaseSettings):
     
     # Frontend URL for OAuth redirects
     frontend_url: str = "http://localhost:5173"
+    
+    # Email Notifications (SMTP)
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_from_email: str = ""
+    smtp_from_name: str = "CV Screening Agent"
+    smtp_use_tls: bool = True
+    
+    # WhatsApp Notifications (Twilio)
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_whatsapp_from: str = ""  # e.g., "whatsapp:+14155238886"
 
     class Config:
         """Pydantic Settings configuration."""

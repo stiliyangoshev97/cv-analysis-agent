@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .features import auth_router, cv_router, chat_router
+from .features import auth_router, cv_router, chat_router, notification_router
 
 # Configure logging
 logging.basicConfig(
@@ -90,6 +90,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(cv_router)
 app.include_router(chat_router, prefix="/api/chat", tags=["Chat"])
+app.include_router(notification_router, prefix="/api/notifications", tags=["Notifications"])
 
 
 @app.get("/", tags=["Root"])

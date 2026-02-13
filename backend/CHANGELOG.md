@@ -7,6 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.0] - 2026-02-13 🔔 NOTIFICATION SYSTEM (Phase 5)
+
+### Added
+
+**Notification Feature (`app/features/notification/`)** - Complete notification module
+- `notification_schemas.py` - Pydantic schemas:
+  - `NotificationSettingsResponse`, `NotificationSettingsUpdate`
+  - `SendTestNotificationRequest`, `NotificationResultResponse`
+  - `CVNotificationData` - Internal data for CV notifications
+- `notification_repository.py` - Database CRUD for `NotificationSettings`
+  - `get_by_user_id()`, `create()`, `update()`, `get_or_create()`
+- `email_service.py` - Async email service
+  - `EmailService` class with `aiosmtplib` for async SMTP
+  - HTML email templates for CV evaluation notifications
+  - `send_cv_notification()`, `send_test_email()`
+- `whatsapp_service.py` - WhatsApp via Twilio
+  - `WhatsAppService` class using Twilio SDK
+  - Formatted WhatsApp messages for CV notifications
+  - `send_cv_notification()`, `send_test_message()`
+- `notification_service.py` - Orchestration service
+  - `NotificationService` - Coordinates email and WhatsApp dispatch
+  - `NotificationDispatchResult` dataclass for tracking results
+  - `dispatch_cv_notification()`, `send_test_notification()`
+  - Respects user preferences (enabled channels, threshold score)
+- `notification_controller.py` - HTTP handlers
+- `notification_dependencies.py` - FastAPI DI
+- `notification_routes.py` - 4 REST endpoints
+
+**NotificationAgent (`app/agents/notification_agent.py`)** - Full implementation
+- Replaced stub with complete implementation
+- Task handlers:
+  - `CHECK_THRESHOLD` - Check if score meets notification threshold
+  - `SEND_EMAIL` - Send email notification for CV
+  - `SEND_WHATSAPP` - Send WhatsApp notification for CV
+  - `DISPATCH_NOTIFICATION` - Dispatch based on user preferences
+- Integrates with `NotificationService`
+
+**New API Endpoints (`/api/notifications`)**
+- `GET /api/notifications/` - Get notification settings
+- `PUT /api/notifications/` - Update notification settings
+- `POST /api/notifications/test/{channel}` - Send test notification (email/whatsapp)
+- `GET /api/notifications/status` - Get service configuration status
+
+**Configuration (`app/config.py`)**
+- SMTP settings: `smtp_host`, `smtp_port`, `smtp_username`, `smtp_password`, `smtp_from_email`, `smtp_from_name`, `smtp_use_tls`
+- Twilio settings: `twilio_account_sid`, `twilio_auth_token`, `twilio_whatsapp_from`
+
+**Dependencies (`requirements.txt`)**
+- `aiosmtplib>=3.0.0` - Async SMTP for emails
+- `twilio>=9.0.0` - WhatsApp via Twilio API
+
+### Architecture
+
+```
+NotificationService
+       │
+┌──────┴──────┐
+▼             ▼
+EmailService  WhatsAppService
+(aiosmtplib)     (Twilio)
+
+CV Workflow Integration:
+  EVALUATE_CV → CHECK_THRESHOLD → DISPATCH_NOTIFICATION
+                                        │
+                              ┌─────────┴─────────┐
+                              ▼                   ▼
+                         SEND_EMAIL         SEND_WHATSAPP
+```
+
+### Technical Details
+- Async email sending with `aiosmtplib`
+- Twilio SDK runs sync in executor for async compatibility
+- User-configurable notification preferences per channel
+- Threshold-based notifications (only notify if score >= threshold)
+- HTML email templates with professional styling
+- Graceful degradation when services not configured
+
+---
+
 ## [0.8.0] - 2026-02-13 🤖 MULTI-AGENT ARCHITECTURE (Phase 4)
 
 ### Added
