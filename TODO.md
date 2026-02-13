@@ -327,24 +327,169 @@ frontend/src/
 
 ---
 
+## Phase 1.7: User Configuration System 🆕
+
+> **Goal**: Enable users to bring their own API keys (BYOK) and create custom evaluation templates. This makes the platform open-source friendly and fully customizable.
+
+### 1.7.1 Multi-Provider API Key System
+
+#### Supported AI Providers
+| Provider | Use Cases | Models |
+|----------|-----------|--------|
+| **Anthropic Claude** | Complex reasoning, CV evaluation | claude-sonnet-4-20250514, claude-3-5-haiku |
+| **OpenAI GPT** | General purpose, embeddings | gpt-4o, gpt-4o-mini, text-embedding-3-small |
+| **Google Gemini** | Fast parsing, cost-effective | gemini-2.0-flash, gemini-2.0-pro |
+| **Groq** | Ultra-fast inference | llama-3.3-70b, mixtral-8x7b |
+| **Ollama** | Local/private models | llama3, mistral, codellama |
+
+#### Hybrid API Key Architecture
+```
+User Settings:
+├── api_keys:                    # One key per provider (encrypted)
+│   ├── claude: "sk-ant-..."
+│   ├── openai: "sk-..."
+│   ├── gemini: "AIza..."
+│   ├── groq: "gsk_..."
+│   └── ollama: "http://localhost:11434"
+│
+└── agent_config:                # Per-agent provider selection
+    ├── parser_agent: { provider: "gemini", model: "gemini-2.0-flash" }
+    ├── scorer_agent: { provider: "claude", model: "claude-sonnet-4-20250514" }
+    ├── chat_agent: { provider: "openai", model: "gpt-4o" }
+    └── embeddings: { provider: "openai", model: "text-embedding-3-small" }
+```
+
+#### Backend Tasks
+- [ ] Create `user_api_keys` table (encrypted storage)
+- [ ] Create `user_agent_config` table
+- [ ] Implement AES-256 encryption for API keys
+- [ ] Create API key validation service (test API call on save)
+- [ ] Create provider abstraction layer (switch between Claude/GPT/Gemini/Groq/Ollama)
+- [ ] `POST /api/settings/api-keys` - Add/update API key
+- [ ] `GET /api/settings/api-keys` - List configured providers (masked keys)
+- [ ] `DELETE /api/settings/api-keys/{provider}` - Remove API key
+- [ ] `PUT /api/settings/agent-config` - Configure agent providers
+- [ ] `GET /api/settings/agent-config` - Get agent configuration
+
+#### Frontend Tasks
+- [ ] Create Settings page with tabs
+- [ ] Create API Keys section UI
+  - [ ] Add key form with provider selector
+  - [ ] Show masked keys (last 4 chars)
+  - [ ] Validate on save (show success/error)
+  - [ ] Delete key button with confirmation
+- [ ] Create Agent Configuration section UI
+  - [ ] Provider dropdown per agent
+  - [ ] Model dropdown (filtered by provider)
+  - [ ] "Use Defaults" button
+- [ ] Create onboarding flow for first-time users
+  - [ ] Welcome screen
+  - [ ] API key setup (at least one required)
+  - [ ] Optional agent configuration
+  - [ ] Redirect to dashboard
+
+### 1.7.2 Custom Evaluation Templates
+
+#### Template Structure
+```typescript
+interface EvaluationTemplate {
+  id: string;
+  name: string;
+  description: string;
+  isSystemTemplate: boolean;
+  userId: string | null;
+  
+  criteria: Criterion[];
+  passingScore: number;          // default: 60
+  minimumCriteriaMet: number;    // default: 3
+  requiredCriteria: string[];    // e.g., ["technical_skills"]
+}
+
+interface Criterion {
+  id: string;
+  name: string;
+  description: string;
+  maxPoints: number;
+  keywords: string[];            // AI hints
+  evaluationGuidelines: string;  // Detailed instructions
+}
+```
+
+#### Backend Tasks
+- [ ] Create `evaluation_templates` table
+- [ ] Create `template_criteria` table
+- [ ] Create seed data for "AI-First Fintech" system template
+- [ ] `GET /api/templates` - List templates (system + user's)
+- [ ] `GET /api/templates/{id}` - Get template details
+- [ ] `POST /api/templates` - Create user template
+- [ ] `PUT /api/templates/{id}` - Update user template
+- [ ] `DELETE /api/templates/{id}` - Delete user template
+- [ ] Update CV evaluation to use selected template
+
+#### Frontend Tasks
+- [ ] Create Templates page (list view)
+  - [ ] Show system templates (read-only badge)
+  - [ ] Show user templates (edit/delete buttons)
+  - [ ] "Create New Template" button
+- [ ] Create Template Editor page
+  - [ ] Template name & description inputs
+  - [ ] Passing score slider (0-100)
+  - [ ] Minimum criteria met input
+  - [ ] Criteria list with add/remove/reorder
+  - [ ] Per-criterion: name, points, description, keywords, required checkbox
+  - [ ] Save/Cancel buttons
+- [ ] Add template selector to CV upload page
+  - [ ] Dropdown with all available templates
+  - [ ] Default to "AI-First Fintech" system template
+
+### 1.7.3 System Template: "AI-First Fintech" ⭐
+
+> This is the default template, shipped with the app, based on our original criteria.
+
+| Criterion | Points | Description |
+|-----------|--------|-------------|
+| **Education** | 15 | High School+, bootcamps, self-taught with portfolio |
+| **Fintech Experience** | 20 | Finance, banking, crypto, DeFi, fintech startups |
+| **Technical Skills** | 25 | TypeScript, Python, React, Node.js, FastAPI |
+| **Soft Skills & Adaptability** | 20 | Fast learner, stress handling, teamwork |
+| **AI-Native Development** | 20 | AI tools (Copilot, Cursor), RAG, MCP, agents |
+
+**Pass/Fail Logic:** Score ≥ 60 AND 3+ criteria met (must include Technical Skills)
+
+---
+
 ## Phase 2: Database Layer (PostgreSQL + pgvector)
 
 ### 2.1 Database Setup
 - [ ] Install PostgreSQL locally or set up cloud instance
 - [ ] Install `pgvector` extension
-- [ ] Install Python dependencies (`asyncpg`, `sqlalchemy`, `alembic`, `pgvector`)
+- [ ] Install Python dependencies (`asyncpg`, `sqlalchemy`, `alembic`, `pgvector`, `cryptography`)
 - [ ] Create database connection module (`/app/db/`)
 - [ ] Set up Alembic for migrations
 - [ ] Add database URL to `.env`
+- [ ] Create encryption utilities for API key storage
 
 ### 2.2 Database Models (SQLAlchemy)
-- [ ] `User` table (id, email, password_hash, name, auth_provider, notification_preferences, created_at)
-- [ ] `CV` table (id, user_id, filename, original_text, upload_date, status)
-- [ ] `CVEvaluation` table (id, cv_id, score, status, reasoning, criteria_json, evaluated_at)
+
+#### Core Tables
+- [ ] `User` table (id, email, password_hash, name, auth_provider, created_at, updated_at)
+
+#### API Keys & Agent Config (Phase 1.7)
+- [ ] `UserApiKey` table (id, user_id, provider, encrypted_key, key_hint, created_at, updated_at)
+- [ ] `UserAgentConfig` table (id, user_id, parser_provider, parser_model, scorer_provider, scorer_model, chat_provider, chat_model, embeddings_provider, embeddings_model, created_at, updated_at)
+
+#### Evaluation Templates (Phase 1.7)
+- [ ] `EvaluationTemplate` table (id, user_id, name, description, is_system_template, passing_score, minimum_criteria_met, created_at, updated_at)
+- [ ] `TemplateCriterion` table (id, template_id, name, description, max_points, keywords, evaluation_guidelines, is_required, sort_order, created_at)
+
+#### CV & Evaluation
+- [ ] `CV` table (id, user_id, filename, original_text, status, uploaded_at)
+- [ ] `CVEvaluation` table (id, cv_id, template_id, score, status, reasoning, criteria_results, evaluated_at)
 - [ ] `CVEmbedding` table (id, cv_id, embedding vector[1536], created_at)
-- [ ] `HiringProfile` table (id, user_id, name, prompt_template, criteria_config, created_at)
+
+#### Chat & Notifications
 - [ ] `ChatHistory` table (id, user_id, cv_id, role, message, created_at)
-- [ ] `NotificationSettings` table (id, user_id, email_enabled, whatsapp_enabled, whatsapp_number, threshold_score)
+- [ ] `NotificationSettings` table (id, user_id, email_enabled, whatsapp_enabled, whatsapp_number, threshold_score, created_at, updated_at)
 
 ### 2.3 Database Migrations
 - [ ] Create initial migration with all tables
@@ -547,14 +692,18 @@ frontend/src/
 
 ## Priority Order
 
-1. **Phase 1**: Authentication (Email/Password + Google OAuth)
-2. **Phase 2**: Database Layer (PostgreSQL + pgvector)
-3. **Phase 3**: LangChain Integration
-4. **Phase 4**: Multi-Agent Architecture
-5. **Phase 5**: Notification System (Email + WhatsApp)
-6. **Phase 6**: Signature Features
-7. **Phase 7**: Frontend Enhancements
-8. **Phase 8**: Testing & Documentation
+1. **Phase 1**: Authentication (Email/Password + Google OAuth) ✅ COMPLETED
+2. **Phase 1.5**: Project Structure Refactoring ✅ COMPLETED
+3. **Phase 1.7**: User Configuration System (API Keys + Templates) 🆕
+4. **Phase 2**: Database Layer (PostgreSQL + pgvector)
+5. **Phase 3**: LangChain Integration
+6. **Phase 4**: Multi-Agent Architecture
+7. **Phase 5**: Notification System (Email + WhatsApp)
+8. **Phase 6**: Signature Features
+9. **Phase 7**: Frontend Enhancements
+10. **Phase 8**: Testing & Documentation
+
+> **Note**: Phase 1.7 (User Configuration) will be implemented as part of Phase 2 (Database Layer) since it requires database persistence.
 
 ---
 
@@ -563,6 +712,9 @@ frontend/src/
 ```env
 # Database
 DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/cv_scanner
+
+# Encryption (for API keys)
+ENCRYPTION_KEY=your-32-byte-encryption-key
 
 # Auth
 JWT_SECRET_KEY=your-secret-key
@@ -584,12 +736,16 @@ WHATSAPP_API_URL=https://graph.facebook.com/v17.0
 WHATSAPP_PHONE_NUMBER_ID=your-phone-number-id
 WHATSAPP_ACCESS_TOKEN=your-access-token
 
-# Embeddings
-EMBEDDING_MODEL=text-embedding-3-small
+# Default AI Provider (fallback, users should add their own)
+# These are OPTIONAL - users will provide their own keys
+# ANTHROPIC_API_KEY=sk-ant-...
+# OPENAI_API_KEY=sk-...
+# GOOGLE_API_KEY=AIza...
+# GROQ_API_KEY=gsk_...
 ```
 
 ---
 
-## Starting Point
+## Next Step
 
-**Begin with Phase 1.1**: Install auth dependencies and create the auth module structure in the backend.
+**Begin with Phase 2**: Set up PostgreSQL + pgvector and implement the database models including the new user configuration tables (API keys, agent config, evaluation templates).

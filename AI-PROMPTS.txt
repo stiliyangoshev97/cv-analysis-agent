@@ -10,6 +10,7 @@ Please read these files to understand the project:
 6. /frontend/README.md - Frontend details
 7. /frontend/PROJECT_CONTEXT.md - Frontend architecture
 8. /frontend/CHANGELOG.md - Frontend changes
+9. /CV-Scanner.md - Project Explanation
 
 After reading, summarize the current state and ask what I want to work on.
 
