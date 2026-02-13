@@ -24,6 +24,9 @@ FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, sto
 | **AI Evaluation** | Claude AI scores CVs against 5 criteria with detailed reasoning |
 | **Vector Search** | pgvector-powered semantic search for CV content |
 | **RAG Chat** | Ask questions about CVs with context-aware responses |
+| **Multi-Agent System** | Coordinated agents for parsing, scoring, chat, and notifications |
+| **Email Notifications** | Async SMTP notifications when CVs meet score thresholds |
+| **WhatsApp Alerts** | Twilio-powered WhatsApp notifications for high-scoring candidates |
 | **LangChain** | Composable chains for evaluation, embeddings, and conversation |
 | **JWT Auth** | Secure registration, login, and token refresh |
 | **Google OAuth** | Optional Google sign-in support |
@@ -117,6 +120,16 @@ backend/
 │   │       ├── evaluation_chain.py  # CV scoring → CVEvaluationResult (Pydantic)
 │   │       └── conversation_chain.py # RAG Q&A, ExplanationChain
 │   │
+│   ├── agents/                      # 🤖 Multi-Agent System
+│   │   ├── messages.py              # TaskType (16 types), AgentMessage, AgentResult
+│   │   ├── base.py                  # AgentContext, BaseAgent abstract class
+│   │   ├── tools.py                 # Shared utilities (DocumentTools, EmbeddingTools)
+│   │   ├── parser_agent.py          # PDF/DOCX parsing → text extraction
+│   │   ├── scorer_agent.py          # CV evaluation + embeddings
+│   │   ├── chat_agent.py            # RAG conversations, explain, compare
+│   │   ├── notification_agent.py    # Email/WhatsApp dispatch
+│   │   └── orchestrator.py          # AgentOrchestrator (routes tasks)
+│   │
 │   ├── shared/                      # 📦 Shared utilities
 │   │   └── schemas/
 │   │       └── base.py              # BaseResponse, ErrorResponse, PaginatedResponse
@@ -138,6 +151,22 @@ backend/
 │           └── services/
 │               ├── pdf_service.py         # PDF text extraction (pdfplumber)
 │               └── evaluation_service.py  # Claude AI evaluation
+│
+│       ├── chat/                    # Chat feature (RAG Q&A)
+│           ├── chat_routes.py       # Route definitions (/api/chat/*)
+│           ├── chat_controller.py   # HTTP handlers
+│           ├── chat_service.py      # RAG orchestration
+│           ├── chat_repository.py   # Chat history operations
+│           └── chat_schemas.py      # Pydantic schemas
+│
+│       └── notification/            # Notification feature (Email + WhatsApp)
+│           ├── notification_routes.py      # Route definitions (/api/notifications/*)
+│           ├── notification_controller.py  # HTTP handlers
+│           ├── notification_service.py     # Dispatch orchestration
+│           ├── notification_repository.py  # Settings CRUD
+│           ├── email_service.py            # Async SMTP (aiosmtplib)
+│           ├── whatsapp_service.py         # Twilio WhatsApp
+│           └── notification_schemas.py     # Pydantic schemas
 │
 ├── alembic/                         # 🔄 Database migrations
 │   ├── env.py                       # Alembic configuration
@@ -328,6 +357,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
+
+# === Email Notifications (Optional) ===
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM_EMAIL=noreply@example.com
+SMTP_FROM_NAME=CV Screening Agent
+SMTP_USE_TLS=true
+
+# === WhatsApp Notifications (Optional) ===
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_WHATSAPP_FROM=+14155238886
 ```
 
 ---
@@ -364,6 +407,15 @@ GOOGLE_CLIENT_SECRET=...
 | `DELETE` | `/{cv_id}` | Clear chat history | ✅ |
 | `POST` | `/{cv_id}/explain/{criterion}` | Explain criterion score | ✅ |
 | `POST` | `/compare` | Compare multiple CVs (2-5) | ✅ |
+
+### Notifications (`/api/notifications`)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/` | Get notification settings | ✅ |
+| `PUT` | `/` | Update notification settings | ✅ |
+| `POST` | `/test/{channel}` | Send test notification (email/whatsapp) | ✅ |
+| `GET` | `/status` | Get service configuration status | ✅ |
 
 ### Response Example
 
@@ -431,9 +483,13 @@ pytest tests/unit/test_cv_service.py
 - [x] CV Repository + Evaluation Repository + Template Repository + Chat Repository + Embedding Repository
 - [x] CV API endpoints with authentication (upload, list, get, delete, re-evaluate)
 - [x] CV feature integrated with database persistence
-- [ ] Chat endpoints for RAG Q&A (Priority 3)
-- [ ] Multi-agent architecture (Phase 4)
-- [ ] Email/WhatsApp notifications (Phase 5)
+- [x] Chat endpoints for RAG Q&A (ask, explain, compare)
+- [x] Multi-agent architecture (ParserAgent, ScorerAgent, ChatAgent, NotificationAgent, Orchestrator)
+- [x] Email notifications (aiosmtplib with HTML templates)
+- [x] WhatsApp notifications (Twilio API integration)
+- [ ] Frontend notification settings UI
+- [ ] Semantic search dashboard
+- [ ] Adaptive scoring profiles
 
 ---
 
