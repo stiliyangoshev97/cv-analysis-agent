@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-02-13 🗄️ DATABASE LAYER
+
+### Added
+
+**PostgreSQL + pgvector Integration**
+- Async SQLAlchemy 2.0 with asyncpg driver
+- pgvector extension support for semantic search
+- Alembic migrations setup for schema management
+
+**Database Models (10 tables)**
+- `User` - User accounts with auth provider tracking
+- `UserApiKey` - Encrypted API keys for AI providers (AES-256)
+- `UserAgentConfig` - Per-agent AI provider/model configuration
+- `EvaluationTemplate` - System and user-created evaluation templates
+- `TemplateCriterion` - Individual criteria within templates
+- `CV` - Uploaded CV documents with status tracking
+- `CVEvaluation` - Evaluation results with per-criterion scores
+- `CVEmbedding` - Vector embeddings for semantic search
+- `ChatHistory` - Conversation history for CV explanations
+- `NotificationSettings` - Email/WhatsApp alert preferences
+
+**Encryption Utilities**
+- `app/db/encryption.py` - AES-256 (Fernet) encryption for API keys
+- Key hint extraction (last 4 chars) for UI display
+- Encryption key validation
+
+**Seed Data**
+- "AI-First Fintech" system template with 5 criteria
+- Seed script for initial database population
+
+**Configuration**
+- `DATABASE_URL` environment variable
+- `ENCRYPTION_KEY` for API key encryption
+- Updated `.env.example` with all new variables
+
+**Documentation**
+- `docs/POSTGRESQL_SETUP.md` - Installation guide for PostgreSQL/pgvector
+
+### Changed
+- Config now includes database and encryption settings
+- Models prepared for migration from in-memory to PostgreSQL
+
+---
+
 ## [0.3.0] - 2026-02-12 🏗️ REFACTORING + EXPANDED CRITERIA
 
 ### Added

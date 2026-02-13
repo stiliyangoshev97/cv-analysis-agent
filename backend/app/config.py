@@ -73,13 +73,20 @@ class Settings(BaseSettings):
         Always override it in production via environment variable.
     """
     
-    # Anthropic API Configuration
+    # Anthropic API Configuration (deprecated - users now provide their own keys)
     anthropic_api_key: str = ""
     claude_model: str = "claude-sonnet-4-20250514"
     
     # App Configuration
     app_name: str = "CV Screening Agent"
     debug: bool = False
+    
+    # Database Configuration
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/cv_screening_agent"
+    
+    # Encryption key for API keys (32 bytes, base64 encoded)
+    # Generate with: python -c "import secrets; import base64; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode())"
+    encryption_key: str = ""
     
     # File Upload Configuration
     max_file_size_mb: int = 10

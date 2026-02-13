@@ -26,12 +26,14 @@
 | Environment Config | ✅ 100% | pydantic-settings |
 | **Authentication** | ✅ 100% | JWT + Email/Password + Google OAuth |
 | **Project Structure** | ✅ 100% | Controller-Service-Model pattern |
-| **Database Layer** | ⏳ 0% | Phase 2 - PostgreSQL + pgvector |
+| **Database Layer** | ✅ 100% | PostgreSQL + pgvector + SQLAlchemy |
+| **API Key Storage** | ✅ 100% | AES-256 encrypted storage |
+| **Evaluation Templates** | ✅ 100% | System + user templates |
 | **LangChain Integration** | ⏳ 0% | Phase 3 |
 | **Multi-Agent System** | ⏳ 0% | Phase 4 |
 | **Notification System** | ⏳ 0% | Phase 5 - Email + WhatsApp |
 
-**Overall Progress: ~35%** (MVP + Auth + Refactoring Complete)
+**Overall Progress: ~45%** (MVP + Auth + Refactoring + Database Complete)
 
 ---
 
@@ -49,11 +51,15 @@ Request Flow: Routes → Controller → Service → Model/External APIs
 |-------|------------|---------|
 | Runtime | Python 3.13 | Server runtime |
 | Framework | FastAPI | Async HTTP server & routing |
+| Database | PostgreSQL + pgvector | Relational + vector storage |
+| ORM | SQLAlchemy 2.0 (async) | Database models & queries |
+| Migrations | Alembic | Schema version control |
 | PDF Processing | pdfplumber | Text extraction from PDFs |
 | AI | Anthropic Claude | CV evaluation & reasoning |
 | Validation | Pydantic | Schema validation & serialization |
 | Config | pydantic-settings | Environment management |
 | Auth | python-jose + bcrypt | JWT tokens + password hashing |
+| Encryption | cryptography (Fernet) | AES-256 for API keys |
 
 ### Project Structure
 ```
