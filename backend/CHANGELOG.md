@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] - 2026-02-13 🤖 MULTI-AGENT ARCHITECTURE (Phase 4)
+
+### Added
+
+**Multi-Agent System (`app/agents/`)** - Coordinated agent architecture
+- `messages.py` - Agent communication protocol
+  - `TaskType` enum: 16 task types across 5 categories
+  - `AgentStatus` enum: PENDING, RUNNING, SUCCESS, FAILED, SKIPPED
+  - `AgentMessage` dataclass: Input with payload and metadata
+  - `AgentResult` dataclass: Output with chaining support (next_task)
+- `base.py` - Agent foundation
+  - `AgentContext`: Dependency injection with all repositories
+  - `BaseAgent`: Abstract base class with execute/process pattern
+- `tools.py` - Shared utilities
+  - `validate_file()`, `extract_candidate_name()`, `format_criteria_results()`
+  - `DocumentTools`, `EmbeddingTools`, `EvaluationTools`, `ConversationTools`
+
+**Specialized Agents**
+- `parser_agent.py` - Document parsing (PDF/DOCX)
+  - Tasks: `PARSE_DOCUMENT`, `EXTRACT_TEXT`
+  - Chains to ScorerAgent via `next_task`
+- `scorer_agent.py` - Evaluation and embeddings
+  - Tasks: `EVALUATE_CV`, `GENERATE_EMBEDDINGS`, `RE_EVALUATE`
+  - Creates CV records, stores embeddings, runs evaluation
+- `chat_agent.py` - RAG conversations
+  - Tasks: `ASK_QUESTION`, `EXPLAIN_SCORE`, `COMPARE_CVS`
+  - Tasks: `GET_CHAT_HISTORY`, `CLEAR_CHAT_HISTORY`
+- `notification_agent.py` - Alerts (stub for Phase 5)
+  - Tasks: `CHECK_THRESHOLD`, `SEND_EMAIL`, `SEND_WHATSAPP`, `DISPATCH_NOTIFICATION`
+
+**Orchestrator**
+- `orchestrator.py` - Central coordinator
+  - `AgentOrchestrator`: Routes tasks to appropriate agents
+  - `WorkflowResult`: Aggregates multi-step results
+  - Convenience methods: `upload_cv()`, `ask_question()`, `re_evaluate()`
+  - Task chaining with `next_task` support
+  - Maximum chain depth protection (10 steps)
+
+### Architecture
+
+```
+AgentOrchestrator (Supervisor/Router)
+       │
+┌──────┼──────┬──────────┬────────────┐
+▼      ▼      ▼          ▼            ▼
+Parser  Scorer  Chat   Notification   ...
+Agent   Agent   Agent     Agent
+
+Workflow Example (CV Upload):
+  PARSE_DOCUMENT → EVALUATE_CV → CHECK_THRESHOLD → DISPATCH_NOTIFICATION
+```
+
+### Technical Details
+- 4 specialized agents + 1 orchestrator
+- 16 task types organized by category
+- Shared `AgentContext` for dependency injection
+- Built-in timing and error handling in base class
+- Task chaining via `next_task` in `AgentResult`
+- Maximum 10-step chain depth for safety
+
+---
+
 ## [0.7.0] - 2026-02-13 💬 CHAT FEATURE (RAG Q&A)
 
 ### Added

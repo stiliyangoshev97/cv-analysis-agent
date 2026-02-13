@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 13, 2026 (v0.7.0 - Chat Feature with RAG Q&A)
+> Last Updated: February 13, 2026 (v0.8.0 - Multi-Agent Architecture)
 
 ---
 
@@ -32,10 +32,10 @@
 | **LangChain Integration** | ✅ 100% | Chains, embeddings, RAG |
 | **CV Feature + DB** | ✅ 100% | Full persistence with repositories |
 | **Chat Endpoints (RAG Q&A)** | ✅ 100% | Ask questions, explain scores, compare CVs |
-| **Multi-Agent System** | ⏳ 0% | Phase 4 |
+| **Multi-Agent System** | ✅ 100% | Phase 4 - 4 specialized agents + orchestrator |
 | **Notification System** | ⏳ 0% | Phase 5 - Email + WhatsApp |
 
-**Overall Progress: ~65%** (MVP + Auth + DB + LangChain + CV + Chat Complete)
+**Overall Progress: ~75%** (MVP + Auth + DB + LangChain + CV + Chat + Agents Complete)
 
 ---
 
@@ -99,6 +99,17 @@ backend/
 │   │   └── chains/                 # LangChain chains
 │   │       ├── evaluation_chain.py # CV scoring with Pydantic output
 │   │       └── conversation_chain.py # RAG Q&A about CVs
+│   │
+│   ├── agents/                     # Multi-Agent System
+│   │   ├── __init__.py             # Barrel exports
+│   │   ├── messages.py             # TaskType, AgentMessage, AgentResult
+│   │   ├── base.py                 # AgentContext, BaseAgent
+│   │   ├── tools.py                # Shared utilities & tool classes
+│   │   ├── parser_agent.py         # Document parsing agent
+│   │   ├── scorer_agent.py         # Evaluation agent
+│   │   ├── chat_agent.py           # RAG conversation agent
+│   │   ├── notification_agent.py   # Notification agent (stub)
+│   │   └── orchestrator.py         # AgentOrchestrator
 │   │
 │   ├── shared/                     # Shared business logic
 │   │   └── schemas/

@@ -8,7 +8,7 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Phase 4 - Multi-Agent System
+> **Current Focus**: Phase 5 - Notification System
 
 ### Priority 1: Remaining Repositories ✅ COMPLETED
 - [x] Create `CVRepository` - CRUD operations for CV documents
@@ -594,36 +594,64 @@ interface Criterion {
 
 ---
 
-## Phase 4: Multi-Agent Architecture
+## Phase 4: Multi-Agent Architecture ✅ COMPLETED
 
-### 4.1 Agent Framework Setup
-- [ ] Design agent communication protocol
-- [ ] Create base Agent class
-- [ ] Create agent orchestrator/supervisor
+### 4.1 Agent Framework Setup ✅
+- [x] Design agent communication protocol (`app/agents/messages.py`)
+  - `TaskType` enum with all supported tasks
+  - `AgentStatus` enum (PENDING, RUNNING, SUCCESS, FAILED, SKIPPED)
+  - `AgentMessage` dataclass for input
+  - `AgentResult` dataclass for output with chaining support
+- [x] Create base Agent class (`app/agents/base.py`)
+  - `AgentContext` for dependency injection (session + repositories)
+  - `BaseAgent` abstract class with execute/process pattern
+  - Built-in timing and error handling
+- [x] Create agent orchestrator/supervisor (`app/agents/orchestrator.py`)
+  - `AgentOrchestrator` - routes tasks to agents
+  - `WorkflowResult` - aggregates multi-step results
+  - Task chaining via `next_task` in AgentResult
+  - Convenience methods: `upload_cv()`, `ask_question()`, `re_evaluate()`
 
-### 4.2 Parser Agent
-- [ ] Extracts and cleans text from uploaded documents
-- [ ] Handles PDF, DOCX formats
-- [ ] Normalizes text for consistent processing
-- [ ] Outputs structured document data
+### 4.2 Parser Agent ✅
+- [x] Created `app/agents/parser_agent.py`
+- [x] Extracts and cleans text from uploaded documents
+- [x] Handles PDF, DOCX formats via LangChain DocumentProcessor
+- [x] Creates chunks for embedding generation
+- [x] Extracts candidate name from CV
+- [x] Tasks: `PARSE_DOCUMENT`, `EXTRACT_TEXT`
 
-### 4.3 Scorer Agent
-- [ ] Receives parsed document from Parser Agent
-- [ ] Runs evaluation against criteria
-- [ ] Generates embeddings for vector storage
-- [ ] Outputs evaluation results + embeddings
+### 4.3 Scorer Agent ✅
+- [x] Created `app/agents/scorer_agent.py`
+- [x] Receives parsed document from Parser Agent
+- [x] Generates and stores embeddings via pgvector
+- [x] Runs evaluation against criteria templates
+- [x] Persists CV and evaluation to database
+- [x] Tasks: `EVALUATE_CV`, `GENERATE_EMBEDDINGS`, `RE_EVALUATE`
 
-### 4.4 Notification Agent
-- [ ] Monitors evaluation results
-- [ ] Checks score against user's threshold
-- [ ] Determines notification channels (email/WhatsApp/both)
-- [ ] Dispatches notifications asynchronously
+### 4.4 Chat Agent ✅
+- [x] Created `app/agents/chat_agent.py`
+- [x] Handles conversational queries about CVs
+- [x] Retrieves relevant context from vector store
+- [x] Provides explanations for criterion scores
+- [x] Supports CV comparison (2-5 CVs)
+- [x] Maintains conversation history per CV per user
+- [x] Tasks: `ASK_QUESTION`, `EXPLAIN_SCORE`, `COMPARE_CVS`, `GET_CHAT_HISTORY`, `CLEAR_CHAT_HISTORY`
 
-### 4.5 Chat Agent
-- [ ] Handles conversational queries about CVs
-- [ ] Retrieves relevant context from vector store
-- [ ] Provides explanations for scores
-- [ ] Maintains conversation history
+### 4.5 Notification Agent ✅ (Stub)
+- [x] Created `app/agents/notification_agent.py` (stub for Phase 5)
+- [x] Threshold checking implemented
+- [x] Tasks: `CHECK_THRESHOLD`, `SEND_EMAIL`, `SEND_WHATSAPP`, `DISPATCH_NOTIFICATION`
+- [ ] Full implementation in Phase 5
+
+### 4.6 Shared Tools ✅
+- [x] Created `app/agents/tools.py`
+- [x] `validate_file()` - File validation
+- [x] `extract_candidate_name()` - Name extraction
+- [x] `format_criteria_results()` - Result formatting
+- [x] `DocumentTools` - LangChain document processing
+- [x] `EmbeddingTools` - Vector embedding operations
+- [x] `EvaluationTools` - CV evaluation
+- [x] `ConversationTools` - RAG chat utilities
 
 ---
 
