@@ -23,12 +23,14 @@ Example:
 """
 
 from app.db.base import Base, TimestampMixin
-from app.db.session import get_async_session, async_engine, AsyncSessionLocal
+from app.db.session import get_async_session, get_db_session, async_engine, engine, AsyncSessionLocal
 
 __all__ = [
     "Base",
     "TimestampMixin",
     "get_async_session",
+    "get_db_session",
     "async_engine",
+    "engine",
     "AsyncSessionLocal",
 ]

@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.3.0 - Refactoring + Expanded Criteria)
+> Last Updated: February 2026 (v0.4.0 - Database Layer)
 
 ---
 
@@ -39,11 +39,12 @@
 
 ## 🏗️ Architecture
 
-### Controller-Service-Model Pattern
+### Controller-Service-Repository Pattern
 ```
-Request Flow: Routes → Controller → Service → Model/External APIs
-                ↓          ↓           ↓
-              Thin    HTTP Logic   Business Logic
+Request Flow: Routes → Controller → Service → Repository → Database
+                ↓          ↓           ↓           ↓
+              Thin    HTTP Logic   Business    Database
+                                    Logic      Operations
 ```
 
 ### Tech Stack
@@ -51,7 +52,7 @@ Request Flow: Routes → Controller → Service → Model/External APIs
 |-------|------------|---------|
 | Runtime | Python 3.13 | Server runtime |
 | Framework | FastAPI | Async HTTP server & routing |
-| Database | PostgreSQL + pgvector | Relational + vector storage |
+| Database | PostgreSQL 17 + pgvector | Relational + vector storage |
 | ORM | SQLAlchemy 2.0 (async) | Database models & queries |
 | Migrations | Alembic | Schema version control |
 | PDF Processing | pdfplumber | Text extraction from PDFs |
@@ -63,36 +64,72 @@ Request Flow: Routes → Controller → Service → Model/External APIs
 
 ### Project Structure
 ```
-backend/app/
-├── main.py                     # FastAPI app entry point
-├── config.py                   # Settings with pydantic-settings
+backend/
+├── app/
+│   ├── main.py                     # FastAPI app entry point
+│   ├── config.py                   # Settings with pydantic-settings
+│   │
+│   ├── core/                       # Shared infrastructure
+│   │   ├── security.py             # JWT utils, password hashing
+│   │   ├── exceptions.py           # Custom exception classes
+│   │   └── dependencies.py         # Shared FastAPI dependencies
+│   │
+│   ├── db/                         # Database layer
+│   │   ├── base.py                 # Base class, TimestampMixin
+│   │   ├── session.py              # Async engine & session
+│   │   ├── encryption.py           # AES-256 for API keys
+│   │   ├── seed.py                 # System template seed data
+│   │   └── models/                 # SQLAlchemy models
+│   │       ├── user.py             # User model
+│   │       ├── api_key.py          # UserApiKey (encrypted)
+│   │       ├── agent_config.py     # UserAgentConfig
+│   │       ├── template.py         # EvaluationTemplate + Criterion
+│   │       ├── cv.py               # CV, CVEvaluation, CVEmbedding
+│   │       ├── chat.py             # ChatHistory
+│   │       └── notification.py     # NotificationSettings
+│   │
+│   ├── shared/                     # Shared business logic
+│   │   └── schemas/
+│   │       └── base.py             # BaseResponse, ErrorResponse
+│   │
+│   └── features/
+│       ├── auth/                   # Authentication feature
+│       │   ├── auth_routes.py      # Route definitions (thin)
+│       │   ├── auth_controller.py  # HTTP handlers
+│       │   ├── auth_service.py     # Business logic (async)
+│       │   ├── auth_repository.py  # Database operations
+│       │   ├── auth_schemas.py     # Pydantic schemas
+│       │   └── auth_dependencies.py # get_current_user
+│       │
+│       └── cv/                     # CV Screening feature
+│           ├── cv_routes.py        # Route definitions
+│           ├── cv_controller.py    # HTTP handlers
+│           ├── cv_service.py       # Orchestration service
+│           ├── cv_schemas.py       # Pydantic schemas
+│           └── services/
+│               ├── pdf_service.py        # PDF text extraction
+│               └── evaluation_service.py # Claude AI evaluation
 │
-├── core/                       # Shared infrastructure
-│   ├── security.py             # JWT utils, password hashing
-│   ├── exceptions.py           # Custom exception classes
-│   └── dependencies.py         # Shared FastAPI dependencies
+├── alembic/                        # Database migrations
+│   ├── env.py                      # Migration configuration
+│   └── versions/                   # Migration files
 │
-├── shared/                     # Shared business logic
-│   └── schemas/
-│       └── base.py             # BaseResponse, ErrorResponse
-│
-└── features/
-    ├── auth/                   # Authentication feature
-    │   ├── auth_routes.py      # Route definitions (thin)
-    │   ├── auth_controller.py  # HTTP handlers
-    │   ├── auth_service.py     # Business logic
-    │   ├── auth_schemas.py     # Pydantic schemas
-    │   ├── auth_models.py      # User model (in-memory)
-    │   └── auth_dependencies.py # get_current_user
-    │
-    └── cv/                     # CV Screening feature
-        ├── cv_routes.py        # Route definitions
-        ├── cv_controller.py    # HTTP handlers
-        ├── cv_service.py       # Orchestration service
-        ├── cv_schemas.py       # Pydantic schemas
-        └── services/
-            ├── pdf_service.py        # PDF text extraction
-            └── evaluation_service.py # Claude AI evaluation
+└── docs/
+    └── POSTGRESQL_SETUP.md         # PostgreSQL installation guide
+```
+
+### Database Schema (10 Tables)
+```sql
+users                 -- User accounts with OAuth support
+user_api_keys         -- Encrypted BYOK API keys
+user_agent_configs    -- Per-user agent settings
+evaluation_templates  -- System + user templates
+template_criteria     -- Criteria within templates
+cvs                   -- Uploaded CV documents
+cv_evaluations        -- Evaluation results
+cv_embeddings         -- Vector embeddings (pgvector)
+chat_history          -- CV explanation conversations
+notification_settings -- Alert preferences
 ```
 
 ---

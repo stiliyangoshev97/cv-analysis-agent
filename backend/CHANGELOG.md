@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Alembic migrations setup for schema management
 
 **Database Models (10 tables)**
-- `User` - User accounts with auth provider tracking
+- `User` - User accounts with auth provider tracking, OAuth support
 - `UserApiKey` - Encrypted API keys for AI providers (AES-256)
 - `UserAgentConfig` - Per-agent AI provider/model configuration
 - `EvaluationTemplate` - System and user-created evaluation templates
@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CVEmbedding` - Vector embeddings for semantic search
 - `ChatHistory` - Conversation history for CV explanations
 - `NotificationSettings` - Email/WhatsApp alert preferences
+
+**User Repository**
+- `app/features/auth/auth_repository.py` - Database operations for users
+- Async CRUD operations for user management
+- Replaced in-memory UserStore with PostgreSQL persistence
 
 **Encryption Utilities**
 - `app/db/encryption.py` - AES-256 (Fernet) encryption for API keys
@@ -46,8 +51,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/POSTGRESQL_SETUP.md` - Installation guide for PostgreSQL/pgvector
 
 ### Changed
+- **Auth Feature** - Fully refactored to use database persistence
+  - `auth_service.py` - Now async, uses UserRepository
+  - `auth_controller.py` - Accepts AsyncSession dependency
+  - `auth_dependencies.py` - Async user lookup from database
+  - `auth_routes.py` - Injects database session
 - Config now includes database and encryption settings
-- Models prepared for migration from in-memory to PostgreSQL
+- User model centralized in `app/db/models/user.py`
+
+### Removed
+- `app/features/auth/auth_models.py` - Obsolete in-memory UserStore
 
 ---
 

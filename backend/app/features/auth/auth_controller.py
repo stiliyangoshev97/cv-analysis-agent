@@ -17,12 +17,13 @@ Example:
     Using the controller in routes::
     
         from .auth_controller import AuthController
+        from app.db.session import get_db_session
         
         controller = AuthController()
         
         @router.post("/register")
-        async def register(request: RegisterRequest):
-            return await controller.register(request)
+        async def register(request: RegisterRequest, session: AsyncSession = Depends(get_db_session)):
+            return await controller.register(request, session)
 
 Note:
     Business logic should NOT be in this file. It belongs in auth_service.py.
@@ -31,6 +32,7 @@ Note:
 
 import logging
 from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth_schemas import (
     RegisterRequest,
@@ -42,8 +44,8 @@ from .auth_schemas import (
     UserResponse,
     MessageResponse,
 )
-from .auth_service import auth_service
-from .auth_models import User
+from .auth_service import AuthService
+from app.db.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -64,10 +66,10 @@ class AuthController:
     
     Example:
         >>> controller = AuthController()
-        >>> response = await controller.login(login_request)
+        >>> response = await controller.login(login_request, session)
     """
     
-    async def register(self, request: RegisterRequest) -> AuthResponse:
+    async def register(self, request: RegisterRequest, session: AsyncSession) -> AuthResponse:
         """Handle user registration request.
         
         Creates a new user account with the provided credentials.
@@ -75,6 +77,7 @@ class AuthController:
         
         Args:
             request: Registration data (email, password, full_name).
+            session: Database session for user operations.
         
         Returns:
             AuthResponse with user profile and tokens.
@@ -88,7 +91,8 @@ class AuthController:
         """
         try:
             logger.info(f"Registration attempt for: {request.email}")
-            result = auth_service.register(request)
+            service = AuthService(session)
+            result = await service.register(request)
             logger.info(f"User registered successfully: {request.email}")
             return result
         except ValueError as e:
@@ -98,13 +102,14 @@ class AuthController:
                 detail=str(e)
             )
     
-    async def login(self, request: LoginRequest) -> AuthResponse:
+    async def login(self, request: LoginRequest, session: AsyncSession) -> AuthResponse:
         """Handle user login request.
         
         Validates credentials and returns tokens if valid.
         
         Args:
             request: Login credentials (email, password).
+            session: Database session for user operations.
         
         Returns:
             AuthResponse with user profile and tokens.
@@ -121,7 +126,8 @@ class AuthController:
         """
         try:
             logger.info(f"Login attempt for: {request.email}")
-            result = auth_service.login(request)
+            service = AuthService(session)
+            result = await service.login(request)
             logger.info(f"User logged in successfully: {request.email}")
             return result
         except ValueError as e:
@@ -131,13 +137,14 @@ class AuthController:
                 detail=str(e)
             )
     
-    async def refresh_token(self, request: RefreshTokenRequest) -> TokenResponse:
+    async def refresh_token(self, request: RefreshTokenRequest, session: AsyncSession) -> TokenResponse:
         """Handle token refresh request.
         
         Exchanges a valid refresh token for new access/refresh tokens.
         
         Args:
             request: Contains the refresh token to exchange.
+            session: Database session for user operations.
         
         Returns:
             TokenResponse with new token pair.
@@ -151,7 +158,8 @@ class AuthController:
         """
         try:
             logger.debug("Token refresh attempt")
-            result = auth_service.refresh_tokens(request.refresh_token)
+            service = AuthService(session)
+            result = await service.refresh_tokens(request.refresh_token)
             logger.debug("Token refreshed successfully")
             return result
         except ValueError as e:
@@ -161,13 +169,14 @@ class AuthController:
                 detail=str(e)
             )
     
-    async def google_auth(self, request: GoogleAuthRequest) -> AuthResponse:
+    async def google_auth(self, request: GoogleAuthRequest, session: AsyncSession) -> AuthResponse:
         """Handle Google OAuth authentication request.
         
         Exchanges Google auth code for user info, creates or logs in user.
         
         Args:
             request: Contains Google auth code and redirect URI.
+            session: Database session for user operations.
         
         Returns:
             AuthResponse with user profile and tokens.
@@ -184,7 +193,8 @@ class AuthController:
         """
         try:
             logger.info("Google OAuth attempt")
-            result = await auth_service.google_auth(request.code, request.redirect_uri)
+            service = AuthService(session)
+            result = await service.google_auth(request.code, request.redirect_uri)
             logger.info(f"Google OAuth successful for: {result.user.email}")
             return result
         except ValueError as e:
@@ -211,9 +221,9 @@ class AuthController:
         """
         logger.debug(f"Profile request for user: {current_user.email}")
         return UserResponse(
-            id=current_user.id,
+            id=str(current_user.id),
             email=current_user.email,
-            full_name=current_user.full_name,
+            full_name=current_user.name,
             auth_provider=current_user.auth_provider,
             avatar_url=current_user.avatar_url,
             created_at=current_user.created_at,
@@ -236,7 +246,7 @@ class AuthController:
         
         Note:
             With stateless JWT, tokens remain valid until expiration.
-            Token blacklisting will be added in Phase 2.
+            Token blacklisting can be added in future phases.
         """
         logger.info(f"User logged out: {current_user.email}")
         return MessageResponse(message="Successfully logged out")

@@ -33,19 +33,23 @@ Note:
     header in format: "Bearer <token>"
 """
 
+import uuid
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from .auth_service import auth_service
-from .auth_models import User
+from app.db.session import get_db_session
+from app.db.models.user import User
+from .auth_service import AuthService
 
 # HTTP Bearer token security scheme for OpenAPI docs
 security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    session: AsyncSession = Depends(get_db_session),
 ) -> User:
     """Dependency to get the current authenticated user.
     
@@ -55,6 +59,7 @@ async def get_current_user(
     Args:
         credentials: Automatically injected by FastAPI from the
             Authorization header.
+        session: Database session for user lookup.
     
     Returns:
         The authenticated User instance.
@@ -79,8 +84,9 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    service = AuthService(session)
     token = credentials.credentials
-    payload = auth_service.decode_token(token)
+    payload = service.decode_token(token)
     
     if not payload:
         raise HTTPException(
@@ -96,8 +102,17 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    user_id = payload.get("sub")
-    user = auth_service.get_user_by_id(user_id)
+    user_id_str = payload.get("sub")
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user ID in token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = await service.get_user_by_id(user_id)
     
     if not user:
         raise HTTPException(
@@ -116,7 +131,8 @@ async def get_current_user(
 
 
 async def get_current_user_optional(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    session: AsyncSession = Depends(get_db_session),
 ) -> Optional[User]:
     """Dependency to optionally get the current authenticated user.
     
@@ -127,6 +143,7 @@ async def get_current_user_optional(
     Args:
         credentials: Automatically injected by FastAPI from the
             Authorization header (may be None).
+        session: Database session for user lookup.
     
     Returns:
         The authenticated User instance if valid token provided,
@@ -138,7 +155,7 @@ async def get_current_user_optional(
         ...     user: Optional[User] = Depends(get_current_user_optional)
         ... ):
         ...     if user:
-        ...         return {"message": f"Hello, {user.full_name}!"}
+        ...         return {"message": f"Hello, {user.name}!"}
         ...     return {"message": "Hello, guest!"}
     
     Note:
@@ -149,14 +166,20 @@ async def get_current_user_optional(
         return None
     
     try:
+        service = AuthService(session)
         token = credentials.credentials
-        payload = auth_service.decode_token(token)
+        payload = service.decode_token(token)
         
         if not payload or payload.get("type") != "access":
             return None
         
-        user_id = payload.get("sub")
-        user = auth_service.get_user_by_id(user_id)
+        user_id_str = payload.get("sub")
+        try:
+            user_id = uuid.UUID(user_id_str)
+        except (ValueError, TypeError):
+            return None
+        
+        user = await service.get_user_by_id(user_id)
         
         if user and user.is_active:
             return user

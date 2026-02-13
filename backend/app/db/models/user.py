@@ -109,6 +109,16 @@ class User(Base, TimestampMixin):
         nullable=False,
         default="email",
     )
+    google_id: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        unique=True,
+        nullable=True,
+        index=True,
+    )
+    avatar_url: Mapped[Optional[str]] = mapped_column(
+        String(500),
+        nullable=True,
+    )
     
     # Account status
     is_active: Mapped[bool] = mapped_column(

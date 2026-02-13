@@ -89,3 +89,10 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+
+
+# Alias for compatibility
+get_db_session = get_async_session
+
+# Export engine for migrations
+engine = async_engine

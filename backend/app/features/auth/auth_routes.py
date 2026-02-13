@@ -23,7 +23,10 @@ Note:
 """
 
 from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.session import get_db_session
+from app.db.models.user import User
 from .auth_controller import AuthController
 from .auth_schemas import (
     RegisterRequest,
@@ -36,7 +39,6 @@ from .auth_schemas import (
     MessageResponse,
 )
 from .auth_dependencies import get_current_user
-from .auth_models import User
 
 # Router instance with prefix and OpenAPI tags
 router = APIRouter(
@@ -59,9 +61,12 @@ controller = AuthController()
     summary="Register a new user",
     description="Create a new user account with email and password.",
 )
-async def register(request: RegisterRequest) -> AuthResponse:
+async def register(
+    request: RegisterRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> AuthResponse:
     """Route handler for user registration."""
-    return await controller.register(request)
+    return await controller.register(request, session)
 
 
 @router.post(
@@ -70,9 +75,12 @@ async def register(request: RegisterRequest) -> AuthResponse:
     summary="Login user",
     description="Authenticate with email and password to receive tokens.",
 )
-async def login(request: LoginRequest) -> AuthResponse:
+async def login(
+    request: LoginRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> AuthResponse:
     """Route handler for user login."""
-    return await controller.login(request)
+    return await controller.login(request, session)
 
 
 @router.post(
@@ -81,9 +89,12 @@ async def login(request: LoginRequest) -> AuthResponse:
     summary="Refresh access token",
     description="Get a new access token using a valid refresh token.",
 )
-async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
+async def refresh_token(
+    request: RefreshTokenRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> TokenResponse:
     """Route handler for token refresh."""
-    return await controller.refresh_token(request)
+    return await controller.refresh_token(request, session)
 
 
 @router.post(
@@ -92,9 +103,12 @@ async def refresh_token(request: RefreshTokenRequest) -> TokenResponse:
     summary="Google OAuth login",
     description="Authenticate using Google OAuth. Exchange auth code for tokens.",
 )
-async def google_auth(request: GoogleAuthRequest) -> AuthResponse:
+async def google_auth(
+    request: GoogleAuthRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> AuthResponse:
     """Route handler for Google OAuth authentication."""
-    return await controller.google_auth(request)
+    return await controller.google_auth(request, session)
 
 
 @router.get(
