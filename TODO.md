@@ -8,7 +8,7 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Phase 5 Frontend - Notification Settings UI
+> **Current Focus**: Phase 6 - Signature Features
 
 ### Priority 1: Remaining Repositories ✅ COMPLETED
 - [x] Create `CVRepository` - CRUD operations for CV documents
@@ -662,7 +662,7 @@ interface Criterion {
 - [x] Create notification API endpoints (`/api/notifications/`)
 - [x] Store WhatsApp number in user profile (`whatsapp_number` field)
 - [x] Store threshold score for alerts (default: 80, `threshold_score` field)
-- [ ] Create settings UI in frontend (Phase 5 Frontend - pending)
+- [x] Create settings UI in frontend
 
 ### 5.2 Email Notifications ✅
 - [x] Install email dependencies (`aiosmtplib>=3.0.0`)
@@ -693,11 +693,13 @@ interface Criterion {
     - If `whatsapp_enabled`: Send WhatsApp
     - If both: Send both
 
-### 5.5 Pending: Frontend UI
-- [ ] Create notification settings page
-- [ ] Add email/WhatsApp toggle switches
-- [ ] Add threshold score slider
-- [ ] Add test notification buttons
+### 5.5 Frontend UI ✅
+- [x] Create notification settings page (`/settings/notifications`)
+- [x] Add email/WhatsApp toggle switches
+- [x] Add threshold score slider
+- [x] Add test notification buttons
+- [x] Set up React Router for navigation
+- [x] Add settings link to UserMenu dropdown
 
 ---
 

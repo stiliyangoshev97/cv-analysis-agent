@@ -54,3 +54,21 @@ export {
   type RefreshTokenRequest,
   type GoogleAuthRequest,
 } from './auth.schemas';
+
+// Notification Schemas
+export {
+  // Schemas
+  notificationSettingsSchema,
+  notificationSettingsUpdateSchema,
+  notificationChannelSchema,
+  sendTestNotificationRequestSchema,
+  notificationResultSchema,
+  notificationServiceStatusSchema,
+  // Types
+  type NotificationSettings,
+  type NotificationSettingsUpdate,
+  type NotificationChannel,
+  type SendTestNotificationRequest,
+  type NotificationResult,
+  type NotificationServiceStatus,
+} from './notification.schemas';

@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-02-13 🔔 NOTIFICATION SETTINGS UI (Phase 5)
+
+### Added
+
+**React Router Integration**
+- Added proper React Router (v7) configuration
+- Created `routes.tsx` with route definitions
+- Header logo now links to home page
+- Catch-all route redirects to home
+
+**Notification Feature Module (`features/notification/`)**
+- `notificationApi.ts` - API functions for notification endpoints
+- `useNotificationSettings.ts` - React Query hooks:
+  - `useNotificationSettings()` - Fetch settings
+  - `useUpdateNotificationSettings()` - Update settings mutation
+  - `useSendTestNotification()` - Send test notification mutation
+  - `useNotificationStatus()` - Fetch service status
+- `NotificationSettingsPanel.tsx` - Main settings UI component
+- `NotificationSettingsPage.tsx` - Page wrapper
+- `Toggle.tsx` - Custom toggle switch component
+- `ThresholdSlider.tsx` - Score threshold slider component
+
+**Notification Schemas (`shared/schemas/notification.schemas.ts`)**
+- `notificationSettingsSchema` - Settings validation
+- `notificationSettingsUpdateSchema` - Update request validation
+- `notificationChannelSchema` - Channel enum (email/whatsapp)
+- `notificationResultSchema` - Test result validation
+- `notificationServiceStatusSchema` - Service status validation
+
+**User Menu Enhancement**
+- Added "Notification Settings" link to user dropdown
+- Bell icon for visual clarity
+- Links to `/settings/notifications`
+
+### Changed
+
+**App.tsx**
+- Converted to use `RouterProvider` from React Router
+- Routes now defined in `router/routes.tsx`
+
+**RootLayout**
+- Logo/header now wrapped in `Link` to home page
+- Imported `Link` from `react-router-dom`
+
+**Router Index**
+- Added `router` export from `routes.tsx`
+- Updated module documentation
+
+### Routes
+
+| Path | Component | Description |
+|------|-----------|-------------|
+| `/` | `CVPage` | CV Upload & Evaluation (protected) |
+| `/settings/notifications` | `NotificationSettingsPage` | Notification preferences (protected) |
+
+---
+
 ## [0.3.0] - 2026-02-12 🏗️ REFACTORING + UI COMPONENTS
 
 ### Added

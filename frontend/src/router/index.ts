@@ -8,7 +8,8 @@
  * ROUTE STRUCTURE:
  * ```
  * / (RootLayout)
- * └── /                      [PROTECTED]  CV Upload/Evaluation page
+ * └── /                           [PROTECTED]  CV Upload/Evaluation page
+ * └── /settings/notifications     [PROTECTED]  Notification Settings page
  * ```
  *
  * ROUTE GUARDS:
@@ -16,9 +17,13 @@
  *
  * @example
  * ```tsx
- * import { ProtectedRoute, RootLayout } from '@/router';
+ * import { router } from '@/router';
+ * import { RouterProvider } from 'react-router-dom';
+ * 
+ * <RouterProvider router={router} />
  * ```
  */
 
 export { ProtectedRoute } from './guards';
 export { RootLayout } from './RootLayout';
+export { router } from './routes';

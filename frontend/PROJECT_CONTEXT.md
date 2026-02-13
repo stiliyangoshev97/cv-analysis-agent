@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.3.0 - Refactoring + UI Components)
+> Last Updated: February 2026 (v0.4.0 - Notification Settings UI)
 
 ---
 
@@ -27,11 +27,13 @@
 | **Authentication UI** | ✅ 100% | Login, Register, UserMenu |
 | **Path Aliases** | ✅ 100% | @/ prefix for imports |
 | **Project Structure** | ✅ 100% | Feature-based organization |
+| **React Router** | ✅ 100% | Client-side routing |
+| **Notification Settings UI** | ✅ 100% | Phase 5 - Email/WhatsApp toggles |
 | **Dashboard** | ⏳ 0% | Phase 7 |
 | **Semantic Search UI** | ⏳ 0% | Phase 6 |
 | **Chat Interface** | ⏳ 0% | Phase 6 |
 
-**Overall Progress: ~35%** (MVP + Auth + Refactoring Complete)
+**Overall Progress: ~45%** (MVP + Auth + Refactoring + Notifications Complete)
 
 ---
 
@@ -46,6 +48,7 @@
 | Styling | TailwindCSS | Utility-first CSS |
 | Server State | TanStack Query | Caching & mutations |
 | Client State | Zustand | Auth store with persistence |
+| Routing | React Router v7 | Client-side navigation |
 | HTTP | Axios | API requests with interceptors |
 | Validation | Zod | Schema validation & type inference |
 | Variants | CVA | Class-variance-authority for components |
@@ -63,7 +66,8 @@ frontend/src/
 │   └── index.ts
 │
 ├── router/                     # Routing configuration
-│   ├── index.ts                # Route definitions
+│   ├── index.ts                # Barrel exports
+│   ├── routes.tsx              # Route definitions (React Router)
 │   ├── RootLayout.tsx          # Layout with header
 │   └── guards/
 │       ├── ProtectedRoute.tsx  # Auth guard component
@@ -91,6 +95,7 @@ frontend/src/
 │   ├── schemas/                # Zod schemas
 │   │   ├── auth.schemas.ts     # Auth request/response
 │   │   ├── cv.schemas.ts       # CV evaluation types
+│   │   ├── notification.schemas.ts # Notification settings
 │   │   └── index.ts
 │   ├── types/
 │   │   └── index.ts            # Re-exported Zod types
@@ -122,6 +127,23 @@ frontend/src/
         │   └── index.ts
         ├── hooks/useUploadCV.ts
         ├── pages/CVPage.tsx
+        └── index.ts
+
+    └── notification/           # Notification Settings feature
+        ├── api/
+        │   ├── notificationApi.ts
+        │   └── index.ts
+        ├── components/
+        │   ├── NotificationSettingsPanel.tsx
+        │   ├── Toggle.tsx
+        │   ├── ThresholdSlider.tsx
+        │   └── index.ts
+        ├── hooks/
+        │   ├── useNotificationSettings.ts
+        │   └── index.ts
+        ├── pages/
+        │   ├── NotificationSettingsPage.tsx
+        │   └── index.ts
         └── index.ts
 ```
 
@@ -213,6 +235,13 @@ npm run lint    # Run ESLint
 
 ## 📋 Planned Features (Roadmap)
 
+### Phase 5: Notification UI ✅
+- [x] Notification settings page
+- [x] Email/WhatsApp toggle switches
+- [x] Threshold score slider
+- [x] Test notification buttons
+- [x] React Router integration
+
 ### Phase 6: Dashboard & Search
 - [ ] CV history list
 - [ ] Semantic search with filters
@@ -222,3 +251,12 @@ npm run lint    # Run ESLint
 - [ ] "Why did this CV pass/fail?" explanations
 - [ ] Conversational follow-up questions
 - [ ] Context from CV embeddings
+
+---
+
+## 🗺️ Routes
+
+| Path | Component | Auth | Description |
+|------|-----------|------|-------------|
+| `/` | `CVPage` | ✅ | CV Upload & Evaluation |
+| `/settings/notifications` | `NotificationSettingsPage` | ✅ | Notification preferences |

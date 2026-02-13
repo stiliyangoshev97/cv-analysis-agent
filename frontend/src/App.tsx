@@ -1,29 +1,23 @@
 /**
  * @fileoverview Main application component.
  *
- * Sets up the app with protected routes and layouts.
+ * Sets up the app with React Router for navigation.
  *
  * @module App
  */
 
-import { RootLayout, ProtectedRoute } from '@/router';
-import { CVPage } from '@/features/cv';
+import { RouterProvider } from 'react-router-dom';
+import { router } from '@/router';
 
 /**
  * Main application component.
  *
- * Wraps the CV page in protected route and root layout.
+ * Uses React Router for client-side navigation between pages.
  *
- * @returns The main app component
+ * @returns The main app component with router
  */
 const App = () => {
-  return (
-    <ProtectedRoute>
-      <RootLayout>
-        <CVPage />
-      </RootLayout>
-    </ProtectedRoute>
-  );
+  return <RouterProvider router={router} />;
 };
 
 export default App;

@@ -7,6 +7,7 @@
  * @module router/RootLayout
  */
 
+import { Link } from 'react-router-dom';
 import { UserMenu } from '@/features/auth';
 import { Container, Text, Heading } from '@/shared/components/ui';
 
@@ -33,7 +34,7 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
       <header className="bg-white border-b border-gray-200">
         <Container className="py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-white"
@@ -53,7 +54,7 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
                 <Heading level={4} className="text-xl">CV Screening Agent</Heading>
                 <Text variant="muted" size="sm">AI-Powered Resume Evaluation</Text>
               </div>
-            </div>
+            </Link>
             <UserMenu />
           </div>
         </Container>

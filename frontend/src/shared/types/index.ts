@@ -35,4 +35,11 @@ export type {
   LoginRequest,
   RefreshTokenRequest,
   GoogleAuthRequest,
+  // Notification Types
+  NotificationSettings,
+  NotificationSettingsUpdate,
+  NotificationChannel,
+  SendTestNotificationRequest,
+  NotificationResult,
+  NotificationServiceStatus,
 } from '../schemas';
