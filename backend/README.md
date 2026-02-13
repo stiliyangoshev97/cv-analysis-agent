@@ -1,6 +1,20 @@
 # CV Screening Agent - Backend 🐍
 
-FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores them in PostgreSQL with vector embeddings, evaluates using Claude AI, and provides RAG-powered Q&A about candidates.
+FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores      └── cv/                     # CV Screening feature
+            ├── __init__.py             # Barrel exports
+            ├── cv_routes.py            # Route definitions
+            ├── cv_controller.py        # HTTP handlers
+            ├── cv_service.py           # Orchestration + LangChain integration
+            ├── cv_repository.py        # CV CRUD operations
+            ├── evaluation_repository.py # Evaluation operations
+            ├── template_repository.py  # Template operations
+            ├── chat_repository.py      # Chat history operations
+            ├── embedding_repository.py # Vector search operations
+            ├── cv_dependencies.py      # FastAPI dependencies
+            ├── cv_schemas.py           # Pydantic schemas
+            └── services/               # Legacy services
+                ├── pdf_service.py          # PDF text extraction (legacy)
+                └── evaluation_service.py   # Claude AI evaluation (legacy) PostgreSQL with vector embeddings, evaluates using Claude AI, and provides RAG-powered Q&A about candidates.
 
 ## 🎯 Features
 
@@ -334,8 +348,22 @@ GOOGLE_CLIENT_SECRET=...
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/upload` | Upload PDF & evaluate | ❌ |
-| `GET` | `/health` | Health check | ❌ |
+| `POST` | `/upload` | Upload PDF/DOCX & evaluate | ✅ |
+| `GET` | `/` | List user's CVs (paginated) | ✅ |
+| `GET` | `/{cv_id}` | Get CV details with evaluation | ✅ |
+| `DELETE` | `/{cv_id}` | Delete CV and related data | ✅ |
+| `POST` | `/{cv_id}/re-evaluate` | Re-evaluate with different template | ✅ |
+| `GET` | `/health` | Health check (LangChain status) | ❌ |
+
+### Chat - RAG Q&A (`/api/chat`)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/{cv_id}` | Ask question about CV (RAG) | ✅ |
+| `GET` | `/{cv_id}` | Get chat history | ✅ |
+| `DELETE` | `/{cv_id}` | Clear chat history | ✅ |
+| `POST` | `/{cv_id}/explain/{criterion}` | Explain criterion score | ✅ |
+| `POST` | `/compare` | Compare multiple CVs (2-5) | ✅ |
 
 ### Response Example
 
@@ -400,8 +428,10 @@ pytest tests/unit/test_cv_service.py
 - [x] Alembic migrations
 - [x] pgvector for semantic search
 - [x] LangChain integration (chains, embeddings, RAG)
-- [ ] CV Repository + Evaluation Repository
-- [ ] Chat history persistence (ChatRepository)
+- [x] CV Repository + Evaluation Repository + Template Repository + Chat Repository + Embedding Repository
+- [x] CV API endpoints with authentication (upload, list, get, delete, re-evaluate)
+- [x] CV feature integrated with database persistence
+- [ ] Chat endpoints for RAG Q&A (Priority 3)
 - [ ] Multi-agent architecture (Phase 4)
 - [ ] Email/WhatsApp notifications (Phase 5)
 

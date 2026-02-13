@@ -7,6 +7,134 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-02-13 💬 CHAT FEATURE (RAG Q&A)
+
+### Added
+
+**Chat Feature (`app/features/chat/`)** - New standalone feature module
+- `ChatRepository` - Chat history database operations (moved from cv/)
+  - `add_message()`, `add_user_message()`, `add_assistant_message()`
+  - `get_conversation()`, `get_recent_messages()`, `count_messages()`
+  - `clear_conversation()`, `get_conversations_summary()`
+- `ChatService` - RAG orchestration service
+  - `ask()` - Full RAG pipeline (retrieve context → generate response → persist)
+  - `get_history()` - Get chat history with ownership check
+  - `clear_history()` - Clear conversation for a CV
+  - `explain_criterion()` - Generate detailed score explanation
+  - `compare_cvs()` - Compare 2-5 CVs against each other
+- `ChatController` - HTTP handlers for all chat endpoints
+- `ChatSchemas` - Pydantic schemas:
+  - `ChatMessageRequest`, `ChatMessageResponse`, `ChatHistoryResponse`
+  - `ExplainCriterionRequest`, `ExplainCriterionResponse`
+  - `CompareRequest`, `CompareResponse`, `AskResponse`
+
+**New API Endpoints (`/api/chat`)**
+- `POST /api/chat/{cv_id}` - Ask question about CV (RAG)
+- `GET /api/chat/{cv_id}` - Get chat history
+- `DELETE /api/chat/{cv_id}` - Clear chat history
+- `POST /api/chat/{cv_id}/explain/{criterion}` - Explain criterion score
+- `POST /api/chat/compare` - Compare multiple CVs
+
+### Changed
+- Moved `chat_repository.py` from `features/cv/` to `features/chat/`
+- Updated `features/__init__.py` to export `chat_router`
+- Updated `main.py` to include chat router at `/api/chat`
+
+### Technical Details
+- Clean feature separation (chat is independent module)
+- Full RAG pipeline: embed question → vector search → context injection → LLM
+- Cross-CV comparison support (2-5 CVs)
+- Conversation history maintained per CV per user
+- Uses `ConversationChain` and `ExplanationChain` from langchain module
+
+---
+
+## [0.6.0] - 2026-02-13 🔗 CV FEATURE DATABASE INTEGRATION
+
+### Added
+
+**CV Repositories (`app/features/cv/`)**
+- `CVRepository` - CRUD operations for CV documents
+  - `create()`, `get_by_id()`, `get_by_user()`, `count_by_user()`
+  - `update_status()`, `update_candidate_name()`, `delete()`
+  - `get_by_status()` - Batch processing helper
+- `EvaluationRepository` - Evaluation results operations
+  - `create()`, `get_by_id()`, `get_by_cv()`, `get_latest_by_cv()`
+  - `get_by_template()`, `get_by_status()`, `count_by_cv()`
+- `TemplateRepository` - Template and criteria operations
+  - `get_by_id()`, `get_with_criteria()`, `get_by_name()`
+  - `get_system_templates()`, `get_by_user()`, `get_available_for_user()`
+  - `get_default_template()`, CRUD for templates and criteria
+  - Protection for system templates (cannot update/delete)
+- `ChatRepository` - Chat history operations
+  - `add_message()`, `add_user_message()`, `add_assistant_message()`
+  - `get_conversation()`, `get_recent_messages()`, `count_messages()`
+  - `clear_conversation()`, `get_conversations_summary()`
+- `EmbeddingRepository` - Vector embedding operations
+  - `create()`, `create_many()`, `get_by_cv()`, `count_by_cv()`
+  - `search_similar_in_cv()` - Cosine similarity search
+  - `search_similar_all()` - Cross-CV search with user filter
+  - `search_by_threshold()` - Distance-based filtering
+  - `SimilarityResult` - Data class with distance and similarity scores
+
+**CV Service Rewrite (`cv_service.py`)**
+- Complete integration with LangChain and repositories
+- `process_and_evaluate()` - Full pipeline:
+  1. Validate file (PDF/DOCX)
+  2. Process with `DocumentProcessor` (LangChain)
+  3. Create CV record in database
+  4. Generate and store embeddings (pgvector)
+  5. Evaluate with `EvaluationChain` (LangChain)
+  6. Store evaluation results
+  7. Update CV status to EVALUATED
+- `get_cv()` - Get CV with ownership check
+- `list_user_cvs()` - Paginated list with evaluations
+- `delete_cv()` - Delete with cascade to related data
+- `re_evaluate()` - Re-run evaluation with different template
+- `convert_to_response()` - Convert to API schema
+- `ProcessingResult` - Data class for pipeline results
+
+**CV Controller Updates (`cv_controller.py`)**
+- `upload_and_evaluate()` - Updated for authentication and new service
+- `list_cvs()` - List user's CVs with pagination
+- `get_cv()` - Get single CV details
+- `delete_cv()` - Delete CV and related data
+- `re_evaluate_cv()` - Re-evaluate with different template
+- Authentication required for all CV operations
+
+**CV Routes Updates (`cv_routes.py`)**
+- 6 routes with authentication:
+  - `POST /api/cv/upload` - Upload and evaluate (auth required)
+  - `GET /api/cv/` - List user's CVs (auth required)
+  - `GET /api/cv/{cv_id}` - Get CV details (auth required)
+  - `DELETE /api/cv/{cv_id}` - Delete CV (auth required)
+  - `POST /api/cv/{cv_id}/re-evaluate` - Re-evaluate CV (auth required)
+  - `GET /api/cv/health` - Health check (public)
+
+**CV Schemas (`cv_schemas.py`)**
+- `CVSummary` - Summary for list views
+- `CVListResponse` - Paginated list response
+- `CVDetailResponse` - Full CV details with evaluation
+- `EvaluationDetail` - Detailed evaluation information
+
+**CV Dependencies (`cv_dependencies.py`)**
+- `get_cv_service()` - Now injects database session
+- Service has access to all repositories
+
+### Changed
+- CV processing now persists to database instead of in-memory
+- Embeddings stored in pgvector for semantic search
+- Evaluations stored with full criteria results JSON
+- All CV operations require authentication
+
+### Technical Details
+- Controller-Service-Repository pattern fully implemented
+- Async database operations throughout
+- Ownership checks on all CV operations
+- Cascade deletes for CV → evaluations, embeddings, chat
+
+---
+
 ## [0.5.0] - 2026-02-13 🤖 LANGCHAIN INTEGRATION
 
 ### Added

@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.5.0 - LangChain Integration)
+> Last Updated: February 13, 2026 (v0.7.0 - Chat Feature with RAG Q&A)
 
 ---
 
@@ -25,15 +25,17 @@
 | CORS Config | ✅ 100% | Frontend integration ready |
 | Environment Config | ✅ 100% | pydantic-settings |
 | **Authentication** | ✅ 100% | JWT + Email/Password + Google OAuth |
-| **Project Structure** | ✅ 100% | Controller-Service-Model pattern |
+| **Project Structure** | ✅ 100% | Controller-Service-Repository pattern |
 | **Database Layer** | ✅ 100% | PostgreSQL + pgvector + SQLAlchemy |
 | **API Key Storage** | ✅ 100% | AES-256 encrypted storage |
 | **Evaluation Templates** | ✅ 100% | System + user templates |
 | **LangChain Integration** | ✅ 100% | Chains, embeddings, RAG |
+| **CV Feature + DB** | ✅ 100% | Full persistence with repositories |
+| **Chat Endpoints (RAG Q&A)** | ✅ 100% | Ask questions, explain scores, compare CVs |
 | **Multi-Agent System** | ⏳ 0% | Phase 4 |
 | **Notification System** | ⏳ 0% | Phase 5 - Email + WhatsApp |
 
-**Overall Progress: ~55%** (MVP + Auth + DB + LangChain Complete)
+**Overall Progress: ~65%** (MVP + Auth + DB + LangChain + CV + Chat Complete)
 
 ---
 
@@ -111,14 +113,29 @@ backend/
 │       │   ├── auth_schemas.py     # Pydantic schemas
 │       │   └── auth_dependencies.py # get_current_user
 │       │
-│       └── cv/                     # CV Screening feature
-│           ├── cv_routes.py        # Route definitions
-│           ├── cv_controller.py    # HTTP handlers
-│           ├── cv_service.py       # Orchestration service
-│           ├── cv_schemas.py       # Pydantic schemas
-│           └── services/
-│               ├── pdf_service.py        # PDF text extraction
-│               └── evaluation_service.py # Claude AI evaluation
+│       ├── cv/                     # CV Screening feature
+│       │   ├── __init__.py             # Barrel exports
+│       │   ├── cv_routes.py            # Route definitions
+│       │   ├── cv_controller.py        # HTTP handlers
+│       │   ├── cv_service.py           # Orchestration + LangChain
+│       │   ├── cv_repository.py        # CV CRUD operations
+│       │   ├── evaluation_repository.py # Evaluation operations
+│       │   ├── template_repository.py  # Template operations
+│       │   ├── embedding_repository.py # Vector search operations
+│       │   ├── cv_dependencies.py      # FastAPI dependencies
+│       │   ├── cv_schemas.py           # Pydantic schemas
+│       │   └── services/               # Legacy services
+│       │       ├── pdf_service.py          # PDF text extraction
+│       │       └── evaluation_service.py   # Claude AI evaluation
+│       │
+│       └── chat/                   # Chat feature (RAG Q&A)
+│           ├── __init__.py             # Barrel exports
+│           ├── chat_routes.py          # Route definitions
+│           ├── chat_controller.py      # HTTP handlers
+│           ├── chat_service.py         # RAG orchestration
+│           ├── chat_repository.py      # Chat history operations
+│           ├── chat_dependencies.py    # FastAPI dependencies
+│           └── chat_schemas.py         # Pydantic schemas
 │
 ├── alembic/                        # Database migrations
 │   ├── env.py                      # Migration configuration
@@ -182,8 +199,12 @@ notification_settings -- Alert preferences
 ### CV Screening (`/api/cv/`)
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/upload` | Upload PDF & evaluate | ❌ |
-| `GET` | `/health` | Health check | ❌ |
+| `POST` | `/upload` | Upload PDF/DOCX & evaluate | ✅ |
+| `GET` | `/` | List user's CVs (paginated) | ✅ |
+| `GET` | `/{cv_id}` | Get CV details with evaluation | ✅ |
+| `DELETE` | `/{cv_id}` | Delete CV and related data | ✅ |
+| `POST` | `/{cv_id}/re-evaluate` | Re-evaluate with different template | ✅ |
+| `GET` | `/health` | Health check (LangChain status) | ❌ |
 
 ---
 

@@ -9,6 +9,8 @@
 2. [Vector Database (pgvector)](#vector-database-pgvector)
 3. [RAG (Retrieval-Augmented Generation)](#rag-retrieval-augmented-generation)
 4. [How It All Works Together](#how-it-all-works-together-in-our-system)
+5. [LangChain](#langchain)
+6. [MCP (Model Context Protocol)](#mcp-model-context-protocol)
 
 ---
 
@@ -495,6 +497,206 @@ print(result.passed)       # True
 
 ---
 
+## MCP (Model Context Protocol)
+
+### What Is MCP?
+
+**MCP (Model Context Protocol)** is an open standard created by Anthropic that defines how AI applications can connect to external data sources and tools. Think of it as a **universal adapter** that lets AI models access your data in a standardized way.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  BEFORE MCP: Each AI app builds custom integrations            │
+│                                                                 │
+│  App 1 ─── Custom Code ───→ Database                           │
+│  App 2 ─── Different Code ─→ Database                          │
+│  App 3 ─── Yet Another ────→ Database                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  WITH MCP: Standardized protocol for all apps                  │
+│                                                                 │
+│  App 1 ─┐                                                       │
+│  App 2 ─┼─── MCP Protocol ───→ MCP Server ───→ Database        │
+│  App 3 ─┘                                                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Why MCP Matters
+
+Without MCP, every AI application needs to:
+- Write custom code to access each data source
+- Handle authentication, pagination, error handling differently
+- Rebuild integrations when things change
+
+With MCP:
+- **Write once, use everywhere** - One MCP server works with any MCP client
+- **Standardized interface** - Resources, tools, and prompts follow a spec
+- **Decoupled** - Your data layer is separate from your AI application
+
+### MCP Architecture
+
+```
+┌─────────────────┐    MCP Protocol    ┌─────────────────┐
+│   MCP Client    │◄──────────────────►│   MCP Server    │
+│  (AI App/IDE)   │   JSON-RPC 2.0     │  (Your Code)    │
+└─────────────────┘                     └─────────────────┘
+        │                                       │
+        │                                       ▼
+        │                              ┌─────────────────┐
+        │                              │  Data Sources   │
+        │                              │  - Databases    │
+        │                              │  - APIs         │
+        │                              │  - File Systems │
+        │                              └─────────────────┘
+        ▼
+┌─────────────────┐
+│   LLM (Claude)  │
+└─────────────────┘
+```
+
+### MCP Core Concepts
+
+| Concept | Description | Example |
+|---------|-------------|---------|
+| **MCP Server** | Exposes data/tools to AI apps | Our CV Screening Agent server |
+| **MCP Client** | Consumes data from servers | Claude Desktop, VS Code, custom apps |
+| **Resources** | Data the AI can read | CVs, evaluations, templates |
+| **Tools** | Actions the AI can perform | `evaluate_cv()`, `search_cvs()` |
+| **Prompts** | Pre-built prompt templates | "Analyze this CV for fintech fit" |
+
+### How We'll Use MCP in CV Screening Agent
+
+Our application will expose CV data via MCP so that AI assistants (Claude Desktop, IDE extensions, etc.) can directly interact with CVs and evaluations.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    CV SCREENING MCP SERVER                      │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+         ┌────────────────────┼────────────────────┐
+         ▼                    ▼                    ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│   RESOURCES     │  │     TOOLS       │  │    PROMPTS      │
+├─────────────────┤  ├─────────────────┤  ├─────────────────┤
+│ cv://list       │  │ evaluate_cv     │  │ fintech_eval    │
+│ cv://{id}       │  │ search_cvs      │  │ explain_score   │
+│ cv://{id}/eval  │  │ ask_about_cv    │  │ compare_cvs     │
+│ templates://    │  │ compare_cvs     │  │                 │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+### MCP Server Implementation (Future Phase)
+
+```python
+# backend/app/mcp/server.py (Phase 5)
+from mcp import Server, Resource, Tool
+
+server = Server("cv-screening-agent")
+
+# Resource: List all CVs
+@server.resource("cv://list")
+async def list_cvs() -> list[Resource]:
+    cvs = await cv_repository.get_all()
+    return [
+        Resource(
+            uri=f"cv://{cv.id}",
+            name=cv.filename,
+            description=f"CV for {cv.candidate_name}",
+            mimeType="text/plain"
+        )
+        for cv in cvs
+    ]
+
+# Resource: Get a specific CV
+@server.resource("cv://{cv_id}")
+async def get_cv(cv_id: str) -> str:
+    cv = await cv_repository.get_by_id(uuid.UUID(cv_id))
+    return cv.original_text
+
+# Tool: Evaluate a CV
+@server.tool("evaluate_cv")
+async def evaluate_cv(cv_id: str, template_id: str | None = None) -> dict:
+    """Evaluate a CV against criteria."""
+    result = await evaluation_chain.evaluate(cv_id, template_id)
+    return result.model_dump()
+
+# Tool: Search CVs by semantic query
+@server.tool("search_cvs")
+async def search_cvs(query: str, limit: int = 10) -> list[dict]:
+    """Search CVs using semantic similarity."""
+    results = await embedding_service.search(query, limit=limit)
+    return [{"cv_id": r.cv_id, "score": r.score} for r in results]
+```
+
+### Using Our MCP Server with Claude Desktop
+
+Once implemented, users can connect Claude Desktop to our MCP server:
+
+```json
+// claude_desktop_config.json
+{
+  "mcpServers": {
+    "cv-screening": {
+      "command": "python",
+      "args": ["-m", "app.mcp.server"],
+      "cwd": "/path/to/cv-screening-agent/backend"
+    }
+  }
+}
+```
+
+Then in Claude Desktop:
+```
+User: "What are the top 3 CVs for a React developer position?"
+
+Claude: [Uses search_cvs tool]
+        [Reads cv://{id} resources]
+        
+        "Based on the CVs in your system, the top 3 candidates for 
+        a React developer position are:
+        
+        1. Jane Smith (85/100) - 5 years React, fintech background
+        2. John Doe (78/100) - 3 years React, TypeScript expert
+        3. Alex Chen (72/100) - 2 years React, strong AI/ML skills"
+```
+
+### MCP vs REST API vs GraphQL
+
+| Aspect | REST API | GraphQL | MCP |
+|--------|----------|---------|-----|
+| **Primary Use** | Web/mobile apps | Flexible queries | AI applications |
+| **Consumer** | Frontend code | Frontend code | AI models/assistants |
+| **Discovery** | OpenAPI/Swagger | Schema introspection | Resource/tool listing |
+| **Interaction** | HTTP requests | GraphQL queries | JSON-RPC + AI reasoning |
+| **Best For** | CRUD operations | Complex data fetching | AI-powered features |
+
+### When to Use MCP
+
+✅ **Use MCP when:**
+- Building AI assistants that need access to your data
+- Want Claude/other AI to interact with your system
+- Building IDE extensions with AI features
+- Creating AI agents that need tools
+
+❌ **Don't use MCP when:**
+- Building a traditional web/mobile app (use REST/GraphQL)
+- Simple scripts without AI interaction
+- Data doesn't need to be accessed by AI models
+
+### Our MCP Roadmap (Phase 5)
+
+| Task | Description | Status |
+|------|-------------|--------|
+| Basic MCP Server | Server skeleton with stdio transport | Planned |
+| CV Resources | `cv://list`, `cv://{id}`, `cv://{id}/eval` | Planned |
+| Template Resources | `templates://`, `templates://{id}` | Planned |
+| Evaluation Tool | `evaluate_cv(cv_id, template_id)` | Planned |
+| Search Tool | `search_cvs(query, filters)` | Planned |
+| Chat Tool | `ask_about_cv(cv_id, question)` | Planned |
+| Prompt Templates | Pre-built prompts for common tasks | Planned |
+
+---
+
 ## Quick Reference
 
 | Term | One-Line Definition |
@@ -509,6 +711,9 @@ print(result.passed)       # True
 | **LangChain** | Framework for building LLM applications with chains |
 | **Chain** | Composable sequence of operations (`prompt \| llm \| parser`) |
 | **Output Parser** | Converts LLM text to structured data (Pydantic) |
+| **MCP** | Model Context Protocol - standard for AI to access external data |
+| **MCP Server** | Service that exposes resources and tools to AI clients |
+| **MCP Client** | AI application that consumes MCP server capabilities |
 
 ---
 
@@ -520,3 +725,5 @@ print(result.passed)       # True
 - [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings)
 - [RAG Explained (LangChain)](https://python.langchain.com/docs/tutorials/rag/)
 - [What Are Vector Databases? (Pinecone)](https://www.pinecone.io/learn/vector-database/)
+- [Model Context Protocol (Anthropic)](https://modelcontextprotocol.io/)
+- [MCP Specification](https://spec.modelcontextprotocol.io/)

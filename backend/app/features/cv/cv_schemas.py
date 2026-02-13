@@ -10,6 +10,10 @@ Classes:
     CVEvaluationResponse: Main evaluation response.
     UploadResponse: File upload response wrapper.
     ErrorResponse: Standard error response.
+    CVSummary: Summary of a CV for list views.
+    CVListResponse: Response for CV listing endpoint.
+    EvaluationDetail: Detailed evaluation information.
+    CVDetailResponse: Response for single CV detail endpoint.
 
 Example:
     Creating an evaluation response::
@@ -187,3 +191,79 @@ class ErrorResponse(BaseModel):
     success: bool = Field(default=False)
     error: str = Field(..., description="Error message")
     detail: Optional[str] = Field(None, description="Detailed error information")
+
+
+class CVSummary(BaseModel):
+    """Summary of a CV for list views.
+    
+    Attributes:
+        id: CV UUID.
+        filename: Original uploaded filename.
+        candidate_name: Extracted candidate name if available.
+        status: Processing status.
+        uploaded_at: Upload timestamp.
+        score: Latest evaluation score if available.
+        evaluation_status: Pass/fail status if evaluated.
+    """
+    id: str = Field(..., description="CV UUID")
+    filename: str = Field(..., description="Original uploaded filename")
+    candidate_name: Optional[str] = Field(None, description="Extracted candidate name")
+    status: str = Field(..., description="Processing status")
+    uploaded_at: str = Field(..., description="Upload timestamp ISO format")
+    score: Optional[int] = Field(None, description="Latest evaluation score")
+    evaluation_status: Optional[str] = Field(None, description="Pass/fail status")
+
+
+class CVListResponse(BaseModel):
+    """Response for CV listing endpoint.
+    
+    Attributes:
+        cvs: List of CV summaries.
+        total: Total number of CVs.
+        limit: Maximum returned per page.
+        offset: Number of CVs skipped.
+    """
+    cvs: list[CVSummary] = Field(..., description="List of CV summaries")
+    total: int = Field(..., description="Total number of CVs")
+    limit: int = Field(..., description="Page size")
+    offset: int = Field(..., description="Items skipped")
+
+
+class EvaluationDetail(BaseModel):
+    """Detailed evaluation information.
+    
+    Attributes:
+        id: Evaluation UUID.
+        score: Evaluation score (0-100).
+        status: Pass or fail.
+        reasoning: AI-generated explanation.
+        criteria_results: Per-criterion scores and evidence.
+        evaluated_at: Evaluation timestamp.
+    """
+    id: str = Field(..., description="Evaluation UUID")
+    score: int = Field(..., description="Evaluation score")
+    status: str = Field(..., description="Pass or fail")
+    reasoning: Optional[str] = Field(None, description="AI explanation")
+    criteria_results: Optional[dict] = Field(None, description="Per-criterion results")
+    evaluated_at: str = Field(..., description="Evaluation timestamp ISO format")
+
+
+class CVDetailResponse(BaseModel):
+    """Response for single CV detail endpoint.
+    
+    Attributes:
+        id: CV UUID.
+        filename: Original uploaded filename.
+        candidate_name: Extracted candidate name if available.
+        status: Processing status.
+        uploaded_at: Upload timestamp.
+        original_text: Full extracted CV text.
+        evaluation: Latest evaluation details if available.
+    """
+    id: str = Field(..., description="CV UUID")
+    filename: str = Field(..., description="Original uploaded filename")
+    candidate_name: Optional[str] = Field(None, description="Extracted candidate name")
+    status: str = Field(..., description="Processing status")
+    uploaded_at: str = Field(..., description="Upload timestamp ISO format")
+    original_text: str = Field(..., description="Full extracted CV text")
+    evaluation: Optional[EvaluationDetail] = Field(None, description="Latest evaluation")

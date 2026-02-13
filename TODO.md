@@ -8,27 +8,44 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Complete Phase 3 integration and create remaining repositories
+> **Current Focus**: Phase 4 - Multi-Agent System
 
-### Priority 1: Remaining Repositories
-- [ ] Create `CVRepository` - CRUD operations for CV documents
-- [ ] Create `EvaluationRepository` - Store/retrieve evaluations
-- [ ] Create `EmbeddingRepository` - Vector search helpers (wraps EmbeddingService)
-- [ ] Create `ChatRepository` - Chat history persistence
-- [ ] Create `TemplateRepository` - Evaluation templates CRUD
+### Priority 1: Remaining Repositories ✅ COMPLETED
+- [x] Create `CVRepository` - CRUD operations for CV documents
+- [x] Create `EvaluationRepository` - Store/retrieve evaluations
+- [x] Create `TemplateRepository` - Evaluation templates CRUD
+- [x] Create `ChatRepository` - Chat history persistence
+- [x] Create `EmbeddingRepository` - Vector search helpers (wraps pgvector)
 
-### Priority 2: Integrate LangChain with CV Feature
-- [ ] Update `cv_service.py` to use `DocumentProcessor` for PDF loading
-- [ ] Update `cv_service.py` to use `EvaluationChain` for scoring
-- [ ] Store CV in database after upload (CVRepository)
-- [ ] Store embeddings after processing (EmbeddingRepository)
-- [ ] Store evaluation results (EvaluationRepository)
+### Priority 2: Integrate LangChain with CV Feature ✅ COMPLETED
+- [x] Update `cv_service.py` to use `DocumentProcessor` for PDF/DOCX loading
+- [x] Update `cv_service.py` to use `EvaluationChain` for scoring
+- [x] Store CV in database after upload (CVRepository)
+- [x] Store embeddings after processing (EmbeddingService)
+- [x] Store evaluation results (EvaluationRepository)
+- [x] Update `cv_controller.py` with authentication and new methods
+- [x] Update `cv_routes.py` with new endpoints (list, get, delete, re-evaluate)
+- [x] Add new schemas (CVSummary, CVListResponse, CVDetailResponse)
 
-### Priority 3: Add Chat Endpoints
-- [ ] Create `ChatController` and `ChatService`
-- [ ] `POST /api/cv/{cv_id}/chat` - Ask question about a CV
-- [ ] `GET /api/cv/{cv_id}/chat` - Get chat history
-- [ ] `POST /api/cv/{cv_id}/explain/{criterion}` - Explain a score
+### Priority 3: Add Chat Endpoints ✅ COMPLETED
+- [x] Create `features/chat/` module (separate from CV for clean separation)
+- [x] Move `ChatRepository` from cv/ to chat/
+- [x] Create `ChatService` - RAG orchestration (ask, explain, compare)
+- [x] Create `ChatController` - HTTP handlers
+- [x] Create `chat_schemas.py` - Request/response models
+- [x] Create `chat_routes.py` - Route definitions
+- [x] `POST /api/chat/{cv_id}` - Ask question about a CV (RAG)
+- [x] `GET /api/chat/{cv_id}` - Get chat history
+- [x] `DELETE /api/chat/{cv_id}` - Clear chat history
+- [x] `POST /api/chat/{cv_id}/explain/{criterion}` - Explain a score
+- [x] `POST /api/chat/compare` - Compare 2-5 CVs
+
+### Priority 4: Frontend Chat UI
+- [ ] Create chat components for CV detail page
+- [ ] Add "Ask AI" button to evaluation results
+- [ ] Add "Why?" button to each criterion score
+- [ ] Implement chat history display
+- [ ] Add compare CVs modal/page
 
 ---
 

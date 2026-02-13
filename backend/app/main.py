@@ -1,12 +1,13 @@
 """CV Screening Agent - Main FastAPI Application.
 
 A production-ready API for AI-powered CV evaluation. Provides endpoints
-for user authentication and CV upload/evaluation.
+for user authentication, CV upload/evaluation, and RAG-powered chat.
 
 Features:
     - User authentication (email/password, Google OAuth)
     - PDF CV upload and text extraction
     - AI-powered CV evaluation using Claude
+    - RAG-powered chat for CV Q&A
     - Structured scorecard with pass/fail status
 """
 
@@ -16,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .features import auth_router, cv_router
+from .features import auth_router, cv_router, chat_router
 
 # Configure logging
 logging.basicConfig(
@@ -88,6 +89,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth_router)
 app.include_router(cv_router)
+app.include_router(chat_router, prefix="/api/chat", tags=["Chat"])
 
 
 @app.get("/", tags=["Root"])
