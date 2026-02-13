@@ -2,12 +2,16 @@
 
 React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
+**Version:** 0.5.0 | **Last Updated:** February 13, 2026
+
 ## 🎯 Features
 
 - **Drag & Drop Upload**: Intuitive PDF upload with progress tracking
 - **Real-time Evaluation**: Instant AI-powered CV scoring
 - **Visual Scorecard**: Beautiful display of pass/fail status and criteria
 - **Authentication**: Secure login, registration, and session management
+- **Notification Settings**: Configure email/WhatsApp alerts with threshold
+- **React Router**: Client-side navigation with protected routes
 - **Responsive Design**: Works on desktop and mobile
 
 ## 🏗️ Architecture
@@ -15,9 +19,10 @@ React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and 
 ### Tech Stack
 | Technology | Purpose |
 |------------|---------|
-| **React 18** | UI library with hooks |
+| **React 19** | UI library with hooks |
 | **TypeScript** | Type safety |
 | **Vite** | Fast build tool & dev server |
+| **React Router 7** | Client-side routing |
 | **Tailwind CSS** | Utility-first styling |
 | **TanStack Query** | Server state management |
 | **Zustand** | Client state (auth) |
@@ -28,16 +33,17 @@ React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and 
 ### Project Structure
 ```
 frontend/src/
-├── App.tsx                     # Main app component
+├── App.tsx                     # Main app with RouterProvider
 ├── main.tsx                    # Entry point with providers
 ├── index.css                   # Global styles (Tailwind)
 │
 ├── providers/                  # React providers
 │   └── QueryProvider.tsx       # TanStack Query setup
 │
-├── router/                     # Routing
-│   ├── index.ts                # Route definitions
-│   ├── RootLayout.tsx          # Layout with header
+├── router/                     # Routing (React Router 7)
+│   ├── index.ts                # Barrel exports
+│   ├── routes.tsx              # Route configuration
+│   ├── RootLayout.tsx          # Layout with header/footer
 │   └── guards/
 │       └── ProtectedRoute.tsx  # Auth guard
 │
@@ -58,7 +64,8 @@ frontend/src/
 │   │   └── ProgressBar.tsx     # Linear progress
 │   ├── schemas/                # Zod validation
 │   │   ├── auth.schemas.ts
-│   │   └── cv.schemas.ts
+│   │   ├── cv.schemas.ts
+│   │   └── notification.schemas.ts
 │   ├── types/                  # TypeScript types
 │   └── utils/
 │       └── index.ts            # cn() class merger
@@ -75,17 +82,33 @@ frontend/src/
     │   ├── store/authStore.ts
     │   └── pages/AuthPage.tsx
     │
-    └── cv/                     # CV Screening
-        ├── api/cv.api.ts
+    ├── cv/                     # CV Screening
+    │   ├── api/cv.api.ts
+    │   ├── components/
+    │   │   ├── FileDropzone.tsx
+    │   │   ├── UploadProgress.tsx
+    │   │   ├── Scorecard.tsx
+    │   │   ├── ScoreRing.tsx
+    │   │   └── CriteriaItem.tsx
+    │   ├── hooks/useUploadCV.ts
+    │   └── pages/CVPage.tsx
+    │
+    └── notification/           # Notification Settings
+        ├── api/notificationApi.ts
         ├── components/
-        │   ├── FileDropzone.tsx
-        │   ├── UploadProgress.tsx
-        │   ├── Scorecard.tsx
-        │   ├── ScoreRing.tsx
-        │   └── CriteriaItem.tsx
-        ├── hooks/useUploadCV.ts
-        └── pages/CVPage.tsx
+        │   ├── NotificationSettingsPanel.tsx
+        │   ├── Toggle.tsx
+        │   └── ThresholdSlider.tsx
+        ├── hooks/useNotificationSettings.ts
+        └── pages/NotificationSettingsPage.tsx
 ```
+
+## 🛤️ Routes
+
+| Path | Component | Auth Required | Description |
+|------|-----------|---------------|-------------|
+| `/` | `CVPage` | ✅ | Upload & evaluate CVs |
+| `/settings/notifications` | `NotificationSettingsPage` | ✅ | Notification preferences |
 
 ## 🚀 Quick Start
 
@@ -171,6 +194,7 @@ import { useAuth } from '@/features/auth/hooks';
 
 ### Production
 - `react` / `react-dom` - UI library
+- `react-router-dom` - Client-side routing
 - `@tanstack/react-query` - Server state
 - `zustand` - Client state
 - `axios` - HTTP client
@@ -187,13 +211,21 @@ import { useAuth } from '@/features/auth/hooks';
 
 ## 🛣️ Roadmap
 
+### Completed ✅
 - [x] File upload with drag & drop
 - [x] Upload progress tracking
 - [x] Scorecard visualization
-- [x] Authentication UI
-- [x] Shared UI component library
+- [x] Authentication UI (login, register, logout)
+- [x] Shared UI component library (Button, Card, Input, etc.)
 - [x] Path aliases (@/)
-- [ ] Dashboard with history
+- [x] React Router integration
+- [x] Notification settings page
+
+### Planned 🔶
+- [ ] Dashboard with recent CVs and stats
+- [ ] CV history list with TanStack Table
+- [ ] CV detail page with full evaluation
+- [ ] Chat interface for CV Q&A
+- [ ] Candidate comparison UI
 - [ ] Semantic search UI
-- [ ] Candidate comparison
-- [ ] Chat interface
+- [ ] Hiring profiles management
