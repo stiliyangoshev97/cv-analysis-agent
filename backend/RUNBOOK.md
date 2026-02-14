@@ -305,26 +305,3 @@ docker-compose logs -f backend
 | Seed database | `python -m app.db.seed` |
 | Install deps | `pip install -r requirements.txt` |
 | Install test deps | `pip install -r requirements-test.txt` |
-
----
-
-## 🧪 Current Test Statistics
-
-```
-Total: 283 tests
-├── Unit Tests: 169
-│   ├── test_auth.py: 21 tests
-│   ├── test_profile_service.py: 28 tests
-│   ├── test_similarity_service.py: 26 tests
-│   ├── test_cv_service.py: 32 tests
-│   ├── test_chat_service.py: 28 tests
-│   └── test_notification_service.py: 34 tests
-└── Integration Tests: 114
-    ├── test_auth_api.py: 14 tests
-    ├── test_profile_api.py: 25 tests
-    ├── test_cv_api.py: 18 tests
-    ├── test_chat_api.py: 28 tests
-    └── test_notification_api.py: 29 tests
-```
-
-Run time: ~75-80 seconds

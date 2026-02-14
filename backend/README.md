@@ -444,7 +444,38 @@ TWILIO_WHATSAPP_FROM=+14155238886
 
 ## 🧪 Testing
 
-**283 tests** (169 unit + 114 integration) with 100% passing.
+**283 tests** (169 unit + 114 integration) — 100% passing ✅
+
+### Test Statistics
+
+| Category | Tests | Coverage |
+|----------|-------|----------|
+| **Unit Tests** | 169 | Services, business logic |
+| **Integration Tests** | 114 | API endpoints, HTTP flows |
+| **Total** | **283** | ~75-80s runtime |
+
+### Unit Tests (169)
+
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| `test_auth.py` | 21 | Password hashing, JWT, registration, login |
+| `test_profile_service.py` | 28 | Profile CRUD, clone, criteria management |
+| `test_similarity_service.py` | 26 | Cosine similarity, ranking, CV comparison |
+| `test_cv_service.py` | 32 | Process pipeline, retrieval, deletion |
+| `test_chat_service.py` | 28 | RAG Q&A, history, explain, compare |
+| `test_notification_service.py` | 34 | Settings, dispatch, email/WhatsApp |
+
+### Integration Tests (114)
+
+| Test File | Tests | Endpoints |
+|-----------|-------|-----------|
+| `test_auth_api.py` | 14 | `/api/auth/*` - register, login, refresh, me |
+| `test_profile_api.py` | 25 | `/api/profiles/*` - CRUD, clone, criteria |
+| `test_cv_api.py` | 18 | `/api/cv/*` - list, get, delete, similar, ranking |
+| `test_chat_api.py` | 28 | `/api/chat/*` - ask, history, explain, compare |
+| `test_notification_api.py` | 29 | `/api/notifications/*` - settings, test, status |
+
+### Running Tests
 
 ```bash
 # Run all tests
@@ -469,18 +500,18 @@ pytest app/tests/integration/
 app/tests/
 ├── conftest.py              # Shared fixtures (db, client, users, CVs)
 ├── unit/                    # Unit tests (169 tests)
-│   ├── test_auth.py         # AuthService (21 tests)
-│   ├── test_profile_service.py    # ProfileService (28 tests)
-│   ├── test_similarity_service.py # SimilarityService (26 tests)
-│   ├── test_cv_service.py         # CVService (32 tests)
-│   ├── test_chat_service.py       # ChatService (28 tests)
-│   └── test_notification_service.py # NotificationService (34 tests)
+│   ├── test_auth.py         
+│   ├── test_profile_service.py    
+│   ├── test_similarity_service.py 
+│   ├── test_cv_service.py         
+│   ├── test_chat_service.py       
+│   └── test_notification_service.py 
 └── integration/             # Integration tests (114 tests)
-    ├── test_auth_api.py     # /api/auth/* (14 tests)
-    ├── test_profile_api.py  # /api/profiles/* (25 tests)
-    ├── test_cv_api.py       # /api/cv/* (18 tests)
-    ├── test_chat_api.py     # /api/chat/* (28 tests)
-    └── test_notification_api.py # /api/notifications/* (29 tests)
+    ├── test_auth_api.py     
+    ├── test_profile_api.py  
+    ├── test_cv_api.py       
+    ├── test_chat_api.py     
+    └── test_notification_api.py 
 ```
 
 > 📋 See [RUNBOOK.md](RUNBOOK.md) for all testing commands and options.
