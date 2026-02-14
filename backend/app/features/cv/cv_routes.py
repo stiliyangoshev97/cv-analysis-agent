@@ -96,7 +96,7 @@ async def list_cvs(
     offset: int = Query(0, ge=0, description="Number of CVs to skip"),
     cv_service: CVService = Depends(get_cv_service),
     current_user: User = Depends(get_current_user),
-) -> dict:
+):
     """Route handler for listing user's CVs."""
     return await controller.list_cvs(
         cv_service=cv_service,
@@ -119,7 +119,7 @@ async def get_cv(
     cv_id: uuid.UUID,
     cv_service: CVService = Depends(get_cv_service),
     current_user: User = Depends(get_current_user),
-) -> dict:
+):
     """Route handler for getting CV details."""
     return await controller.get_cv(
         cv_id=cv_id,

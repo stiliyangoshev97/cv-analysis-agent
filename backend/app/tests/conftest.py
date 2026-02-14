@@ -513,6 +513,7 @@ async def client(db_session: AsyncSession, test_settings: Settings) -> AsyncGene
     """Create async test client for API testing.
     
     Overrides database session dependency to use test database.
+    Also mocks OpenAI embeddings to avoid requiring API key in tests.
     
     Args:
         db_session: Database session fixture.
@@ -535,11 +536,19 @@ async def client(db_session: AsyncSession, test_settings: Settings) -> AsyncGene
     app.dependency_overrides[get_async_session] = override_get_session
     app.dependency_overrides[app_get_settings] = override_get_settings
     
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test",
-    ) as ac:
-        yield ac
+    # Mock the embeddings at all locations where get_embeddings is used
+    # This needs to mock in both config and embeddings modules
+    mock_embeddings = MagicMock()
+    mock_embeddings.aembed_query = AsyncMock(return_value=[0.1] * 1536)
+    mock_embeddings.aembed_documents = AsyncMock(return_value=[[0.1] * 1536])
+    
+    with patch("app.langchain.embeddings.get_embeddings", return_value=mock_embeddings):
+        with patch("app.langchain.config.get_embeddings", return_value=mock_embeddings):
+            async with AsyncClient(
+                transport=ASGITransport(app=app),
+                base_url="http://test",
+            ) as ac:
+                yield ac
     
     # Clear overrides
     app.dependency_overrides.clear()

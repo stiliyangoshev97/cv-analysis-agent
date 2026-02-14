@@ -25,15 +25,19 @@ class TestRegisterEndpoint:
             json={
                 "email": "newuser@example.com",
                 "password": "securepassword123",
-                "name": "New User",
+                "full_name": "New User",  # Not "name"
             },
         )
         
         assert response.status_code == 201
         data = response.json()
-        assert "access_token" in data
-        assert "refresh_token" in data
+        # AuthResponse has nested structure
+        assert "user" in data
+        assert "tokens" in data
         assert data["user"]["email"] == "newuser@example.com"
+        assert data["user"]["full_name"] == "New User"
+        assert data["tokens"]["access_token"] is not None
+        assert data["tokens"]["refresh_token"] is not None
     
     async def test_register_duplicate_email(self, client, test_user):
         """Should return 400 for duplicate email."""
@@ -42,7 +46,7 @@ class TestRegisterEndpoint:
             json={
                 "email": test_user.email,
                 "password": "password123",
-                "name": "Duplicate User",
+                "full_name": "Duplicate User",
             },
         )
         
@@ -56,7 +60,7 @@ class TestRegisterEndpoint:
             json={
                 "email": "notanemail",
                 "password": "password123",
-                "name": "Test User",
+                "full_name": "Test User",
             },
         )
         
@@ -69,7 +73,7 @@ class TestRegisterEndpoint:
             json={
                 "email": "test@example.com",
                 "password": "short",
-                "name": "Test User",
+                "full_name": "Test User",
             },
         )
         
@@ -103,9 +107,12 @@ class TestLoginEndpoint:
         
         assert response.status_code == 200
         data = response.json()
-        assert "access_token" in data
-        assert "refresh_token" in data
+        # AuthResponse has nested structure
+        assert "user" in data
+        assert "tokens" in data
         assert data["user"]["email"] == "test@example.com"
+        assert data["tokens"]["access_token"] is not None
+        assert data["tokens"]["refresh_token"] is not None
     
     async def test_login_wrong_password(self, client, test_user):
         """Should return 401 for wrong password."""
@@ -157,7 +164,7 @@ class TestMeEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["email"] == test_user.email
-        assert data["name"] == test_user.name
+        assert data["full_name"] == test_user.name  # API returns full_name
     
     async def test_me_no_token(self, client):
         """Should return 401 without token."""
@@ -191,7 +198,8 @@ class TestRefreshEndpoint:
                 "password": "testpassword123",
             },
         )
-        refresh_token = login_response.json()["refresh_token"]
+        # Tokens are nested in AuthResponse
+        refresh_token = login_response.json()["tokens"]["refresh_token"]
         
         # Use refresh token
         response = await client.post(
@@ -201,6 +209,7 @@ class TestRefreshEndpoint:
         
         assert response.status_code == 200
         data = response.json()
+        # TokenResponse has tokens at root level
         assert "access_token" in data
         assert "refresh_token" in data
     
