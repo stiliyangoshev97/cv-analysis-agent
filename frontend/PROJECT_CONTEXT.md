@@ -1,13 +1,13 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.11.0 - Evaluation Profiles & Template Selector)
+> Last Updated: February 2026 (v0.12.0 - CV Evaluation History & Details)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, chatting with AI about candidates, and comparing multiple CVs.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, browsing CV evaluation history, chatting with AI about candidates, and comparing multiple CVs.
 
 ---
 
@@ -38,9 +38,11 @@
 | **Error Boundaries** | ✅ 100% | Graceful error handling |
 | **Dark Mode** | ✅ 100% | System preference + manual toggle |
 | **Evaluation Profiles** | ✅ 100% | Full CRUD for templates/criteria |
+| **CV History** | ✅ 100% | List, filter, sort, delete CVs |
+| **CV Detail Page** | ✅ 100% | View evaluation details |
 | **Dashboard** | ⏳ 0% | Future feature |
 
-**Overall Progress: ~95%** (Core features complete)
+**Overall Progress: ~97%** (Core features complete)
 
 ---
 
@@ -146,8 +148,14 @@ frontend/src/
     │   ├── hooks/
     │   │   ├── useUploadCV.ts
     │   │   ├── useCVList.ts
+    │   │   ├── useCV.ts            # Single CV detail
+    │   │   ├── useDeleteCV.ts      # Delete CV mutation
     │   │   └── index.ts
-    │   ├── pages/CVPage.tsx
+    │   ├── pages/
+    │   │   ├── CVPage.tsx          # Upload page
+    │   │   ├── HistoryPage.tsx     # CV evaluation history
+    │   │   ├── CVDetailPage.tsx    # Single CV detail view
+    │   │   └── index.ts
     │   └── index.ts
     │
     ├── profile/                # Evaluation Profiles feature

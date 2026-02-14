@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Empty state with CTA to upload first CV
 - Link to individual CV details
 
+**CV Detail Page (`CVDetailPage.tsx`)**
+- Full CV detail view with evaluation results
+- Shows candidate name, filename, upload date
+- Score and status badges
+- AI analysis/reasoning section
+- Per-criterion scores with progress bars and evidence
+- Delete CV functionality with confirmation modal
+- Route: `/history/:id`
+
 **CV Delete Functionality**
 - Delete button on each CV in history list
 - Confirmation modal before deletion
@@ -30,9 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `useDeleteCV` hook with cache invalidation
 - Toast notification on success/error
 
+**CV API Enhancements**
+- `getCV(cvId)` API function to fetch CV details
+- `useCV(cvId)` hook for fetching single CV
+- `CVDetailResponse` type for CV detail data
+
 **Navigation Updates**
 - Added "History" link to main navigation
 - Route `/history` for evaluation history page
+- Route `/history/:id` for CV detail page
 
 **System Template UX Improvement**
 - Added info banner on system template detail pages explaining they cannot be edited/deleted

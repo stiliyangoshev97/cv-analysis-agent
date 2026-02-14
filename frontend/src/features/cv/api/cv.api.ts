@@ -107,6 +107,52 @@ export const checkHealth = async (): Promise<{ status: string; ai_configured: bo
 };
 
 /**
+ * CV Detail response type.
+ * 
+ * Matches the backend CVDetailResponse schema.
+ */
+export interface CVDetailResponse {
+  id: string;
+  filename: string;
+  candidate_name: string | null;
+  status: string;
+  uploaded_at: string;
+  original_text: string;
+  evaluation: {
+    id: string;
+    score: number;
+    status: string;
+    reasoning: string | null;
+    criteria_results: Record<string, {
+      score: number;
+      max_score: number;
+      reasoning: string;
+      evidence: string[];
+    }> | null;
+    evaluated_at: string;
+  } | null;
+}
+
+/**
+ * Get detailed information about a specific CV.
+ *
+ * @param cvId - The UUID of the CV to retrieve
+ * @returns Promise resolving to CV detail response
+ *
+ * @example
+ * ```typescript
+ * const cv = await getCV('uuid-of-cv');
+ * console.log(cv.candidate_name, cv.evaluation?.score);
+ * ```
+ *
+ * @throws {AxiosError} On network errors or if CV not found
+ */
+export const getCV = async (cvId: string): Promise<CVDetailResponse> => {
+  const response = await apiClient.get<CVDetailResponse>(`/api/cv/${cvId}`);
+  return response.data;
+};
+
+/**
  * Delete a CV and all related data.
  *
  * Removes the CV, evaluations, embeddings, and chat history.

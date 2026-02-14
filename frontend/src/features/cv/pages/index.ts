@@ -5,3 +5,4 @@
 
 export { CVPage } from './CVPage';
 export { HistoryPage } from './HistoryPage';
+export { CVDetailPage } from './CVDetailPage';

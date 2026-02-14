@@ -9,6 +9,7 @@
  * ```
  * /                           [PROTECTED] CV Upload/Evaluation page
  * /history                    [PROTECTED] CV Evaluation history
+ * /history/:id                [PROTECTED] CV Detail view
  * /profiles                   [PROTECTED] Evaluation profiles list
  * /profiles/new               [PROTECTED] Create new profile
  * /profiles/:id               [PROTECTED] View profile details
@@ -19,7 +20,7 @@
  */
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { CVPage, HistoryPage } from '@/features/cv';
+import { CVPage, HistoryPage, CVDetailPage } from '@/features/cv';
 import { NotificationSettingsPage } from '@/features/notification';
 import {
   ProfilesPage,
@@ -55,6 +56,17 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RootLayout>
           <HistoryPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/history/:id',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <CVDetailPage />
         </RootLayout>
       </ProtectedRoute>
     ),

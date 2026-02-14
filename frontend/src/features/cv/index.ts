@@ -7,12 +7,12 @@
  *
  * @example
  * ```typescript
- * import { CVPage, HistoryPage, useUploadCV, useDeleteCV, uploadCV } from '@/features/cv';
+ * import { CVPage, HistoryPage, CVDetailPage, useUploadCV, useDeleteCV, uploadCV } from '@/features/cv';
  * ```
  */
 
 // Pages
-export { CVPage, HistoryPage } from './pages';
+export { CVPage, HistoryPage, CVDetailPage } from './pages';
 
 // Components
 export {
@@ -24,8 +24,8 @@ export {
 } from './components';
 
 // Hooks
-export { useUploadCV } from './hooks';
-export { useCVList, useDeleteCV } from './hooks';
+export { useUploadCV, useCVList, useDeleteCV, useCV } from './hooks';
 
 // API
-export { uploadCV, checkHealth, deleteCV } from './api';
+export { uploadCV, checkHealth, deleteCV, getCV } from './api';
+export type { CVDetailResponse } from './api';
