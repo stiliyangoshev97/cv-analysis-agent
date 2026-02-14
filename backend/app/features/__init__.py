@@ -9,12 +9,14 @@ Features:
     cv: CV upload and AI-powered evaluation
     chat: RAG-powered chat for CV Q&A
     notification: Email and WhatsApp notifications
+    profile: Hiring profiles (evaluation templates)
 """
 
 from .auth import auth_router
 from .cv import cv_router
 from .chat import chat_router
 from .notification import notification_router
+from .profile import profile_router
 
-__all__ = ["auth_router", "cv_router", "chat_router", "notification_router"]
+__all__ = ["auth_router", "cv_router", "chat_router", "notification_router", "profile_router"]
 

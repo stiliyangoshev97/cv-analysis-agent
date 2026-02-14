@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .features import auth_router, cv_router, chat_router, notification_router
+from .features import auth_router, cv_router, chat_router, notification_router, profile_router
 
 # Configure logging
 logging.basicConfig(
@@ -54,21 +54,39 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="CV Screening Agent",
     description="""
-    ## CV Screening Agent
-    
-    An AI-powered CV evaluation system that screens candidates based on:
-    
-    - **Education**: High School Diploma or higher
-    - **Fintech Experience**: Finance, Banking, or Crypto background
-    - **Technical Skills**: TypeScript or Python proficiency
-    
-    ### How it works:
-    1. Upload a PDF CV
-    2. Text is extracted from the PDF
-    3. AI evaluates the CV against our criteria
-    4. Receive a structured scorecard with pass/fail status
-    """,
-    version="1.0.0",
+## CV Screening Agent
+
+An AI-powered CV evaluation platform with customizable hiring profiles,
+RAG-powered chat, and multi-channel notifications.
+
+### Core Features
+
+- **📄 CV Upload & Processing**: PDF/DOCX upload with intelligent text extraction
+- **🤖 AI Evaluation**: Claude AI scores CVs against customizable criteria
+- **💬 RAG Chat**: Ask questions about any CV with context-aware responses
+- **📋 Hiring Profiles**: Create custom evaluation templates or clone system defaults
+- **🔔 Notifications**: Email and WhatsApp alerts for qualified candidates
+
+### How It Works
+
+1. **Create a Profile**: Define evaluation criteria (or use system defaults)
+2. **Upload CVs**: PDF or DOCX files are processed and chunked
+3. **AI Evaluation**: Claude scores each CV against your criteria
+4. **Review Results**: Get detailed scorecards with pass/fail recommendations
+5. **Ask Questions**: Chat with AI about any CV using RAG
+6. **Get Notified**: Receive alerts when candidates meet your threshold
+
+### API Modules
+
+| Module | Description |
+|--------|-------------|
+| `/api/auth` | Authentication (JWT, Google OAuth) |
+| `/api/cv` | CV upload, evaluation, and management |
+| `/api/chat` | RAG-powered Q&A about CVs |
+| `/api/profiles` | Hiring profile CRUD |
+| `/api/notifications` | Email/WhatsApp notification settings |
+""",
+    version="0.10.0",
     lifespan=lifespan
 )
 
@@ -91,6 +109,7 @@ app.include_router(auth_router)
 app.include_router(cv_router)
 app.include_router(chat_router, prefix="/api/chat", tags=["Chat"])
 app.include_router(notification_router, prefix="/api/notifications", tags=["Notifications"])
+app.include_router(profile_router, prefix="/api/profiles", tags=["Profiles"])
 
 
 @app.get("/", tags=["Root"])

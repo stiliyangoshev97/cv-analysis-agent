@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.0] - 2026-02-14 📋 HIRING PROFILES CRUD (Phase 6.3)
+
+### Added
+
+**Hiring Profile Feature (`app/features/profile/`)** - Complete profile management module
+- `profile_schemas.py` - Pydantic schemas with Google-style docstrings:
+  - `CriterionCreate`, `CriterionUpdate`, `CriterionResponse` - Criterion CRUD
+  - `ProfileCreate`, `ProfileUpdate`, `ProfileResponse`, `ProfileSummary` - Profile CRUD
+  - `ProfileListResponse`, `CloneProfileRequest` - List and clone operations
+- `profile_service.py` - Business logic with authorization:
+  - `ProfileService` class wrapping `TemplateRepository`
+  - Authorization: system templates read-only, user templates private
+  - Profile CRUD: list, get, create, update, delete, clone
+  - Criterion CRUD: add, update, delete criteria within profiles
+- `profile_controller.py` - HTTP handlers with error handling:
+  - `ProfileController` class with static methods
+  - Proper HTTP status codes (201 for create, 404 for not found, 403 for forbidden)
+- `profile_routes.py` - 9 REST endpoints with OpenAPI descriptions
+- `__init__.py` - Module exports with comprehensive docstrings
+
+**New API Endpoints (`/api/profiles`)**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/profiles/` | List all profiles (system + user) |
+| `GET` | `/api/profiles/{id}` | Get profile with criteria |
+| `POST` | `/api/profiles/` | Create new profile |
+| `PUT` | `/api/profiles/{id}` | Update profile metadata |
+| `DELETE` | `/api/profiles/{id}` | Delete user profile |
+| `POST` | `/api/profiles/{id}/clone` | Clone profile (system or own) |
+| `POST` | `/api/profiles/{id}/criteria` | Add criterion to profile |
+| `PUT` | `/api/profiles/{id}/criteria/{cid}` | Update criterion |
+| `DELETE` | `/api/profiles/{id}/criteria/{cid}` | Delete criterion |
+
+**OpenAPI Documentation (`app/main.py`)**
+- Updated API description to reflect current features
+- Bumped version to 0.10.0
+- Added feature overview table with all API modules
+
+### Architecture
+
+```
+ProfileController
+       │
+       ▼
+ProfileService (Authorization + Business Logic)
+       │
+       ▼
+TemplateRepository (Shared with CV feature)
+       │
+       ▼
+EvaluationTemplate + TemplateCriterion (DB Models)
+```
+
+### Technical Details
+- Reuses existing `TemplateRepository` from cv feature
+- System templates are read-only (clone to customize)
+- User templates support full CRUD with ownership checks
+- Google-style docstrings throughout with examples
+- Consistent with chat feature documentation patterns
+
+---
+
 ## [0.9.0] - 2026-02-13 🔔 NOTIFICATION SYSTEM (Phase 5)
 
 ### Added

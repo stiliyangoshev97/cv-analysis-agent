@@ -1,15 +1,19 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 13, 2026 (v0.9.0 - Notification System)
+> Last Updated: February 14, 2026 (v0.10.0 - Hiring Profiles CRUD)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The system extracts text from PDF CVs, sends it to Claude for intelligent analysis, and returns a detailed scorecard with pass/fail recommendations.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable hiring criteria. The system extracts text from PDF/DOCX CVs, generates embeddings for semantic search, and provides RAG-powered Q&A about candidates.
 
-**Target Use Case**: AI-first fintech companies screening for candidates who embrace modern development practices, including AI-assisted coding.
+**Key Features**:
+- **Customizable Hiring Profiles**: Create evaluation criteria tailored to your roles
+- **AI Evaluation**: Claude scores CVs against your criteria with explanations
+- **RAG Chat**: Ask questions about any CV with context-aware responses
+- **Multi-Channel Notifications**: Email and WhatsApp alerts for qualified candidates
 
 ---
 
@@ -19,7 +23,7 @@
 |-----------|----------|-------|
 | Project Setup | ✅ 100% | FastAPI + Python 3.13 |
 | PDF Processing | ✅ 100% | pdfplumber extraction |
-| AI Evaluation | ✅ 100% | Claude API with 5 criteria |
+| AI Evaluation | ✅ 100% | Claude API with customizable criteria |
 | CV Upload API | ✅ 100% | Single CV upload + evaluation |
 | Health Check | ✅ 100% | Basic health endpoint |
 | CORS Config | ✅ 100% | Frontend integration ready |
@@ -34,8 +38,9 @@
 | **Chat Endpoints (RAG Q&A)** | ✅ 100% | Ask questions, explain scores, compare CVs |
 | **Multi-Agent System** | ✅ 100% | Phase 4 - 4 specialized agents + orchestrator |
 | **Notification System** | ✅ 100% | Phase 5 - Email + WhatsApp via Twilio |
+| **Hiring Profiles CRUD** | ✅ 100% | Phase 6.3 - Profile management API |
 
-**Overall Progress: ~85%** (MVP + Auth + DB + LangChain + CV + Chat + Agents + Notifications Complete)
+**Overall Progress: ~90%** (Phases 1-5 + 6.3 Complete)
 
 ---
 
@@ -159,6 +164,13 @@ backend/
 │           ├── email_service.py            # Async SMTP (aiosmtplib)
 │           └── whatsapp_service.py         # Twilio WhatsApp
 │
+│       └── profile/                # Hiring Profile feature (CRUD)
+│           ├── __init__.py                 # Barrel exports
+│           ├── profile_routes.py           # Route definitions (9 endpoints)
+│           ├── profile_controller.py       # HTTP handlers
+│           ├── profile_service.py          # Business logic + authorization
+│           └── profile_schemas.py          # Pydantic schemas
+│
 ├── alembic/                        # Database migrations
 │   ├── env.py                      # Migration configuration
 │   └── versions/                   # Migration files
@@ -245,6 +257,19 @@ notification_settings -- Alert preferences
 | `POST` | `/test/{channel}` | Send test notification | ✅ |
 | `GET` | `/status` | Get service configuration status | ✅ |
 
+### Hiring Profiles (`/api/profiles/`)
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/` | List all profiles (system + user) | ✅ |
+| `GET` | `/{profile_id}` | Get profile with criteria | ✅ |
+| `POST` | `/` | Create new profile | ✅ |
+| `PUT` | `/{profile_id}` | Update profile metadata | ✅ |
+| `DELETE` | `/{profile_id}` | Delete user profile | ✅ |
+| `POST` | `/{profile_id}/clone` | Clone a profile | ✅ |
+| `POST` | `/{profile_id}/criteria` | Add criterion | ✅ |
+| `PUT` | `/{profile_id}/criteria/{id}` | Update criterion | ✅ |
+| `DELETE` | `/{profile_id}/criteria/{id}` | Delete criterion | ✅ |
+
 ---
 
 ## 🛠️ Development
@@ -298,3 +323,8 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 - [x] WhatsApp notifications (Twilio)
 - [x] Configurable thresholds
 - [x] User preference settings
+
+### Phase 6: Signature Features (In Progress)
+- [x] **6.3 Hiring Profiles CRUD** - Profile management API
+- [ ] **6.1 Vector Similarity Search** - Find similar CVs
+- [ ] **6.4 Semantic Search** - Natural language CV search

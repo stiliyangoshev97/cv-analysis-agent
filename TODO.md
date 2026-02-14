@@ -8,7 +8,8 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Phase 6 - Signature Features
+> **Current Focus**: Phase 6 - Signature Features (6.1 Vector Similarity, 6.4 Semantic Search)
+> **Completed**: Phase 6.3 Hiring Profiles CRUD ✅
 
 ### Priority 1: Remaining Repositories ✅ COMPLETED
 - [x] Create `CVRepository` - CRUD operations for CV documents
@@ -705,35 +706,45 @@ interface Criterion {
 
 ## Phase 6: Signature Features
 
-### 6.1 Candidate Match-Up (Cross-CV Comparison)
-- [ ] Create vector similarity search endpoint
-- [ ] `POST /api/cv/compare` - Compare CV against database
-- [ ] Calculate percentile ranking
+### 6.1 Vector Similarity Search (Candidate Match-Up)
+- [ ] Create `similarity_service.py` in cv feature
+- [ ] `GET /api/cv/{id}/similar` - Find similar CVs by embedding
+- [ ] `GET /api/cv/{id}/ranking` - Get percentile ranking
+- [ ] `POST /api/cv/compare` - Compare specific CVs
+- [ ] Update `embedding_repository.py` with similarity queries
 - [ ] Create comparison UI component
 - [ ] Show "Top X% of candidates" badge
 
-### 6.2 Explainable Scoring (Conversational Deep-Dive)
-- [ ] Create chat endpoint `POST /api/cv/{id}/chat`
-- [ ] Create chat UI component with message history
-- [ ] Add "Why?" button to scorecard
-- [ ] Implement context-aware responses
-- [ ] Store chat history in database
+### 6.2 Explainable Scoring (Conversational Deep-Dive) ✅ COMPLETED
+- [x] Create chat endpoint `POST /api/chat/{cv_id}` (ask question)
+- [x] Create chat history endpoint `GET /api/chat/{cv_id}`
+- [x] Clear chat history endpoint `DELETE /api/chat/{cv_id}`
+- [x] Explain criterion endpoint `POST /api/chat/{cv_id}/explain/{criterion}`
+- [x] Compare CVs endpoint `POST /api/chat/compare`
+- [ ] Create chat UI component with message history (frontend)
+- [ ] Add "Why?" button to scorecard (frontend)
 
-### 6.3 Adaptive Scoring Persona (Hiring Profiles)
-- [ ] Create hiring profiles CRUD endpoints
-- [ ] `GET /api/profiles` - List user's profiles
-- [ ] `POST /api/profiles` - Create new profile
-- [ ] `PUT /api/profiles/{id}` - Update profile
-- [ ] `DELETE /api/profiles/{id}` - Delete profile
-- [ ] Create profile selector in upload UI
-- [ ] Inject profile prompt into evaluation chain
+### 6.3 Adaptive Scoring Persona (Hiring Profiles) ✅ BACKEND COMPLETE
+- [x] Create `features/profile/` module
+- [x] `GET /api/profiles/` - List user's profiles
+- [x] `GET /api/profiles/{id}` - Get profile with criteria
+- [x] `POST /api/profiles/` - Create new profile
+- [x] `PUT /api/profiles/{id}` - Update profile
+- [x] `DELETE /api/profiles/{id}` - Delete profile
+- [x] `POST /api/profiles/{id}/clone` - Clone profile
+- [x] `POST /api/profiles/{id}/criteria` - Add criterion
+- [x] `PUT /api/profiles/{id}/criteria/{cid}` - Update criterion
+- [x] `DELETE /api/profiles/{id}/criteria/{cid}` - Delete criterion
+- [ ] Create profile selector in upload UI (frontend)
+- [ ] Create profile management page (frontend)
 
 ### 6.4 Semantic Search Dashboard
-- [ ] Create semantic search endpoint `GET /api/cv/search?q=`
+- [ ] Create `search_service.py` in cv feature
+- [ ] `GET /api/cv/search?q=` - Semantic search endpoint
 - [ ] Implement natural language to vector query
-- [ ] Create search UI with TanStack Table
-- [ ] Add filters (date range, score range, status)
-- [ ] Display similarity scores in results
+- [ ] Add filters: min_score, max_score, passed, limit, sort
+- [ ] Create search UI with TanStack Table (frontend)
+- [ ] Display similarity scores in results (frontend)
 
 ---
 
@@ -797,12 +808,16 @@ interface Criterion {
 
 1. **Phase 1**: Authentication (Email/Password + Google OAuth) ✅ COMPLETED
 2. **Phase 1.5**: Project Structure Refactoring ✅ COMPLETED
-3. **Phase 1.7**: User Configuration System (API Keys + Templates) 🆕
-4. **Phase 2**: Database Layer (PostgreSQL + pgvector)
-5. **Phase 3**: LangChain Integration
-6. **Phase 4**: Multi-Agent Architecture
-7. **Phase 5**: Notification System (Email + WhatsApp)
-8. **Phase 6**: Signature Features
+3. **Phase 1.7**: User Configuration System (API Keys + Templates) ✅ COMPLETED
+4. **Phase 2**: Database Layer (PostgreSQL + pgvector) ✅ COMPLETED
+5. **Phase 3**: LangChain Integration ✅ COMPLETED
+6. **Phase 4**: Multi-Agent Architecture ✅ COMPLETED
+7. **Phase 5**: Notification System (Email + WhatsApp) ✅ COMPLETED
+8. **Phase 6**: Signature Features 🔄 IN PROGRESS
+   - 6.2 Chat/Explain ✅ Backend Complete
+   - 6.3 Hiring Profiles ✅ Backend Complete
+   - 6.1 Vector Similarity ⏳ Next
+   - 6.4 Semantic Search ⏳ Next
 9. **Phase 7**: Frontend Enhancements
 10. **Phase 8**: Testing & Documentation
 
