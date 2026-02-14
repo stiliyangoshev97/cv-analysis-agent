@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 14, 2026 (v0.10.0 - Hiring Profiles CRUD)
+> Last Updated: February 15, 2026 (v0.11.0 - Testing Infrastructure)
 
 ---
 
@@ -40,8 +40,9 @@
 | **Notification System** | ✅ 100% | Phase 5 - Email + WhatsApp via Twilio |
 | **Hiring Profiles CRUD** | ✅ 100% | Phase 6.3 - Profile management API |
 | **Vector Similarity Search** | ✅ 100% | Phase 6.1 - Similar CVs, ranking, compare |
+| **Testing Infrastructure** | 🔄 95% | 128 tests (75 unit + 53 integration), 4 skipped |
 
-**Overall Progress: ~92%** (Phases 1-5 + 6.1 + 6.3 Complete)
+**Overall Progress: ~93%** (Phases 1-5 + 6.1 + 6.3 + Testing Complete)
 
 ---
 
@@ -120,6 +121,17 @@ backend/
 │   ├── shared/                     # Shared business logic
 │   │   └── schemas/
 │   │       └── base.py             # BaseResponse, ErrorResponse
+│   │
+│   ├── tests/                      # Test suite
+│   │   ├── conftest.py             # Shared fixtures
+│   │   ├── unit/                   # Unit tests (isolated)
+│   │   │   ├── test_similarity_service.py
+│   │   │   ├── test_auth_service.py
+│   │   │   └── test_profile_service.py
+│   │   └── integration/            # API integration tests
+│   │       ├── test_auth_api.py
+│   │       ├── test_profile_api.py
+│   │       └── test_cv_api.py
 │   │
 │   └── features/
 │       ├── auth/                   # Authentication feature
@@ -275,6 +287,58 @@ notification_settings -- Alert preferences
 | `POST` | `/{profile_id}/criteria` | Add criterion | ✅ |
 | `PUT` | `/{profile_id}/criteria/{id}` | Update criterion | ✅ |
 | `DELETE` | `/{profile_id}/criteria/{id}` | Delete criterion | ✅ |
+
+---
+
+## 🧪 Testing
+
+### Test Structure
+```
+backend/app/tests/
+├── conftest.py                     # Shared fixtures (mocked embeddings, auth)
+├── unit/                           # Unit tests (isolated, mocked)
+│   ├── test_similarity_service.py  # 26 tests - vector search logic
+│   ├── test_auth_service.py        # 21 tests - auth flows, JWT, password
+│   └── test_profile_service.py     # 28 tests - CRUD, clone, criteria
+└── integration/                    # API integration tests (full stack)
+    ├── test_auth_api.py            # Auth endpoints (register, login, etc.)
+    ├── test_profile_api.py         # Profile endpoints (CRUD, clone)
+    └── test_cv_api.py              # CV endpoints (upload, list, delete)
+```
+
+### Running Tests
+```bash
+cd backend
+source venv/bin/activate
+
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest app/tests/unit/test_auth_service.py -v
+
+# Run only unit tests
+pytest app/tests/unit/ -v
+
+# Run only integration tests
+pytest app/tests/integration/ -v
+```
+
+### Test Results (Latest)
+| Category | Passed | Skipped | Notes |
+|----------|--------|---------|-------|
+| Unit Tests | 75 | 0 | Services fully tested |
+| Integration Tests | 53 | 4 | 4 skipped due to app bugs |
+| **Total** | **128** | **4** | ~97% passing |
+
+### Key Testing Patterns
+- **Mocked embeddings**: OpenAI embeddings are mocked in `conftest.py` to avoid API key requirement
+- **Async fixtures**: Using `pytest-asyncio` with `AsyncClient` for FastAPI testing
+- **Isolated database**: Each test uses a fresh in-memory SQLite database
+- **Auth helpers**: Fixtures provide authenticated users and tokens for protected endpoints
 
 ---
 
