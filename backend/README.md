@@ -191,6 +191,38 @@ backend/
 
 ---
 
+## ❓ Why Not FastAPI-MCP?
+
+[FastAPI-MCP](https://github.com/tadata-org/fastapi-mcp) automatically exposes FastAPI endpoints as Model Context Protocol (MCP) tools, allowing AI agents (Claude Desktop, Cursor, etc.) to interact with your API. While powerful, we don't use it here for several reasons:
+
+| Aspect | Our Approach | FastAPI-MCP Approach |
+|--------|--------------|----------------------|
+| **Target Users** | Humans via web UI | AI agents via MCP |
+| **Agent System** | Internal multi-agent orchestration | External AI consuming tools |
+| **Security** | JWT auth, user sessions | MCP server authentication |
+| **Use Case** | Web application | AI tooling / automation |
+
+### Our Internal Multi-Agent System
+
+We use a **multi-agent architecture** internally for processing CVs:
+
+```
+User Request → AgentOrchestrator → [ParserAgent, ScorerAgent, ChatAgent, NotificationAgent]
+```
+
+These agents are Python classes that coordinate via message passing, not MCP tools. They're designed for CV processing workflows, not for external AI consumption.
+
+### When FastAPI-MCP Makes Sense
+
+FastAPI-MCP is ideal when you want:
+- AI agents (Claude Desktop, Cursor) to interact with your API
+- Natural language control over your application
+- To expose existing endpoints as AI tools without code changes
+
+For a traditional web app with human users, standard REST endpoints with JWT auth are more appropriate.
+
+---
+
 ## 🗄️ Database Schema
 
 ### Tables (10 total)
