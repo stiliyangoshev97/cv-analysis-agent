@@ -169,20 +169,32 @@ class ChatService:
             return None
         
         # Format evaluation summary
+        passed = evaluation.status.lower() == "pass"
         summary_parts = [
-            f"Overall Score: {evaluation.total_score}/100",
-            f"Status: {'PASS' if evaluation.passed else 'FAIL'}",
-            f"Recommendation: {evaluation.recommendation or 'N/A'}",
+            f"Overall Score: {evaluation.score}/100",
+            f"Status: {'PASS' if passed else 'FAIL'}",
+            f"Reasoning: {evaluation.reasoning or 'N/A'}",
         ]
         
         # Add criteria scores if available
         if evaluation.criteria_results:
             summary_parts.append("\nCriteria Scores:")
-            for criterion in evaluation.criteria_results:
-                name = criterion.get("name", "Unknown")
-                score = criterion.get("score", 0)
-                max_score = criterion.get("max_score", 0)
-                summary_parts.append(f"  - {name}: {score}/{max_score}")
+            # Handle both dict format (name -> data) and list format ([{name, score}])
+            criteria = evaluation.criteria_results
+            if isinstance(criteria, dict):
+                # Dict format: {"Technical Skills": {"score": 20, "max_score": 25}}
+                for name, data in criteria.items():
+                    if isinstance(data, dict):
+                        score = data.get("score", 0)
+                        max_score = data.get("max_score", 0)
+                        summary_parts.append(f"  - {name}: {score}/{max_score}")
+            elif isinstance(criteria, list):
+                # List format: [{"name": "Technical Skills", "score": 20, "max_score": 25}]
+                for criterion in criteria:
+                    name = criterion.get("name", "Unknown")
+                    score = criterion.get("score", 0)
+                    max_score = criterion.get("max_score", 0)
+                    summary_parts.append(f"  - {name}: {score}/{max_score}")
         
         return "\n".join(summary_parts)
     
@@ -354,19 +366,36 @@ class ChatService:
         if not evaluation:
             raise ValueError("No evaluation found for this CV")
         
-        # Find the criterion
+        # Find the criterion - handle both dict and list formats
         criterion_data = None
+        criterion_actual_name = criterion_name
+        available_criteria = []
+        
         if evaluation.criteria_results:
-            for criterion in evaluation.criteria_results:
-                if criterion.get("name", "").lower() == criterion_name.lower():
-                    criterion_data = criterion
-                    break
+            criteria = evaluation.criteria_results
+            if isinstance(criteria, dict):
+                # Dict format: {"Technical Skills": {"score": 20, "max_score": 25}}
+                for name, data in criteria.items():
+                    available_criteria.append(name)
+                    if name.lower() == criterion_name.lower():
+                        criterion_data = data
+                        criterion_data["name"] = name  # Add name to data
+                        criterion_actual_name = name
+                        break
+            elif isinstance(criteria, list):
+                # List format: [{"name": "Technical Skills", "score": 20, "max_score": 25}]
+                for criterion in criteria:
+                    crit_name = criterion.get("name", "")
+                    available_criteria.append(crit_name)
+                    if crit_name.lower() == criterion_name.lower():
+                        criterion_data = criterion
+                        criterion_actual_name = crit_name
+                        break
         
         if not criterion_data:
-            available = [c.get("name") for c in (evaluation.criteria_results or [])]
             raise ValueError(
                 f"Criterion '{criterion_name}' not found. "
-                f"Available: {', '.join(available)}"
+                f"Available: {', '.join(available_criteria)}"
             )
         
         # Generate explanation
@@ -386,7 +415,7 @@ class ChatService:
         evidence = await self._get_relevant_chunks(cv_id, criterion_name)
         
         return {
-            "criterion": criterion_name,
+            "criterion": criterion_actual_name,
             "score": score,
             "max_score": max_score,
             "explanation": explanation,
@@ -434,7 +463,7 @@ class ChatService:
             evaluation = await self.evaluation_repo.get_latest_by_cv(cv.id)
             eval_info = ""
             if evaluation:
-                eval_info = f" (Score: {evaluation.total_score}/100)"
+                eval_info = f" (Score: {evaluation.score}/100)"
             
             # Get relevant chunks for the comparison question
             chunks = await self._get_relevant_chunks(cv.id, question, limit=2)

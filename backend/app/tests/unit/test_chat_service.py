@@ -478,12 +478,13 @@ class TestExplainCriterion:
         with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
             mock_chunks.return_value = []
             
-            # Use lowercase name
+            # Use lowercase name - should still find "Technical Skills"
             result = await chat_service.explain_criterion(
                 sample_cv_id, sample_user_id, "technical skills"
             )
         
-        assert result["criterion"] == "technical skills"
+        # Returns the actual criterion name from data (proper case)
+        assert result["criterion"].lower() == "technical skills"
     
     @pytest.mark.asyncio
     async def test_explain_criterion_cv_not_found(self, chat_service, sample_user_id, sample_cv_id):

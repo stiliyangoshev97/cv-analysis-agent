@@ -4,11 +4,13 @@ This module defines the FastAPI routes for RAG-powered CV chat.
 Routes are thin - they only wire dependencies and delegate to controllers.
 
 Routes:
+    POST   /api/chat/compare                  - Compare multiple CVs
     POST   /api/chat/{cv_id}                  - Ask question about CV
     GET    /api/chat/{cv_id}                  - Get chat history
     DELETE /api/chat/{cv_id}                  - Clear chat history
     POST   /api/chat/{cv_id}/explain/{criterion} - Explain criterion score
-    POST   /api/chat/compare                  - Compare multiple CVs
+
+Note: /compare route must come BEFORE /{cv_id} routes due to FastAPI route ordering.
 
 Example:
     The router is registered in main.py::
@@ -40,6 +42,47 @@ from .chat_schemas import (
 
 router = APIRouter()
 
+
+# =============================================================================
+# Static routes MUST come before parameterized routes
+# =============================================================================
+
+@router.post(
+    "/compare",
+    response_model=CompareResponse,
+    summary="Compare multiple CVs",
+    description="""
+    Compare 2-5 CVs against each other.
+    
+    Useful for recruiters deciding between candidates.
+    
+    **Features:**
+    - Side-by-side comparison
+    - Highlights key differences
+    - Optional ranking with justification
+    
+    **Example questions:**
+    - "Compare their fintech experience"
+    - "Who has better technical skills?"
+    - "Compare overall fit for a senior role"
+    """,
+)
+async def compare_cvs(
+    request: CompareRequest,
+    current_user: User = Depends(get_current_user),
+    chat_service: ChatService = Depends(get_chat_service),
+) -> CompareResponse:
+    """Compare multiple CVs."""
+    return await ChatController.compare_cvs(
+        request=request,
+        current_user=current_user,
+        chat_service=chat_service,
+    )
+
+
+# =============================================================================
+# Parameterized routes (with {cv_id})
+# =============================================================================
 
 @router.post(
     "/{cv_id}",
@@ -158,39 +201,6 @@ async def explain_criterion(
     return await ChatController.explain_criterion(
         cv_id=cv_id,
         criterion=criterion,
-        request=request,
-        current_user=current_user,
-        chat_service=chat_service,
-    )
-
-
-@router.post(
-    "/compare",
-    response_model=CompareResponse,
-    summary="Compare multiple CVs",
-    description="""
-    Compare 2-5 CVs against each other.
-    
-    Useful for recruiters deciding between candidates.
-    
-    **Features:**
-    - Side-by-side comparison
-    - Highlights key differences
-    - Optional ranking with justification
-    
-    **Example questions:**
-    - "Compare their fintech experience"
-    - "Who has better technical skills?"
-    - "Compare overall fit for a senior role"
-    """,
-)
-async def compare_cvs(
-    request: CompareRequest,
-    current_user: User = Depends(get_current_user),
-    chat_service: ChatService = Depends(get_chat_service),
-) -> CompareResponse:
-    """Compare multiple CVs."""
-    return await ChatController.compare_cvs(
         request=request,
         current_user=current_user,
         chat_service=chat_service,

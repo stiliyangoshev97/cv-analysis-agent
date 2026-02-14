@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full dispatch pipeline (email + WhatsApp)
   - Test notification sending
 
-**Integration Tests (`app/tests/integration/`)** - 57 tests
+**Integration Tests (`app/tests/integration/`)** - 85 tests
 - `test_auth_api.py` - 14 tests for `/api/auth/*`:
   - Register, login, me, refresh endpoints
   - Validation errors, duplicate detection
@@ -73,12 +73,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - List, get, delete CV endpoints
   - Similar CVs, ranking, comparison endpoints
   - Semantic search endpoint
+- `test_chat_api.py` - 28 tests for `/api/chat/*`:
+  - Ask question about CV (RAG)
+  - Get/clear chat history
+  - Explain criterion score
+  - Compare multiple CVs (2-5)
+  - Authorization and validation
 
 ### Fixed
 
 **Bug Fixes Discovered During Testing**
 - `ProfileService.update_profile()` - Fixed: Reload template with criteria after update
 - `cv_routes.py` - Fixed: Return type hints (removed `-> dict` where Pydantic models returned)
+- `chat_service.py` - Fixed: Use `score` instead of `total_score` (model attribute name)
+- `chat_service.py` - Fixed: Handle both dict and list formats for `criteria_results`
+- `chat_routes.py` - Fixed: Route ordering (`/compare` before `/{cv_id}`)
 
 ### Changed
 
@@ -98,15 +107,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Test Summary
 
 ```
-Total: 132 passed, 0 skipped
-├── Unit Tests: 75 passed
+Total: 254 passed, 0 skipped
+├── Unit Tests: 169 passed
 │   ├── test_auth.py: 21 tests
 │   ├── test_profile_service.py: 28 tests
-│   └── test_similarity_service.py: 26 tests
-└── Integration Tests: 57 passed
+│   ├── test_similarity_service.py: 26 tests
+│   ├── test_cv_service.py: 32 tests
+│   ├── test_chat_service.py: 28 tests
+│   └── test_notification_service.py: 34 tests
+└── Integration Tests: 85 passed
     ├── test_auth_api.py: 14 tests
     ├── test_profile_api.py: 25 tests
-    └── test_cv_api.py: 18 tests
+    ├── test_cv_api.py: 18 tests
+    └── test_chat_api.py: 28 tests
 ```
 
 ---

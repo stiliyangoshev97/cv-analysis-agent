@@ -792,18 +792,20 @@ interface Criterion {
   - [x] CVService (32 tests - process, get, list, delete, re-evaluate)
   - [x] ChatService (28 tests - ask, history, explain, compare)
   - [x] NotificationService (34 tests - settings, dispatch, test notifications)
-- [x] Write integration tests for API endpoints (53 tests passing, 4 skipped)
-  - [x] Auth API tests (register, login, refresh, me, google)
-  - [x] Profile API tests (CRUD, clone, criteria management)
-  - [x] CV API tests (upload, list, get, delete, re-evaluate)
-  - [ ] Chat API tests
+- [x] Write integration tests for API endpoints
+  - [x] Auth API tests (14 tests - register, login, refresh, me, google)
+  - [x] Profile API tests (25 tests - CRUD, clone, criteria management)
+  - [x] CV API tests (14 tests - upload, list, get, delete, re-evaluate)
+  - [x] Chat API tests (28 tests - ask, history, explain, compare)
   - [ ] Notification API tests
 - [x] Fix test schemas to match actual API response structures
 - [x] Fix ProfileService bug: reload template after update
 - [x] Fix CVEmbedding model: add chunk_text and chunk_index columns
 - [x] Fix all skipped tests (mocking for pgvector, delete verification)
+- [x] Fix ChatService: handle both dict and list formats for criteria_results
+- [x] Fix chat_routes.py: move /compare before /{cv_id} for proper route matching
 
-**Test Results**: 226 tests passing (169 unit + 57 integration), 0 skipped
+**Test Results**: 254 tests passing (169 unit + 85 integration), 0 skipped
 
 ### 8.2 Frontend Testing
 - [ ] Set up Vitest
@@ -835,7 +837,7 @@ interface Criterion {
    - 6.4 Semantic Search ✅ Backend Complete
    - Frontend implementation ⏳ Next
 9. **Phase 7**: Frontend Enhancements
-10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (226 tests passing: 169 unit + 57 integration)
+10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (254 tests passing: 169 unit + 85 integration)
 
 > **Note**: Phase 1.7 (User Configuration) will be implemented as part of Phase 2 (Database Layer) since it requires database persistence.
 
