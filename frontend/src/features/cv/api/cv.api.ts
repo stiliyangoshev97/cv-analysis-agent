@@ -105,3 +105,23 @@ export const checkHealth = async (): Promise<{ status: string; ai_configured: bo
   const response = await apiClient.get('/api/cv/health');
   return response.data;
 };
+
+/**
+ * Delete a CV and all related data.
+ *
+ * Removes the CV, evaluations, embeddings, and chat history.
+ *
+ * @param cvId - The UUID of the CV to delete
+ * @returns Promise resolving when deletion is complete
+ *
+ * @example
+ * ```typescript
+ * await deleteCV('uuid-of-cv');
+ * console.log('CV deleted successfully');
+ * ```
+ *
+ * @throws {AxiosError} On network errors or if CV not found
+ */
+export const deleteCV = async (cvId: string): Promise<void> => {
+  await apiClient.delete(`/api/cv/${cvId}`);
+};

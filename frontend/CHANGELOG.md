@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Empty state with CTA to upload first CV
 - Link to individual CV details
 
+**CV Delete Functionality**
+- Delete button on each CV in history list
+- Confirmation modal before deletion
+- `deleteCV` API function to call `DELETE /api/cv/{id}`
+- `useDeleteCV` hook with cache invalidation
+- Toast notification on success/error
+
 **Navigation Updates**
 - Added "History" link to main navigation
 - Route `/history` for evaluation history page

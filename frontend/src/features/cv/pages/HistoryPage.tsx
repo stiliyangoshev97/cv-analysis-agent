@@ -18,8 +18,11 @@ import {
   Button,
   Spinner,
   Input,
+  Modal,
+  ModalBody,
+  ModalFooter,
 } from '@/shared/components/ui';
-import { useCVList } from '../hooks';
+import { useCVList, useDeleteCV } from '../hooks';
 import type { CVSummary } from '@/shared/schemas';
 
 // =============================================================================
@@ -97,9 +100,10 @@ const formatRelativeTime = (isoString: string): string => {
 
 interface CVHistoryItemProps {
   cv: CVSummary;
+  onDelete: (cv: CVSummary) => void;
 }
 
-const CVHistoryItem = ({ cv }: CVHistoryItemProps) => {
+const CVHistoryItem = ({ cv, onDelete }: CVHistoryItemProps) => {
   return (
     <Card className="p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-4">
@@ -159,9 +163,30 @@ const CVHistoryItem = ({ cv }: CVHistoryItemProps) => {
         </div>
 
         {/* Actions */}
-        <div className="flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(cv)}
+            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+            title="Delete CV"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </Button>
           <Link to={`/history/${cv.id}`}>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" title="View details">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -261,8 +286,28 @@ export const HistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pass' | 'fail'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
+  const [cvToDelete, setCvToDelete] = useState<CVSummary | null>(null);
 
   const { data, isLoading, error } = useCVList(100, 0);
+  const { mutate: deleteCV, isPending: isDeleting } = useDeleteCV();
+
+  // Handle delete confirmation
+  const handleDeleteClick = (cv: CVSummary) => {
+    setCvToDelete(cv);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!cvToDelete) return;
+    deleteCV(cvToDelete.id, {
+      onSuccess: () => {
+        setCvToDelete(null);
+      },
+    });
+  };
+
+  const handleDeleteCancel = () => {
+    setCvToDelete(null);
+  };
 
   // Filter and sort CVs
   const filteredCVs = useMemo(() => {
@@ -468,7 +513,7 @@ export const HistoryPage = () => {
       {filteredCVs.length > 0 && (
         <div className="space-y-3">
           {filteredCVs.map((cv) => (
-            <CVHistoryItem key={cv.id} cv={cv} />
+            <CVHistoryItem key={cv.id} cv={cv} onDelete={handleDeleteClick} />
           ))}
         </div>
       )}
@@ -481,6 +526,47 @@ export const HistoryPage = () => {
           </Text>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!cvToDelete}
+        onClose={handleDeleteCancel}
+        title="Delete CV"
+        size="sm"
+      >
+        <ModalBody>
+          <Text>
+            Are you sure you want to delete{' '}
+            <span className="font-semibold">
+              "{cvToDelete?.candidate_name || cvToDelete?.filename}"
+            </span>
+            ?
+          </Text>
+          <Text color="muted" size="sm" className="mt-2">
+            This will permanently remove the CV, all evaluations, embeddings, and chat
+            history associated with it. This action cannot be undone.
+          </Text>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleDeleteCancel}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleDeleteConfirm}
+            isLoading={isDeleting}
+            disabled={isDeleting}
+          >
+            Delete CV
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Container>
   );
 };

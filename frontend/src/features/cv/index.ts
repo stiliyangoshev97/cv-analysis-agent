@@ -7,7 +7,7 @@
  *
  * @example
  * ```typescript
- * import { CVPage, HistoryPage, useUploadCV, uploadCV } from '@/features/cv';
+ * import { CVPage, HistoryPage, useUploadCV, useDeleteCV, uploadCV } from '@/features/cv';
  * ```
  */
 
@@ -25,7 +25,7 @@ export {
 
 // Hooks
 export { useUploadCV } from './hooks';
-export { useCVList } from './hooks/useCVList';
+export { useCVList, useDeleteCV } from './hooks';
 
 // API
-export { uploadCV, checkHealth } from './api';
+export { uploadCV, checkHealth, deleteCV } from './api';
