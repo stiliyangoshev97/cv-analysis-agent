@@ -518,17 +518,17 @@ TWILIO_WHATSAPP_FROM=+14155238886
 
 ## 🧪 Testing
 
-**283 tests** (169 unit + 114 integration) — 100% passing ✅
+**312 tests** (198 unit + 114 integration) — 100% passing ✅
 
 ### Test Statistics
 
 | Category | Tests | Coverage |
 |----------|-------|----------|
-| **Unit Tests** | 169 | Services, business logic |
+| **Unit Tests** | 198 | Services, business logic |
 | **Integration Tests** | 114 | API endpoints, HTTP flows |
-| **Total** | **283** | ~75-80s runtime |
+| **Total** | **312** | ~80-90s runtime |
 
-### Unit Tests (169)
+### Unit Tests (198)
 
 | Test File | Tests | Coverage |
 |-----------|-------|----------|
@@ -538,6 +538,7 @@ TWILIO_WHATSAPP_FROM=+14155238886
 | `test_cv_service.py` | 32 | Process pipeline, retrieval, deletion |
 | `test_chat_service.py` | 28 | RAG Q&A, history, explain, compare |
 | `test_notification_service.py` | 34 | Settings, dispatch, email/WhatsApp |
+| `test_settings_service.py` | 29 | API keys, LLM config, validation |
 
 ### Integration Tests (114)
 
@@ -573,13 +574,14 @@ pytest app/tests/integration/
 ```
 app/tests/
 ├── conftest.py              # Shared fixtures (db, client, users, CVs)
-├── unit/                    # Unit tests (169 tests)
+├── unit/                    # Unit tests (198 tests)
 │   ├── test_auth.py         
 │   ├── test_profile_service.py    
 │   ├── test_similarity_service.py 
 │   ├── test_cv_service.py         
 │   ├── test_chat_service.py       
-│   └── test_notification_service.py 
+│   ├── test_notification_service.py 
+│   └── test_settings_service.py   
 └── integration/             # Integration tests (114 tests)
     ├── test_auth_api.py     
     ├── test_profile_api.py  
@@ -624,7 +626,8 @@ app/tests/
 - [x] WhatsApp notifications (Twilio API)
 - [x] Hiring profiles CRUD API
 - [x] Vector similarity search (similar CVs, ranking, compare)
-- [x] **Backend testing complete** (283 tests: 169 unit + 114 integration)
+- [x] **Backend testing complete** (312 tests: 198 unit + 114 integration)
+- [x] User settings API (API keys + LLM preferences)
 - [ ] Frontend notification settings UI
 - [ ] Semantic search dashboard
 - [ ] Adaptive scoring profiles

@@ -275,11 +275,14 @@ class SettingsService:
     async def _validate_gemini_key(self, api_key: str) -> ValidateKeyResponse:
         """Validate Google Gemini API key."""
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
+            from google import genai
+            client = genai.Client(api_key=api_key)
             # Make a minimal API call to validate
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            model.generate_content("Hi", generation_config={"max_output_tokens": 1})
+            client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents="Hi",
+                config={"max_output_tokens": 1}
+            )
             return ValidateKeyResponse(
                 provider="gemini",
                 is_valid=True,

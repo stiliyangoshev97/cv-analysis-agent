@@ -53,9 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Dependencies Updated**
 - Added `openai>=1.0.0` - Direct SDK for key validation
-- Added `google-generativeai>=0.5.0` - Direct SDK for key validation
+- Added `google-genai>=1.0.0` - Direct SDK for Gemini key validation (new package, replaces deprecated `google-generativeai`)
 - Added `docx2txt>=0.8` - DOCX document processing
 - Reorganized `requirements.txt` with clear sections
+
+**Unit Tests**
+- Added `test_settings_service.py` with 29 tests covering:
+  - API Key CRUD and validation (OpenAI, Anthropic, Gemini)
+  - Agent Config get/update
+  - Setup status checks
+  - Available models listing
 
 **Documentation**
 - Updated `.env.example` with clearer BYOK instructions

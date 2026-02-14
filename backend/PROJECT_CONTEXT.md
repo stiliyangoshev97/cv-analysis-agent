@@ -41,7 +41,7 @@
 | **Notification System** | ✅ 100% | Phase 5 - Email + WhatsApp via Twilio |
 | **Hiring Profiles CRUD** | ✅ 100% | Phase 6.3 - Profile management API |
 | **Vector Similarity Search** | ✅ 100% | Phase 6.1 - Similar CVs, ranking, compare |
-| **Testing Infrastructure** | ✅ 100% | 283 tests (169 unit + 114 integration) |
+| **Testing Infrastructure** | ✅ 100% | 312 tests (198 unit + 114 integration) |
 | **Rate Limiting** | ✅ 100% | Tiered limits per endpoint type |
 | **Multi-LLM Support** | ✅ 100% | Claude, GPT, Gemini (user choice) |
 | **User Settings API** | ✅ 100% | API keys + LLM preferences |
@@ -152,13 +152,19 @@ backend/
 │   ├── tests/                      # Test suite
 │   │   ├── conftest.py             # Shared fixtures
 │   │   ├── unit/                   # Unit tests (isolated)
+│   │   │   ├── test_auth.py
+│   │   │   ├── test_profile_service.py
 │   │   │   ├── test_similarity_service.py
-│   │   │   ├── test_auth_service.py
-│   │   │   └── test_profile_service.py
+│   │   │   ├── test_cv_service.py
+│   │   │   ├── test_chat_service.py
+│   │   │   ├── test_notification_service.py
+│   │   │   └── test_settings_service.py
 │   │   └── integration/            # API integration tests
 │   │       ├── test_auth_api.py
 │   │       ├── test_profile_api.py
-│   │       └── test_cv_api.py
+│   │       ├── test_cv_api.py
+│   │       ├── test_chat_api.py
+│   │       └── test_notification_api.py
 │   │
 │   └── features/
 │       ├── auth/                   # Authentication feature
@@ -211,6 +217,15 @@ backend/
 │           ├── profile_controller.py       # HTTP handlers
 │           ├── profile_service.py          # Business logic + authorization
 │           └── profile_schemas.py          # Pydantic schemas
+│
+│       └── settings/               # User Settings feature (API keys + LLM config)
+│           ├── __init__.py                 # Barrel exports
+│           ├── settings_routes.py          # Route definitions (8 endpoints)
+│           ├── settings_controller.py      # HTTP handlers
+│           ├── settings_service.py         # Key validation + config logic
+│           ├── settings_repository.py      # API key + config CRUD
+│           ├── settings_schemas.py         # Pydantic schemas
+│           └── settings_dependencies.py    # FastAPI dependencies
 │
 ├── alembic/                        # Database migrations
 │   ├── env.py                      # Migration configuration
