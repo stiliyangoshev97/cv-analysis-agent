@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-02-14 🔀 COMPARE CVs FEATURE
+
+### Added
+
+**CV List Infrastructure**
+- `cvSummarySchema` / `cvListResponseSchema` - Schemas for CV list endpoint
+- `listCVs()` API function - Fetch paginated list of user's CVs
+- `useCVList()` hook - React Query hook for CV list
+- `cvKeys` - Query key factory for CV caching
+
+**Compare CVs Modal (`features/chat/components/CompareCVsModal.tsx`)**
+- Select 2-5 CVs to compare with checkboxes
+- Optional comparison focus question input
+- AI-powered comparison analysis display
+- Candidate ranking with visual ranking badges
+- Score and status badges for each CV
+
+### Changed
+- `CVPage` - Added "Compare CVs" button in page header
+  - Opens CompareCVsModal for candidate comparison
+  - Added page title and description header
+
+---
+
 ## [0.6.0] - 2026-02-14 💬 CHAT UI (Ask AI & Explain Criteria)
 
 ### Added

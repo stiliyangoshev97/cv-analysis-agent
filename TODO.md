@@ -38,7 +38,7 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] Add "Ask AI" button to evaluation results
 - [x] Add "Why?" button to each criterion score
 - [x] Implement chat history display
-- [ ] Add compare CVs modal/page (deferred)
+- [x] Add compare CVs modal/page
 
 ### Priority 3: Frontend - Polish
 - [ ] Error boundaries and loading states

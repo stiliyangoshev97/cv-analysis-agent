@@ -7,7 +7,7 @@
  */
 
 // Components
-export { ChatMessage, ChatPanel, ExplainModal } from './components';
+export { ChatMessage, ChatPanel, ExplainModal, CompareCVsModal } from './components';
 
 // Hooks
 export {

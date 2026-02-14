@@ -22,6 +22,8 @@ export {
   uploadResponseSchema,
   errorResponseSchema,
   uploadProgressSchema,
+  cvSummarySchema,
+  cvListResponseSchema,
   cvResultSchema,
   // Types
   type PassFailStatus,
@@ -30,6 +32,8 @@ export {
   type UploadResponse,
   type ErrorResponse,
   type UploadProgress,
+  type CVSummary,
+  type CVListResponse,
   type CVResult,
 } from './cv.schemas';
 

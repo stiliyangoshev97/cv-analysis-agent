@@ -146,6 +146,48 @@ export const uploadProgressSchema = z.object({
   percentage: z.number().min(0).max(100),
 });
 
+// =============================================================================
+// CV List Schemas
+// =============================================================================
+
+/**
+ * CV summary schema for list views.
+ *
+ * Lightweight representation of a CV for list/grid displays.
+ */
+export const cvSummarySchema = z.object({
+  /** CV UUID */
+  id: z.string().uuid(),
+  /** Original uploaded filename */
+  filename: z.string(),
+  /** Extracted candidate name if available */
+  candidate_name: z.string().nullable(),
+  /** Processing status */
+  status: z.string(),
+  /** Upload timestamp ISO format */
+  uploaded_at: z.string(),
+  /** Latest evaluation score if available */
+  score: z.number().nullable(),
+  /** Pass/fail status if evaluated */
+  evaluation_status: z.string().nullable(),
+});
+
+/**
+ * CV list response schema.
+ *
+ * Paginated list of CV summaries.
+ */
+export const cvListResponseSchema = z.object({
+  /** List of CV summaries */
+  cvs: z.array(cvSummarySchema),
+  /** Total number of CVs */
+  total: z.number(),
+  /** Page size */
+  limit: z.number(),
+  /** Items skipped */
+  offset: z.number(),
+});
+
 /**
  * CV result schema for frontend state.
  *
@@ -183,6 +225,12 @@ export type ErrorResponse = z.infer<typeof errorResponseSchema>;
 
 /** Upload progress tracking */
 export type UploadProgress = z.infer<typeof uploadProgressSchema>;
+
+/** CV summary for list views */
+export type CVSummary = z.infer<typeof cvSummarySchema>;
+
+/** CV list response */
+export type CVListResponse = z.infer<typeof cvListResponseSchema>;
 
 /** CV result for frontend state */
 export type CVResult = z.infer<typeof cvResultSchema>;

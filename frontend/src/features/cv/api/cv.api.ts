@@ -7,7 +7,30 @@
  */
 
 import { apiClient } from '@/shared/api';
-import type { UploadResponse, UploadProgress } from '@/shared/types';
+import type { UploadResponse, UploadProgress, CVListResponse } from '@/shared/types';
+
+/**
+ * Get a paginated list of the user's CVs.
+ *
+ * @param limit - Maximum number of CVs to return (default 20)
+ * @param offset - Number of CVs to skip (default 0)
+ * @returns Promise resolving to paginated CV list
+ *
+ * @example
+ * ```typescript
+ * const { cvs, total } = await listCVs(20, 0);
+ * cvs.forEach(cv => console.log(cv.candidate_name));
+ * ```
+ */
+export const listCVs = async (
+  limit: number = 20,
+  offset: number = 0
+): Promise<CVListResponse> => {
+  const response = await apiClient.get<CVListResponse>('/api/cv/', {
+    params: { limit, offset },
+  });
+  return response.data;
+};
 
 /**
  * Upload a CV file for AI evaluation.

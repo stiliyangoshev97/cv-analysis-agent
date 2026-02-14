@@ -25,6 +25,8 @@ export type {
   UploadResponse,
   ErrorResponse,
   UploadProgress,
+  CVSummary,
+  CVListResponse,
   CVResult,
   // Auth Types
   AuthProvider,

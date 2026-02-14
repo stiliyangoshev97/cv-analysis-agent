@@ -3,4 +3,4 @@
  * @module features/cv/api
  */
 
-export { uploadCV, checkHealth } from './cv.api';
+export { uploadCV, checkHealth, listCVs } from './cv.api';

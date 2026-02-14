@@ -6,3 +6,4 @@
 export { ChatMessage } from './ChatMessage';
 export { ChatPanel } from './ChatPanel';
 export { ExplainModal } from './ExplainModal';
+export { CompareCVsModal } from './CompareCVsModal';
