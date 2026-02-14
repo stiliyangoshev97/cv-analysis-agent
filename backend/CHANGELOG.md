@@ -114,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Test Summary
 
 ```
-Total: 254 passed, 0 skipped
+Total: 283 passed, 0 skipped
 ├── Unit Tests: 169 passed
 │   ├── test_auth.py: 21 tests
 │   ├── test_profile_service.py: 28 tests
@@ -122,11 +122,12 @@ Total: 254 passed, 0 skipped
 │   ├── test_cv_service.py: 32 tests
 │   ├── test_chat_service.py: 28 tests
 │   └── test_notification_service.py: 34 tests
-└── Integration Tests: 85 passed
+└── Integration Tests: 114 passed
     ├── test_auth_api.py: 14 tests
     ├── test_profile_api.py: 25 tests
     ├── test_cv_api.py: 18 tests
-    └── test_chat_api.py: 28 tests
+    ├── test_chat_api.py: 28 tests
+    └── test_notification_api.py: 29 tests
 ```
 
 ---

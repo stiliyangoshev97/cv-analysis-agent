@@ -783,7 +783,7 @@ interface Criterion {
 
 ## Phase 8: Testing & Documentation
 
-### 8.1 Backend Testing 🔄 IN PROGRESS
+### 8.1 Backend Testing ✅ COMPLETED
 - [x] Set up pytest (pytest.ini, requirements-test.txt, conftest.py)
 - [x] Write unit tests for services:
   - [x] SimilarityService (26 tests)
@@ -795,9 +795,9 @@ interface Criterion {
 - [x] Write integration tests for API endpoints
   - [x] Auth API tests (14 tests - register, login, refresh, me, google)
   - [x] Profile API tests (25 tests - CRUD, clone, criteria management)
-  - [x] CV API tests (14 tests - upload, list, get, delete, re-evaluate)
+  - [x] CV API tests (18 tests - upload, list, get, delete, re-evaluate, similar, ranking)
   - [x] Chat API tests (28 tests - ask, history, explain, compare)
-  - [ ] Notification API tests
+  - [x] Notification API tests (29 tests - settings, test notifications, status)
 - [x] Fix test schemas to match actual API response structures
 - [x] Fix ProfileService bug: reload template after update
 - [x] Fix CVEmbedding model: add chunk_text and chunk_index columns
