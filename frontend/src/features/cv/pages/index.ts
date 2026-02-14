@@ -4,3 +4,4 @@
  */
 
 export { CVPage } from './CVPage';
+export { HistoryPage } from './HistoryPage';

@@ -9,7 +9,28 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 ## 🎯 NEXT STEPS (Immediate)
 
 > **Current Focus**: Frontend Priority 2 (CV Similarity & Search)
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History
+
+---
+
+## ✅ Priority 1.5: Frontend - CV Evaluation History (COMPLETED)
+
+**Implemented history page for viewing all CV evaluations.**
+
+### 1.5.1 History Page (`/history`)
+- [x] Create `/history` route and HistoryPage component
+- [x] Display all evaluated CVs in card-based list
+- [x] Show candidate name, filename, score, status
+- [x] Score badges with color coding (green/yellow/red)
+- [x] Pass/Fail status badges
+- [x] Relative time display (Today, Yesterday, X days ago)
+- [x] Search by candidate name or filename
+- [x] Filter by evaluation status (All/Passed/Failed)
+- [x] Sort by date or score
+- [x] Statistics overview (total CVs, avg score, pass rate)
+- [x] Empty state with CTA to upload first CV
+- [x] Link to individual CV details
+- [x] Navigation link in header
 
 ---
 

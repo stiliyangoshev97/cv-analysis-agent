@@ -8,6 +8,7 @@
  * ROUTE STRUCTURE:
  * ```
  * /                           [PROTECTED] CV Upload/Evaluation page
+ * /history                    [PROTECTED] CV Evaluation history
  * /profiles                   [PROTECTED] Evaluation profiles list
  * /profiles/new               [PROTECTED] Create new profile
  * /profiles/:id               [PROTECTED] View profile details
@@ -18,7 +19,7 @@
  */
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { CVPage } from '@/features/cv';
+import { CVPage, HistoryPage } from '@/features/cv';
 import { NotificationSettingsPage } from '@/features/notification';
 import {
   ProfilesPage,
@@ -43,6 +44,17 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RootLayout>
           <CVPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/history',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <HistoryPage />
         </RootLayout>
       </ProtectedRoute>
     ),

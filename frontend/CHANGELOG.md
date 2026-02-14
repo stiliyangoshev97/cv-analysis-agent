@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.0] - 2026-02-15 📜 CV EVALUATION HISTORY
+
+### Added
+
+**CV Evaluation History Page (`HistoryPage.tsx`)**
+- New page to view all CV evaluations with filtering and sorting
+- Search by candidate name or filename
+- Filter by evaluation status (All/Passed/Failed)
+- Sort by date or score
+- Statistics overview (total CVs, avg score, pass rate)
+- Responsive card-based layout for CV items
+- Score and status badges with color coding
+- Relative time display (Today, Yesterday, X days ago)
+- Empty state with CTA to upload first CV
+- Link to individual CV details
+
+**Navigation Updates**
+- Added "History" link to main navigation
+- Route `/history` for evaluation history page
+
+**System Template UX Improvement**
+- Added info banner on system template detail pages explaining they cannot be edited/deleted
+- Clear guidance to clone template to create editable copy
+
+### Changed
+
+**Routes (`routes.tsx`)**
+- Added `/history` route for HistoryPage
+- Updated route documentation
+
+**RootLayout (`RootLayout.tsx`)**
+- Added History link to navigation bar
+
+**CV Feature Exports (`features/cv/index.ts`)**
+- Exported HistoryPage and useCVList hook
+
+---
+
 ## [0.11.0] - 2026-02-15 📋 EVALUATION PROFILES & TEMPLATE SELECTOR
 
 ### Added

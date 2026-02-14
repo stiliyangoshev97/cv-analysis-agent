@@ -16,6 +16,7 @@ import { cn } from '@/shared/utils';
 /** Navigation links configuration */
 const navLinks = [
   { to: '/', label: 'Evaluate' },
+  { to: '/history', label: 'History' },
   { to: '/profiles', label: 'Profiles' },
   { to: '/settings', label: 'Settings' },
 ];

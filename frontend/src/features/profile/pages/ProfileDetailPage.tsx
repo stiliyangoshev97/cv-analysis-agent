@@ -189,6 +189,35 @@ export const ProfileDetailPage = () => {
         </div>
       </div>
 
+      {/* System Template Notice */}
+      {profile.is_system_template && (
+        <Card className="p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div>
+              <Text weight="medium" className="text-blue-800 dark:text-blue-200">
+                This is a system template
+              </Text>
+              <Text size="sm" className="text-blue-700 dark:text-blue-300 mt-1">
+                System templates cannot be edited or deleted. Click <strong>Clone</strong> above to create your own editable copy of this template.
+              </Text>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card className="p-4">
