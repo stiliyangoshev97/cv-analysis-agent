@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.2] - 2026-02-15 🛡️ ERROR BOUNDARY & SETTINGS FIX
+
+### Added
+
+**Route Error Boundary (`ErrorBoundary.tsx`)**
+- `RouteErrorBoundary` component for React Router error handling
+- Beautiful error page with gradient background and icons
+- Shows error details in development mode
+- Action buttons: Go Back, Home Page, Reload
+- Support for route error responses (404, etc.)
+
+### Changed
+
+**Router Configuration (`routes.tsx`)**
+- Added `errorElement` prop to all routes
+- Errors now show branded error page instead of React Router default
+
+### Fixed
+
+**Settings Page (`SettingsPage.tsx`)**
+- Fixed crash when `setupStatus.missing` is undefined
+- Added optional chaining: `setupStatus.missing?.join(', ')`
+
+---
+
 ## [0.10.1] - 2026-02-14 🔒 FILE TYPE VALIDATION SECURITY
 
 ### Added
