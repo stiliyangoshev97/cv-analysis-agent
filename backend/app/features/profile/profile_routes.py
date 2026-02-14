@@ -3,6 +3,9 @@
 This module defines the FastAPI routes for evaluation profile CRUD.
 Routes are thin - they only wire dependencies and delegate to controllers.
 
+Rate Limits:
+    - All profile endpoints: 100/minute (standard authenticated)
+
 Routes:
     GET    /api/profiles/                          - List all profiles
     GET    /api/profiles/{id}                      - Get profile with criteria
@@ -21,12 +24,26 @@ Example:
         app.include_router(profile_router, prefix="/api/profiles", tags=["profiles"])
 """
 
-from fastapi import APIRouter
+import uuid
+from typing import Annotated
 
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.session import get_async_session
+from app.db.models.user import User
+from app.features.auth.auth_dependencies import get_current_user
+from app.core.rate_limit import limiter, RATE_LIMIT_DEFAULT
 from .profile_controller import ProfileController
+from .profile_service import ProfileService
 from .profile_schemas import (
+    ProfileCreate,
+    ProfileUpdate,
     ProfileResponse,
     ProfileListResponse,
+    CloneProfileRequest,
+    CriterionCreate,
+    CriterionUpdate,
     CriterionResponse,
 )
 
@@ -37,10 +54,8 @@ router = APIRouter(tags=["Profiles"])
 # Profile CRUD Routes
 # =============================================================================
 
-router.add_api_route(
+@router.get(
     "/",
-    ProfileController.list_profiles,
-    methods=["GET"],
     response_model=ProfileListResponse,
     summary="List profiles",
     description="""
@@ -53,11 +68,18 @@ router.add_api_route(
     Each profile summary includes criteria count for quick overview.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def list_profiles(
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> ProfileListResponse:
+    """List all profiles."""
+    return await ProfileController.list_profiles(db=db, current_user=current_user)
 
-router.add_api_route(
+
+@router.get(
     "/{profile_id}",
-    ProfileController.get_profile,
-    methods=["GET"],
     response_model=ProfileResponse,
     summary="Get profile",
     description="""
@@ -70,11 +92,21 @@ router.add_api_route(
     **Authorization**: Can view system templates or own profiles only.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def get_profile(
+    request: Request,
+    profile_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> ProfileResponse:
+    """Get profile by ID."""
+    return await ProfileController.get_profile(
+        profile_id=profile_id, db=db, current_user=current_user
+    )
 
-router.add_api_route(
+
+@router.post(
     "/",
-    ProfileController.create_profile,
-    methods=["POST"],
     response_model=ProfileResponse,
     status_code=201,
     summary="Create profile",
@@ -88,11 +120,21 @@ router.add_api_route(
     via this endpoint.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def create_profile(
+    request: Request,
+    data: ProfileCreate,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> ProfileResponse:
+    """Create new profile."""
+    return await ProfileController.create_profile(
+        data=data, db=db, current_user=current_user
+    )
 
-router.add_api_route(
+
+@router.put(
     "/{profile_id}",
-    ProfileController.update_profile,
-    methods=["PUT"],
     response_model=ProfileResponse,
     summary="Update profile",
     description="""
@@ -104,11 +146,22 @@ router.add_api_route(
     **Authorization**: Can only update own profiles, not system templates.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def update_profile(
+    request: Request,
+    profile_id: uuid.UUID,
+    data: ProfileUpdate,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> ProfileResponse:
+    """Update profile."""
+    return await ProfileController.update_profile(
+        profile_id=profile_id, data=data, db=db, current_user=current_user
+    )
 
-router.add_api_route(
+
+@router.delete(
     "/{profile_id}",
-    ProfileController.delete_profile,
-    methods=["DELETE"],
     summary="Delete profile",
     description="""
     Delete a user-created profile.
@@ -120,11 +173,21 @@ router.add_api_route(
     System templates cannot be deleted.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def delete_profile(
+    request: Request,
+    profile_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> dict:
+    """Delete profile."""
+    return await ProfileController.delete_profile(
+        profile_id=profile_id, db=db, current_user=current_user
+    )
 
-router.add_api_route(
+
+@router.post(
     "/{profile_id}/clone",
-    ProfileController.clone_profile,
-    methods=["POST"],
     response_model=ProfileResponse,
     status_code=201,
     summary="Clone profile",
@@ -139,16 +202,26 @@ router.add_api_route(
     and can be freely modified.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def clone_profile(
+    request: Request,
+    profile_id: uuid.UUID,
+    data: CloneProfileRequest,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> ProfileResponse:
+    """Clone profile."""
+    return await ProfileController.clone_profile(
+        profile_id=profile_id, data=data, db=db, current_user=current_user
+    )
 
 
 # =============================================================================
 # Criterion CRUD Routes
 # =============================================================================
 
-router.add_api_route(
+@router.post(
     "/{profile_id}/criteria",
-    ProfileController.add_criterion,
-    methods=["POST"],
     response_model=CriterionResponse,
     status_code=201,
     summary="Add criterion",
@@ -164,11 +237,22 @@ router.add_api_route(
     **Authorization**: Can only add to own profiles.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def add_criterion(
+    request: Request,
+    profile_id: uuid.UUID,
+    data: CriterionCreate,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> CriterionResponse:
+    """Add criterion to profile."""
+    return await ProfileController.add_criterion(
+        profile_id=profile_id, data=data, db=db, current_user=current_user
+    )
 
-router.add_api_route(
+
+@router.put(
     "/{profile_id}/criteria/{criterion_id}",
-    ProfileController.update_criterion,
-    methods=["PUT"],
     response_model=CriterionResponse,
     summary="Update criterion",
     description="""
@@ -179,11 +263,27 @@ router.add_api_route(
     **Authorization**: Can only update criteria in own profiles.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def update_criterion(
+    request: Request,
+    profile_id: uuid.UUID,
+    criterion_id: uuid.UUID,
+    data: CriterionUpdate,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> CriterionResponse:
+    """Update criterion."""
+    return await ProfileController.update_criterion(
+        profile_id=profile_id,
+        criterion_id=criterion_id,
+        data=data,
+        db=db,
+        current_user=current_user,
+    )
 
-router.add_api_route(
+
+@router.delete(
     "/{profile_id}/criteria/{criterion_id}",
-    ProfileController.delete_criterion,
-    methods=["DELETE"],
     summary="Delete criterion",
     description="""
     Delete a criterion from a profile.
@@ -193,3 +293,15 @@ router.add_api_route(
     **Authorization**: Can only delete criteria from own profiles.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def delete_criterion(
+    request: Request,
+    profile_id: uuid.UUID,
+    criterion_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_async_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> dict:
+    """Delete criterion from profile."""
+    return await ProfileController.delete_criterion(
+        profile_id=profile_id, criterion_id=criterion_id, db=db, current_user=current_user
+    )

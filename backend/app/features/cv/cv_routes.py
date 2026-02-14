@@ -3,6 +3,12 @@
 This module defines the FastAPI router for CV screening endpoints.
 Routes are thin - they only wire up URL paths to controller handlers.
 
+Rate Limits:
+    - upload: 10/hour - Expensive AI processing
+    - re-evaluate: 10/hour - Also expensive
+    - Other endpoints: 100/minute - Standard authenticated
+    - health: 60/minute - Public endpoint
+
 Routes:
     POST /api/cv/upload - Upload and evaluate a CV
     GET /api/cv/ - List user's CVs
@@ -25,10 +31,11 @@ Note:
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, UploadFile, File, Depends, Query, status
+from fastapi import APIRouter, UploadFile, File, Depends, Query, Request, status
 
 from app.db.models.user import User
 from app.features.auth.auth_dependencies import get_current_user
+from app.core.rate_limit import limiter, RATE_LIMIT_UPLOAD, RATE_LIMIT_DEFAULT, RATE_LIMIT_PUBLIC
 
 from .cv_controller import CVController
 from .cv_schemas import (
@@ -70,7 +77,9 @@ controller = CVController()
     summary="Upload and Evaluate CV",
     description="Upload a PDF/DOCX CV file and receive a structured evaluation based on hiring criteria.",
 )
+@limiter.limit(RATE_LIMIT_UPLOAD)
 async def upload_and_evaluate_cv(
+    request: Request,
     file: UploadFile = File(..., description="PDF or DOCX file containing the CV"),
     template_id: Optional[uuid.UUID] = Query(None, description="Optional evaluation template ID"),
     cv_service: CVService = Depends(get_cv_service),
@@ -91,7 +100,9 @@ async def upload_and_evaluate_cv(
     description="Get a paginated list of the current user's uploaded CVs.",
     responses={401: {"description": "Not authenticated"}},
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def list_cvs(
+    request: Request,
     limit: int = Query(20, ge=1, le=100, description="Maximum number of CVs to return"),
     offset: int = Query(0, ge=0, description="Number of CVs to skip"),
     cv_service: CVService = Depends(get_cv_service),
@@ -115,7 +126,9 @@ async def list_cvs(
         404: {"description": "CV not found"},
     },
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def get_cv(
+    request: Request,
     cv_id: uuid.UUID,
     cv_service: CVService = Depends(get_cv_service),
     current_user: User = Depends(get_current_user),
@@ -137,7 +150,9 @@ async def get_cv(
         404: {"description": "CV not found"},
     },
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def delete_cv(
+    request: Request,
     cv_id: uuid.UUID,
     cv_service: CVService = Depends(get_cv_service),
     current_user: User = Depends(get_current_user),
@@ -161,7 +176,9 @@ async def delete_cv(
         404: {"description": "CV not found"},
     },
 )
+@limiter.limit(RATE_LIMIT_UPLOAD)
 async def re_evaluate_cv(
+    request: Request,
     cv_id: uuid.UUID,
     template_id: Optional[uuid.UUID] = Query(None, description="New evaluation template ID"),
     cv_service: CVService = Depends(get_cv_service),
@@ -181,7 +198,9 @@ async def re_evaluate_cv(
     summary="Health Check",
     description="Check if the CV screening service is operational.",
 )
+@limiter.limit(RATE_LIMIT_PUBLIC)
 async def health_check(
+    request: Request,
     cv_service: CVService = Depends(get_cv_service),
 ) -> dict:
     """Route handler for health check."""
@@ -212,7 +231,9 @@ async def health_check(
         404: {"description": "CV not found"},
     },
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def find_similar_cvs(
+    request: Request,
     cv_id: uuid.UUID,
     limit: int = Query(5, ge=1, le=20, description="Maximum results"),
     min_similarity: float = Query(0.0, ge=0, le=1, description="Minimum similarity"),
@@ -250,7 +271,9 @@ async def find_similar_cvs(
         404: {"description": "CV not found"},
     },
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def get_cv_ranking(
+    request: Request,
     cv_id: uuid.UUID,
     similarity_service: SimilarityService = Depends(get_similarity_service),
     current_user: User = Depends(get_current_user),
@@ -284,14 +307,16 @@ async def get_cv_ranking(
         404: {"description": "CV not found"},
     },
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def compare_cvs(
-    request: CVCompareRequest,
+    request: Request,
+    data: CVCompareRequest,
     similarity_service: SimilarityService = Depends(get_similarity_service),
     current_user: User = Depends(get_current_user),
 ) -> CVCompareResponse:
     """Route handler for comparing CVs."""
     return await controller.compare_cvs(
-        request=request,
+        request=data,
         similarity_service=similarity_service,
         current_user=current_user,
     )
@@ -316,14 +341,16 @@ async def compare_cvs(
         401: {"description": "Not authenticated"},
     },
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def search_cvs(
-    request: CVSearchRequest,
+    request: Request,
+    data: CVSearchRequest,
     similarity_service: SimilarityService = Depends(get_similarity_service),
     current_user: User = Depends(get_current_user),
 ) -> CVSearchResponse:
     """Route handler for semantic CV search."""
     return await controller.search_cvs(
-        request=request,
+        request=data,
         similarity_service=similarity_service,
         current_user=current_user,
     )

@@ -9,15 +9,19 @@ Features:
     - AI-powered CV evaluation using Claude
     - RAG-powered chat for CV Q&A
     - Structured scorecard with pass/fail status
+    - Rate limiting per user/endpoint type
 """
 
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from .config import get_settings
 from .features import auth_router, cv_router, chat_router, notification_router, profile_router
+from .core.rate_limit import limiter, rate_limit_exceeded_handler
 
 # Configure logging
 logging.basicConfig(
@@ -66,6 +70,17 @@ RAG-powered chat, and multi-channel notifications.
 - **💬 RAG Chat**: Ask questions about any CV with context-aware responses
 - **📋 Hiring Profiles**: Create custom evaluation templates or clone system defaults
 - **🔔 Notifications**: Email and WhatsApp alerts for qualified candidates
+- **🛡️ Rate Limiting**: Tiered rate limits to ensure fair usage
+
+### Rate Limits
+
+| Endpoint Type | Limit | Scope |
+|--------------|-------|-------|
+| Auth (login, register) | 5/min | Per IP |
+| CV Upload | 10/hour | Per User |
+| Chat/RAG | 30/min | Per User |
+| General API | 100/min | Per User |
+| Public (health) | 60/min | Per IP |
 
 ### How It Works
 
@@ -86,9 +101,15 @@ RAG-powered chat, and multi-channel notifications.
 | `/api/profiles` | Hiring profile CRUD |
 | `/api/notifications` | Email/WhatsApp notification settings |
 """,
-    version="0.10.0",
+    version="0.12.0",
     lifespan=lifespan
 )
+
+# Add rate limiter to app state
+app.state.limiter = limiter
+
+# Register rate limit exceeded exception handler
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Configure CORS for frontend communication
 app.add_middleware(

@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.0] - 2026-02-14 🛡️ RATE LIMITING
+
+### Added
+
+**Rate Limiting Infrastructure (`app/core/rate_limit.py`)**
+- `slowapi` integration for request rate limiting
+- Tiered rate limits by endpoint type and authentication status
+- User-based rate limiting (by JWT user ID) for authenticated endpoints
+- IP-based rate limiting for unauthenticated endpoints
+
+**Rate Limit Tiers**
+
+| Endpoint Type | Limit | Scope | Rationale |
+|--------------|-------|-------|-----------|
+| Auth (login, register) | 5/min | Per IP | Prevent brute force |
+| CV Upload | 10/hour | Per User | Expensive AI processing |
+| Chat/RAG | 30/min | Per User | LLM API costs |
+| General API | 100/min | Per User | Fair usage |
+| Test Notifications | 5/hour | Per User | Prevent spam |
+| Public (health) | 60/min | Per IP | Standard |
+
+**Rate Limit Key Functions**
+- `get_user_identifier()` - Extract user ID from JWT for rate limiting
+- `get_ip_address()` - Fallback to IP for unauthenticated requests
+- `rate_limit_exceeded_handler()` - Custom 429 error response
+
+### Changed
+
+**Routes Updated with Rate Limiting**
+- Auth routes: `/api/auth/*` (register, login, refresh, google, me, logout)
+- CV routes: `/api/cv/*` (upload, list, get, delete, re-evaluate, similarity)
+- Chat routes: `/api/chat/*` (ask, history, explain, compare)
+- Notification routes: `/api/notifications/*` (settings, test, status)
+- Profile routes: `/api/profiles/*` (CRUD, criteria)
+
+**Profile Routes Refactored**
+- Changed from `router.add_api_route()` to decorator syntax
+- Enables proper rate limiting decorator application
+
+### Dependencies Added
+- `slowapi>=0.1.9` - Rate limiting for FastAPI
+
+---
+
 ## [0.11.0] - 2026-02-14 🧪 BACKEND TESTING (Phase 8.1)
 
 ### Added

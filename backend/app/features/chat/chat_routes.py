@@ -3,6 +3,9 @@
 This module defines the FastAPI routes for RAG-powered CV chat.
 Routes are thin - they only wire dependencies and delegate to controllers.
 
+Rate Limits:
+    - All chat endpoints: 30/minute (LLM API costs)
+
 Routes:
     POST   /api/chat/compare                  - Compare multiple CVs
     POST   /api/chat/{cv_id}                  - Ask question about CV
@@ -22,10 +25,11 @@ Example:
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.db.models.user import User
 from app.features.auth.auth_dependencies import get_current_user
+from app.core.rate_limit import limiter, RATE_LIMIT_CHAT, RATE_LIMIT_DEFAULT
 from .chat_controller import ChatController
 from .chat_dependencies import get_chat_service
 from .chat_service import ChatService
@@ -67,14 +71,16 @@ router = APIRouter()
     - "Compare overall fit for a senior role"
     """,
 )
+@limiter.limit(RATE_LIMIT_CHAT)
 async def compare_cvs(
-    request: CompareRequest,
+    request: Request,
+    data: CompareRequest,
     current_user: User = Depends(get_current_user),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> CompareResponse:
     """Compare multiple CVs."""
     return await ChatController.compare_cvs(
-        request=request,
+        request=data,
         current_user=current_user,
         chat_service=chat_service,
     )
@@ -105,16 +111,18 @@ async def compare_cvs(
     - "What are their main strengths?"
     """,
 )
+@limiter.limit(RATE_LIMIT_CHAT)
 async def ask_question(
+    request: Request,
     cv_id: uuid.UUID,
-    request: ChatMessageRequest,
+    data: ChatMessageRequest,
     current_user: User = Depends(get_current_user),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> AskResponse:
     """Ask a question about a CV."""
     return await ChatController.ask_question(
         cv_id=cv_id,
-        request=request,
+        request=data,
         current_user=current_user,
         chat_service=chat_service,
     )
@@ -131,7 +139,9 @@ async def ask_question(
     Use the `limit` parameter to get only recent messages.
     """,
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def get_history(
+    request: Request,
     cv_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     chat_service: ChatService = Depends(get_chat_service),
@@ -156,7 +166,9 @@ async def get_history(
     summary="Clear chat history",
     description="Delete all messages in the conversation for a CV.",
 )
+@limiter.limit(RATE_LIMIT_DEFAULT)
 async def clear_history(
+    request: Request,
     cv_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     chat_service: ChatService = Depends(get_chat_service),
@@ -190,10 +202,12 @@ async def clear_history(
     - AI-Native Development
     """,
 )
+@limiter.limit(RATE_LIMIT_CHAT)
 async def explain_criterion(
+    request: Request,
     cv_id: uuid.UUID,
     criterion: str,
-    request: ExplainCriterionRequest = ExplainCriterionRequest(),
+    data: ExplainCriterionRequest = ExplainCriterionRequest(),
     current_user: User = Depends(get_current_user),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> ExplainCriterionResponse:
@@ -201,7 +215,7 @@ async def explain_criterion(
     return await ChatController.explain_criterion(
         cv_id=cv_id,
         criterion=criterion,
-        request=request,
+        request=data,
         current_user=current_user,
         chat_service=chat_service,
     )

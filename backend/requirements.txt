@@ -35,3 +35,6 @@ langchain-community>=0.3.0
 # Notifications
 aiosmtplib>=3.0.0
 twilio>=9.0.0
+
+# Rate Limiting
+slowapi>=0.1.9

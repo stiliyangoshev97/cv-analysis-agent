@@ -23,6 +23,7 @@ FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, sto
 | **Multi-Agent System** | Coordinated agents for parsing, scoring, chat, and notifications |
 | **Email Notifications** | Async SMTP notifications when CVs meet score thresholds |
 | **WhatsApp Alerts** | Twilio-powered WhatsApp notifications for high-scoring candidates |
+| **Rate Limiting** | Tiered rate limits per user/endpoint to prevent abuse |
 | **LangChain** | Composable chains for evaluation, embeddings, and conversation |
 | **JWT Auth** | Secure registration, login, and token refresh |
 | **Google OAuth** | Optional Google sign-in support |
@@ -77,6 +78,7 @@ Request → Routes → Controller → Service → Repository → Database
 | **LLM** | Anthropic Claude | CV evaluation & chat |
 | **Embeddings** | OpenAI text-embedding-3-small | Semantic vectors |
 | **Auth** | python-jose + bcrypt | JWT tokens + password hashing |
+| **Rate Limiting** | slowapi | Request throttling per user/IP |
 | **Encryption** | cryptography (Fernet) | AES-256 for API keys |
 
 ---
