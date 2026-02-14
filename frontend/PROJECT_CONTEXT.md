@@ -1,13 +1,13 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.9.0 - Dark Mode & Polish)
+> Last Updated: February 2026 (v0.10.0 - Batch CV Upload)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The frontend provides a clean, intuitive interface for uploading CVs, viewing detailed evaluation scorecards, chatting with AI about candidates, and comparing multiple CVs.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The frontend provides a clean, intuitive interface for uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, chatting with AI about candidates, and comparing multiple CVs.
 
 ---
 
@@ -18,6 +18,7 @@
 | Project Setup | ✅ 100% | Vite + React + TypeScript |
 | TailwindCSS | ✅ 100% | Custom configuration + Dark Mode |
 | File Upload | ✅ 100% | Drag & drop + click to upload |
+| **Batch Upload** | ✅ 100% | Up to 10 CVs with confirmation |
 | Upload Progress | ✅ 100% | Real-time progress tracking |
 | Scorecard Display | ✅ 100% | Full evaluation visualization |
 | **UI Component Library** | ✅ 100% | Button, Card, Badge, Input, etc. (all with dark mode) |
@@ -35,9 +36,9 @@
 | **Toast Notifications** | ✅ 100% | Sonner integration |
 | **Error Boundaries** | ✅ 100% | Graceful error handling |
 | **Dark Mode** | ✅ 100% | System preference + manual toggle |
-| **Batch CV Upload** | ⏳ 0% | Next feature |
+| **Dashboard** | ⏳ 0% | Future feature |
 
-**Overall Progress: ~85%** (Core features complete, polish ongoing)
+**Overall Progress: ~90%** (Core features complete)
 
 ---
 
@@ -130,7 +131,8 @@ frontend/src/
     ├── cv/                     # CV Screening feature
     │   ├── api/cv.api.ts
     │   ├── components/
-    │   │   ├── FileDropzone.tsx
+    │   │   ├── FileDropzone.tsx    # Supports multiple files
+    │   │   ├── CVFileList.tsx      # Staged files list
     │   │   ├── UploadProgress.tsx
     │   │   ├── Scorecard.tsx
     │   │   ├── ScoreRing.tsx
@@ -279,9 +281,9 @@ npm run lint    # Run ESLint
 - [x] Toast notifications (Sonner)
 - [x] Error boundaries
 - [x] Dark mode with system preference detection
+- [x] Batch CV upload with confirmation (max 10)
 
 ### Next Up 🔶
-- [ ] Batch CV upload with confirmation (max 10 CVs)
 - [ ] Dashboard with recent CVs and stats
 - [ ] Responsive design improvements
 

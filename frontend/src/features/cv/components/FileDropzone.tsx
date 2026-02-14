@@ -31,14 +31,20 @@ import { cn } from '@/shared/utils';
  * FileDropzone component props.
  */
 interface FileDropzoneProps {
-  /** Callback when a valid file is selected */
+  /** Callback when valid files are selected */
   onFileSelect: (file: File) => void;
+  /** Callback when multiple files are selected (batch mode) */
+  onFilesSelect?: (files: File[]) => void;
   /** Callback for validation errors */
   onError?: (message: string) => void;
   /** Disable the dropzone (e.g., during upload) */
   disabled?: boolean;
   /** Accepted file types (default: '.pdf') */
   accept?: string;
+  /** Allow multiple files (default: false) */
+  multiple?: boolean;
+  /** Maximum number of files allowed (default: 10) */
+  maxFiles?: number;
 }
 
 /**
@@ -52,11 +58,53 @@ interface FileDropzoneProps {
  */
 export const FileDropzone = ({
   onFileSelect,
+  onFilesSelect,
   onError,
   disabled = false,
   accept = '.pdf',
+  multiple = false,
+  maxFiles = 10,
 }: FileDropzoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
+
+  /**
+   * Validate and process files.
+   */
+  const processFiles = useCallback((fileList: FileList) => {
+    const files = Array.from(fileList);
+    
+    // Filter for PDF files only
+    const pdfFiles = files.filter(f => f.type === 'application/pdf');
+    const invalidCount = files.length - pdfFiles.length;
+    
+    if (invalidCount > 0) {
+      onError?.(`${invalidCount} file(s) skipped. Only PDF files are accepted.`);
+    }
+    
+    if (pdfFiles.length === 0) {
+      onError?.('No valid PDF files found.');
+      return;
+    }
+
+    if (multiple) {
+      // Batch mode
+      if (pdfFiles.length > maxFiles) {
+        onError?.(`Maximum ${maxFiles} files allowed. Only the first ${maxFiles} will be added.`);
+        onFilesSelect?.(pdfFiles.slice(0, maxFiles));
+      } else {
+        onFilesSelect?.(pdfFiles);
+      }
+    } else {
+      // Single file mode
+      if (files.length > 1) {
+        onError?.('Only 1 file is allowed. Please upload a single PDF.');
+        return;
+      }
+      if (pdfFiles.length === 1) {
+        onFileSelect(pdfFiles[0]);
+      }
+    }
+  }, [multiple, maxFiles, onFileSelect, onFilesSelect, onError]);
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -77,39 +125,16 @@ export const FileDropzone = ({
 
     if (disabled) return;
 
-    const files = e.dataTransfer.files;
-    
-    // Check for multiple files
-    if (files.length > 1) {
-      onError?.('Only 1 file is allowed. Please upload a single PDF.');
-      return;
-    }
-    
-    if (files.length === 1) {
-      const file = files[0];
-      if (file.type !== 'application/pdf') {
-        onError?.('Invalid file type. Only PDF files are accepted.');
-        return;
-      }
-      onFileSelect(file);
-    }
-  }, [disabled, onFileSelect, onError]);
+    processFiles(e.dataTransfer.files);
+  }, [disabled, processFiles]);
 
   const handleFileInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    
-    // Check for multiple files
-    if (files && files.length > 1) {
-      onError?.('Only 1 file is allowed. Please upload a single PDF.');
-      e.target.value = '';
-      return;
-    }
-    
-    if (files && files.length === 1) {
-      onFileSelect(files[0]);
+    if (files && files.length > 0) {
+      processFiles(files);
     }
     e.target.value = '';
-  }, [onFileSelect, onError]);
+  }, [processFiles]);
 
   return (
     <div
@@ -118,14 +143,15 @@ export const FileDropzone = ({
       onDrop={handleDrop}
       className={cn(
         'relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200',
-        isDragging && !disabled && 'border-blue-500 bg-blue-50',
-        !isDragging && !disabled && 'border-gray-300 hover:border-gray-400 hover:bg-gray-50',
-        disabled && 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
+        isDragging && !disabled && 'border-blue-500 bg-blue-50 dark:bg-blue-900/20',
+        !isDragging && !disabled && 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50',
+        disabled && 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed opacity-60'
       )}
     >
       <input
         type="file"
         accept={accept}
+        multiple={multiple}
         onChange={handleFileInput}
         disabled={disabled}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
@@ -134,10 +160,10 @@ export const FileDropzone = ({
       <div className="flex flex-col items-center gap-3">
         <div className={cn(
           'w-14 h-14 rounded-full flex items-center justify-center',
-          isDragging ? 'bg-blue-100' : 'bg-gray-100'
+          isDragging ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-700'
         )}>
           <svg
-            className={cn('w-7 h-7', isDragging ? 'text-blue-600' : 'text-gray-500')}
+            className={cn('w-7 h-7', isDragging ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400')}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -152,11 +178,11 @@ export const FileDropzone = ({
         </div>
         
         <div>
-          <p className="text-base font-medium text-gray-700">
-            {isDragging ? 'Drop your CV here' : 'Drag & drop your CV'}
+          <p className="text-base font-medium text-gray-700 dark:text-gray-200">
+            {isDragging ? 'Drop your CV(s) here' : multiple ? 'Drag & drop your CVs' : 'Drag & drop your CV'}
           </p>
-          <p className="mt-1 text-sm text-gray-500">
-            or click to browse • PDF files only
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            or click to browse • PDF files only {multiple && `• Max ${maxFiles} files`}
           </p>
         </div>
       </div>

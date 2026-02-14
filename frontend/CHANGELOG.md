@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.0] - 2026-02-14 📦 BATCH CV UPLOAD
+
+### Added
+
+**Batch Upload System**
+- `CVFileList` component - Displays staged CVs with status indicators
+  - Shows file name, size, and upload status
+  - Progress bar during scanning
+  - Success/error icons and messages
+  - Remove button for pending files
+
+**New Upload Flow**
+- Users can now add up to 10 CVs before scanning
+- Files are staged first for review
+- "Scan CVs" button to confirm and start evaluation
+- Duplicate file detection (by filename)
+- "Clear All" and "Upload More CVs" buttons
+
+### Changed
+
+**FileDropzone**
+- Added `multiple` prop for batch mode
+- Added `onFilesSelect` callback for multiple files
+- Added `maxFiles` prop (default: 10)
+- Updated UI to show batch mode text
+- Added dark mode support
+
+**CVPage**
+- Complete rewrite for batch upload workflow
+- Stage files → Review → Confirm → Scan
+- Sequential upload processing with progress
+- Multiple results displayed in a list
+- "Clear All Results" option
+
+---
+
 ## [0.9.0] - 2026-02-14 🌙 DARK MODE & THEME SUPPORT
 
 ### Added

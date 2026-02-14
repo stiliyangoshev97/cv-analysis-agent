@@ -47,6 +47,11 @@ This document outlines the tasks needed to transform the MVP into a full-feature
   - [x] useTheme hook with system preference detection
   - [x] ThemeToggle component in header
   - [x] All UI components updated with dark: variants
+- [x] Batch CV upload with confirmation
+  - [x] CVFileList component for staged files
+  - [x] FileDropzone supports multiple files (max 10)
+  - [x] "Scan CVs" confirmation button
+  - [x] Sequential upload with progress tracking
 - [ ] Responsive design improvements (future enhancement)
 
 ---

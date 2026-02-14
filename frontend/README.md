@@ -2,10 +2,11 @@
 
 React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
-**Version:** 0.9.0 | **Last Updated:** February 14, 2026
+**Version:** 0.10.0 | **Last Updated:** February 14, 2026
 
 ## 🎯 Features
 
+- **Batch CV Upload**: Upload up to 10 CVs at once with review before scanning
 - **Drag & Drop Upload**: Intuitive PDF upload with progress tracking
 - **Real-time Evaluation**: Instant AI-powered CV scoring
 - **Visual Scorecard**: Beautiful display of pass/fail status and criteria
@@ -99,7 +100,8 @@ frontend/src/
     ├── cv/                     # CV Screening
     │   ├── api/cv.api.ts
     │   ├── components/
-    │   │   ├── FileDropzone.tsx
+    │   │   ├── FileDropzone.tsx    # Supports batch upload
+    │   │   ├── CVFileList.tsx      # Staged files list
     │   │   ├── UploadProgress.tsx
     │   │   ├── Scorecard.tsx
     │   │   ├── ScoreRing.tsx
@@ -252,6 +254,7 @@ import { useAuth } from '@/features/auth/hooks';
 
 ### Completed ✅
 - [x] File upload with drag & drop
+- [x] Batch upload (up to 10 CVs with confirmation)
 - [x] Upload progress tracking
 - [x] Scorecard visualization
 - [x] Authentication UI (login, register, logout)
@@ -267,7 +270,6 @@ import { useAuth } from '@/features/auth/hooks';
 - [x] Dark mode with system preference detection
 
 ### Planned 🔶
-- [ ] Batch CV upload with confirmation
 - [ ] Dashboard with recent CVs and stats
 - [ ] CV history list with TanStack Table
 - [ ] Responsive design improvements
