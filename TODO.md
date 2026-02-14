@@ -33,12 +33,12 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] API integration (`/api/settings/*` endpoints)
 - [x] Using React Query for server state (Zustand for auth only)
 
-### Priority 2: Frontend - Chat UI
-- [ ] Create chat components for CV detail page
-- [ ] Add "Ask AI" button to evaluation results
-- [ ] Add "Why?" button to each criterion score
-- [ ] Implement chat history display
-- [ ] Add compare CVs modal/page
+### Priority 2: Frontend - Chat UI ✅ COMPLETED
+- [x] Create chat components for CV detail page
+- [x] Add "Ask AI" button to evaluation results
+- [x] Add "Why?" button to each criterion score
+- [x] Implement chat history display
+- [ ] Add compare CVs modal/page (deferred)
 
 ### Priority 3: Frontend - Polish
 - [ ] Error boundaries and loading states

@@ -106,3 +106,27 @@ export {
   type AvailableModelsResponse,
   type SetupStatusResponse,
 } from './settings.schemas';
+
+// Chat Schemas
+export {
+  // Schemas
+  chatMessageSchema,
+  chatMessageRequestSchema,
+  askResponseSchema,
+  chatHistoryResponseSchema,
+  explainCriterionRequestSchema,
+  explainCriterionResponseSchema,
+  cvRankingItemSchema,
+  compareRequestSchema,
+  compareResponseSchema,
+  // Types
+  type ChatMessage,
+  type ChatMessageRequest,
+  type AskResponse,
+  type ChatHistoryResponse,
+  type ExplainCriterionRequest,
+  type ExplainCriterionResponse,
+  type CVRankingItem,
+  type CompareRequest,
+  type CompareResponse,
+} from './chat.schemas';

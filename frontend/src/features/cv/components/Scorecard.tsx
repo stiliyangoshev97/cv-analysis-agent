@@ -11,6 +11,7 @@
  * - Visual score ring showing match percentage
  * - AI reasoning explanation
  * - Individual criteria breakdown with pass/fail indicators
+ * - "Ask AI" button for chat panel
  * - Dismiss action button
  *
  * @example
@@ -27,10 +28,12 @@
  * ```
  */
 
+import { useState } from 'react';
 import { Badge, Button, Card, CardContent, CardFooter, Text, Heading } from '@/shared/components/ui';
 import type { CVResult } from '@/shared/types';
 import { CriteriaItem } from './CriteriaItem';
 import { ScoreRing } from './ScoreRing';
+import { ChatPanel } from '@/features/chat';
 
 /**
  * Scorecard component props.
@@ -52,6 +55,7 @@ interface ScorecardProps {
  * @returns Scorecard element
  */
 export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
+  const [showChat, setShowChat] = useState(false);
   const { evaluation, filename } = result;
   const isPassed = evaluation.status === 'pass';
 
@@ -107,18 +111,37 @@ export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
           <Text weight="semibold" size="sm" className="mb-3">Evaluation Criteria</Text>
           <div className="space-y-2">
             {evaluation.criteria.map((criterion, index) => (
-              <CriteriaItem key={index} criteria={criterion} />
+              <CriteriaItem key={index} criteria={criterion} cvId={result.id} />
             ))}
           </div>
         </div>
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end mt-0">
+      <CardFooter className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between mt-0">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowChat(true)}
+          className="gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Ask AI
+        </Button>
         <Button variant="ghost" size="sm" onClick={onDismiss}>
           Dismiss
         </Button>
       </CardFooter>
+
+      {/* Chat Panel */}
+      <ChatPanel
+        cvId={result.id}
+        candidateName={evaluation.candidate_name ?? undefined}
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+      />
     </Card>
   );
 };

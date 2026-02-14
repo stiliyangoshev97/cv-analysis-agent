@@ -57,4 +57,14 @@ export type {
   ProviderModels,
   AvailableModelsResponse,
   SetupStatusResponse,
+  // Chat Types
+  ChatMessage,
+  ChatMessageRequest,
+  AskResponse,
+  ChatHistoryResponse,
+  ExplainCriterionRequest,
+  ExplainCriterionResponse,
+  CVRankingItem,
+  CompareRequest,
+  CompareResponse,
 } from '../schemas';

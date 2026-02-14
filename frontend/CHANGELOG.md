@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0] - 2026-02-14 💬 CHAT UI (Ask AI & Explain Criteria)
+
+### Added
+
+**Chat Feature Module (`features/chat/`)**
+- Complete RAG-powered chat functionality for CV analysis
+- "Ask AI" button on scorecards to start conversations
+- "Why?" buttons on criteria for detailed explanations
+
+**Zod Schemas (`shared/schemas/chat.schemas.ts`)**
+- `chatMessageSchema` - Individual chat messages (user/assistant roles)
+- `chatHistoryResponseSchema` - Chat history with pagination
+- `askQuestionRequestSchema` / `askQuestionResponseSchema` - Ask questions
+- `explainCriterionResponseSchema` - Criterion explanations with evidence
+- `compareCvsRequestSchema` / `compareCvsResponseSchema` - CV comparison
+
+**API Functions (`features/chat/api/chatApi.ts`)**
+- `askQuestion(cvId, message)` - Ask a question about a CV
+- `getChatHistory(cvId, limit)` - Get chat history
+- `clearChatHistory(cvId)` - Clear chat history
+- `explainCriterion(cvId, criterion, includeEvidence)` - Explain a score
+- `compareCVs(cvIds, question)` - Compare multiple CVs
+
+**React Query Hooks (`features/chat/hooks/useChat.ts`)**
+- `useChatHistory(cvId, limit)` - Fetch chat history
+- `useAskQuestion()` - Mutation for asking questions
+- `useClearChatHistory()` - Mutation for clearing history
+- `useExplainCriterion()` - Mutation for explaining criteria
+- `useCompareCVs()` - Mutation for comparing CVs
+
+**Components**
+- `ChatMessage` - Individual chat message bubble (user/assistant styling)
+- `ChatPanel` - Slide-out panel for full chat interface
+  - Message history with auto-scroll
+  - Input field with Enter to send
+  - Clear history button
+  - Empty state with example questions
+- `ExplainModal` - Modal for criterion explanations
+  - Shows score with visual progress bar
+  - Detailed explanation text
+  - Evidence excerpts from CV
+
+### Changed
+- `CriteriaItem` - Added "Why?" button to trigger ExplainModal
+- `Scorecard` - Added "Ask AI" button to open ChatPanel
+  - Passes cvId to CriteriaItem for explain functionality
+
+---
+
 ## [0.5.0] - 2026-02-14 ⚙️ SETTINGS PAGE (API Keys & LLM Preferences)
 
 ### Added
