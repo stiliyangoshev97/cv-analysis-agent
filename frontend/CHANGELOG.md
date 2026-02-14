@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.1] - 2026-02-15 📝 IMPROVED PROFILE CREATION UX
+
+### Added
+
+**Helpful Placeholder Examples in Profile Creation**
+- Profile name placeholder: `"e.g., Senior Backend Developer, AI/ML Engineer, Product Manager"`
+- Profile description placeholder: Full example describing ideal candidate
+- Criterion name placeholder: `"e.g., Python Experience, Cloud Infrastructure, Leadership Skills"`
+- Criterion description placeholder: Detailed example of skill evaluation
+- Keywords placeholder: `"e.g., python, django, fastapi, flask"` with usage hints
+- Evaluation guidelines placeholder: Comprehensive scoring rubric example
+
+**Helper Text for All Form Fields**
+- Added explanatory text below each input field
+- Clear guidance on what information to provide
+- Instructions for keyword input (press Enter to add)
+
+### Fixed
+
+**Profile Creation Sort Order Bug**
+- Fixed `sort_order: -1` validation error when creating profiles
+- `criteria.indexOf()` was always returning -1 due to object reference comparison
+- Now correctly uses array index for sort order
+
+---
+
 ## [0.12.0] - 2026-02-15 📜 CV EVALUATION HISTORY
 
 ### Added
