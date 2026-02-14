@@ -11,27 +11,27 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 > **Current Focus**: Frontend Settings Page + Chat UI
 > **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API
 
-### Priority 1: Frontend - User Settings Page 🔴 NEW
+### Priority 1: Frontend - User Settings Page ✅ COMPLETED
 **Required before CV uploads can work (user must configure OpenAI key)**
 
-- [ ] Create `/settings` page with tabs: "API Keys" | "LLM Preferences"
-- [ ] **API Keys Tab**:
-  - [ ] Form to add/update API keys (OpenAI required, Anthropic/Gemini optional)
-  - [ ] Display key hints (last 4 chars) for configured keys
-  - [ ] Validation button to test keys before saving
-  - [ ] Warning indicator if OpenAI not configured
-  - [ ] Delete key functionality with confirmation
-- [ ] **LLM Preferences Tab**:
-  - [ ] Dropdown to select default LLM provider (Claude/GPT/Gemini)
-  - [ ] Model selector per provider
-  - [ ] Optional per-agent overrides (chat vs evaluation)
-  - [ ] Display that embeddings always use OpenAI (read-only)
-- [ ] **Setup Status Indicator**:
-  - [ ] Show in navbar/header if setup incomplete
-  - [ ] Block CV upload if OpenAI key not configured
-  - [ ] Redirect to settings on first login if not configured
-- [ ] API integration (`/api/settings/*` endpoints)
-- [ ] Zustand store for settings state
+- [x] Create `/settings` page with tabs: "API Keys" | "LLM Preferences"
+- [x] **API Keys Tab**:
+  - [x] Form to add/update API keys (OpenAI required, Anthropic/Gemini optional)
+  - [x] Display key hints (last 4 chars) for configured keys
+  - [x] Validation button to test keys before saving
+  - [x] Warning indicator if OpenAI not configured
+  - [x] Delete key functionality with confirmation
+- [x] **LLM Preferences Tab**:
+  - [x] Dropdown to select default LLM provider (Claude/GPT/Gemini)
+  - [x] Model selector per provider
+  - [x] Optional per-agent overrides (chat vs evaluation)
+  - [x] Display that embeddings always use OpenAI (read-only)
+- [x] **Setup Status Indicator**:
+  - [x] Show in navbar/header if setup incomplete (via SettingsPage)
+  - [x] Block CV upload if OpenAI key not configured
+  - [x] Persistent warning banner until configured
+- [x] API integration (`/api/settings/*` endpoints)
+- [x] Using React Query for server state (Zustand for auth only)
 
 ### Priority 2: Frontend - Chat UI
 - [ ] Create chat components for CV detail page

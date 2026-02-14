@@ -7,6 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-02-14 ⚙️ SETTINGS PAGE (API Keys & LLM Preferences)
+
+### Added
+
+**Settings Feature Module (`features/settings/`)**
+- Complete settings management for API keys and LLM preferences
+- Required for CV uploads to work (OpenAI key mandatory for embeddings)
+
+**Zod Schemas (`shared/schemas/settings.schemas.ts`)**
+- `aiProviderSchema` - AI provider types (openai, anthropic, gemini)
+- `llmProviderSchema` - LLM provider types
+- `apiKeyInfoSchema` - API key info (hints only)
+- `apiKeyListResponseSchema` - List of configured keys
+- `setApiKeyRequestSchema` / `setApiKeyResponseSchema` - Set key request/response
+- `validateKeyRequestSchema` / `validateKeyResponseSchema` - Validate key
+- `agentConfigResponseSchema` - Agent configuration
+- `updateAgentConfigRequestSchema` - Update agent config
+- `availableModelsResponseSchema` - Available LLM models
+- `setupStatusResponseSchema` - Setup completion status
+
+**API Functions (`features/settings/api/settingsApi.ts`)**
+- `getApiKeys()` - List configured API keys
+- `setApiKey(provider, apiKey)` - Set/update an API key
+- `deleteApiKey(provider)` - Delete an API key
+- `validateApiKey(provider, apiKey)` - Validate key without storing
+- `getAgentConfig()` - Get LLM preferences
+- `updateAgentConfig(data)` - Update LLM preferences
+- `getAvailableModels()` - List available models
+- `getSetupStatus()` - Check if setup is complete
+
+**React Query Hooks (`features/settings/hooks/useSettings.ts`)**
+- `useApiKeys()` - Fetch API keys
+- `useSetApiKey()` - Mutation for setting keys
+- `useDeleteApiKey()` - Mutation for deleting keys
+- `useValidateApiKey()` - Mutation for validating keys
+- `useAgentConfig()` - Fetch agent configuration
+- `useUpdateAgentConfig()` - Mutation for updating config
+- `useAvailableModels()` - Fetch available models
+- `useSetupStatus()` - Check setup status
+
+**Components**
+- `ApiKeysTab` - Manage API keys for OpenAI, Anthropic, and Gemini
+  - Add/update/delete keys per provider
+  - Validate keys before saving (test API calls)
+  - Shows key hints (last 4 chars)
+  - Warning when OpenAI not configured
+- `LlmPreferencesTab` - Configure LLM preferences
+  - Select default LLM provider and model
+  - Per-agent overrides (Chat Agent, Scorer Agent)
+  - Shows effective provider for each agent
+  - Embeddings always use OpenAI (read-only)
+- `SettingsPage` - Two-tab interface for settings
+- `SetupBanner` - Persistent warning banner shown when setup incomplete
+  - Appears at top of all pages
+  - Links to settings page
+  - Auto-hides when setup is complete
+- `SetupRequiredScreen` - Full-page blocker for CV upload
+  - Shows what's missing
+  - Explains why API keys are needed
+  - Links to settings page
+
+**Routes**
+- Added `/settings` route for API Keys & LLM Preferences page
+
+**UserMenu Enhancement**
+- Added "Settings" link with gear icon
+- Now shows both Settings and Notification Settings
+
+**CV Upload Blocking**
+- CVPage now checks setup status before allowing uploads
+- Shows SetupRequiredScreen if OpenAI key not configured
+
+### Changed
+
+**RootLayout**
+- Added SetupBanner component to show persistent warning
+
+**Routes Configuration**
+- Added `/settings` route before `/settings/notifications`
+- Updated route documentation
+
+### Architecture
+
+```
+Settings Flow:
+┌─────────────────┐    ┌────────────────┐    ┌─────────────────┐
+│ Settings Page   │───▶│ /api/settings  │───▶│ Encrypted DB    │
+│ (2 Tabs)        │    │ Endpoints      │    │ Storage         │
+└─────────────────┘    └────────────────┘    └─────────────────┘
+        │
+   ┌────┴─────┐
+   ▼          ▼
+API Keys    LLM Preferences
+Tab         Tab
+```
+
+---
+
 ## [0.4.0] - 2026-02-13 🔔 NOTIFICATION SETTINGS UI (Phase 5)
 
 ### Added

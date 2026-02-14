@@ -8,6 +8,7 @@
  * ROUTE STRUCTURE:
  * ```
  * /                           [PROTECTED] CV Upload/Evaluation page
+ * /settings                   [PROTECTED] API Keys & LLM Preferences
  * /settings/notifications     [PROTECTED] Notification settings page
  * ```
  */
@@ -15,6 +16,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { CVPage } from '@/features/cv';
 import { NotificationSettingsPage } from '@/features/notification';
+import { SettingsPage } from '@/features/settings';
 import { ProtectedRoute } from './guards';
 import { RootLayout } from './RootLayout';
 
@@ -30,6 +32,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RootLayout>
           <CVPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/settings',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <SettingsPage />
         </RootLayout>
       </ProtectedRoute>
     ),

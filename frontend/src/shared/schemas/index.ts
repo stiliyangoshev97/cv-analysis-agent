@@ -72,3 +72,37 @@ export {
   type NotificationResult,
   type NotificationServiceStatus,
 } from './notification.schemas';
+
+// Settings Schemas
+export {
+  // Schemas
+  aiProviderSchema,
+  llmProviderSchema,
+  apiKeyInfoSchema,
+  apiKeyListResponseSchema,
+  setApiKeyRequestSchema,
+  setApiKeyResponseSchema,
+  validateKeyRequestSchema,
+  validateKeyResponseSchema,
+  agentConfigResponseSchema,
+  updateAgentConfigRequestSchema,
+  modelOptionSchema,
+  providerModelsSchema,
+  availableModelsResponseSchema,
+  setupStatusResponseSchema,
+  // Types
+  type AIProvider,
+  type LLMProvider,
+  type ApiKeyInfo,
+  type ApiKeyListResponse,
+  type SetApiKeyRequest,
+  type SetApiKeyResponse,
+  type ValidateKeyRequest,
+  type ValidateKeyResponse,
+  type AgentConfigResponse,
+  type UpdateAgentConfigRequest,
+  type ModelOption,
+  type ProviderModels,
+  type AvailableModelsResponse,
+  type SetupStatusResponse,
+} from './settings.schemas';

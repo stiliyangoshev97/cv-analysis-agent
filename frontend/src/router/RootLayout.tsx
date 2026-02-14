@@ -9,6 +9,7 @@
 
 import { Link } from 'react-router-dom';
 import { UserMenu } from '@/features/auth';
+import { SetupBanner } from '@/features/settings';
 import { Container, Text, Heading } from '@/shared/components/ui';
 
 /**
@@ -30,6 +31,9 @@ interface RootLayoutProps {
 export const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Setup Warning Banner (persists until configured) */}
+      <SetupBanner />
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <Container className="py-4">

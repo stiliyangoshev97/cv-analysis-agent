@@ -9,7 +9,8 @@
 import { useState, useCallback } from 'react';
 import { FileDropzone, UploadProgress, Scorecard } from '../components';
 import { useUploadCV } from '../hooks';
-import { Heading, Text } from '@/shared/components/ui';
+import { SetupRequiredScreen, useSetupStatus } from '@/features/settings';
+import { Heading, Text, Spinner } from '@/shared/components/ui';
 import type { CVResult, UploadResponse } from '@/shared/types';
 
 /**
@@ -19,6 +20,7 @@ import type { CVResult, UploadResponse } from '@/shared/types';
  * - PDF upload with drag-and-drop
  * - Upload progress tracking
  * - AI evaluation scorecard display
+ * - Blocks upload if setup is incomplete
  *
  * @returns CV upload and evaluation page
  */
@@ -27,6 +29,9 @@ export const CVPage = () => {
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const { upload, isUploading, progress, error, reset } = useUploadCV();
+  
+  // Check if setup is complete
+  const { data: setupStatus, isLoading: isLoadingSetup } = useSetupStatus();
 
   /**
    * Handle file selection and start upload.
@@ -68,6 +73,20 @@ export const CVPage = () => {
   const handleDismiss = useCallback(() => {
     setResult(null);
   }, []);
+
+  // Show loading while checking setup status
+  if (isLoadingSetup) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  // Block access if setup is not complete
+  if (setupStatus && !setupStatus.is_complete) {
+    return <SetupRequiredScreen />;
+  }
 
   return (
     <>
