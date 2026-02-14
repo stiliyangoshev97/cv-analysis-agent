@@ -75,11 +75,44 @@ Request → Routes → Controller → Service → Repository → Database
 | **ORM** | SQLAlchemy 2.0 (async) | Database models & queries |
 | **Migrations** | Alembic | Schema version control |
 | **AI Framework** | LangChain | Chains, prompts, RAG |
-| **LLM** | Anthropic Claude | CV evaluation & chat |
-| **Embeddings** | OpenAI text-embedding-3-small | Semantic vectors |
+| **LLM** | Claude, GPT, Gemini | CV evaluation & chat (user choice) |
+| **Embeddings** | OpenAI text-embedding-3-small | Semantic vectors (required) |
 | **Auth** | python-jose + bcrypt | JWT tokens + password hashing |
 | **Rate Limiting** | slowapi | Request throttling per user/IP |
 | **Encryption** | cryptography (Fernet) | AES-256 for API keys |
+
+### AI Provider Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     AI Provider Layer                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  EMBEDDINGS (Fixed)              LLM (User Choice)          │
+│  ┌─────────────────────┐        ┌─────────────────────────┐ │
+│  │ OpenAI              │        │ Claude (Anthropic)      │ │
+│  │ text-embedding-3-*  │        │ GPT-4 (OpenAI)          │ │
+│  │                     │        │ Gemini (Google)         │ │
+│  └─────────────────────┘        └─────────────────────────┘ │
+│         ↓                                ↓                  │
+│    pgvector storage           Evaluation, Chat, Compare     │
+│    (1536 dimensions)          (user selects provider)       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Why OpenAI for Embeddings?**
+- Consistent 1536-dimension vectors for all CVs
+- No migration needed when switching LLM providers
+- pgvector requires consistent embedding dimensions
+- Very cheap (~$0.0001 per 1K tokens)
+
+**LLM Provider Options:**
+| Provider | Models | Best For |
+|----------|--------|----------|
+| `anthropic` | claude-sonnet-4, claude-3-opus | Best quality reasoning |
+| `openai` | gpt-4o, gpt-4-turbo | Fast, reliable |
+| `gemini` | gemini-1.5-flash, gemini-1.5-pro | Cost-effective, fast |
 
 ---
 

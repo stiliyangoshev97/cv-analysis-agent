@@ -1,17 +1,36 @@
 """
 LangChain Configuration
 
-Configures LLM providers (Claude, OpenAI) and embedding models.
+Configures LLM providers (Claude, OpenAI, Gemini) and embedding models.
 Supports both system API keys and user-provided BYOK keys.
+
+LLM Providers:
+    - anthropic: Claude models (claude-sonnet-4, claude-3-opus, etc.)
+    - openai: GPT models (gpt-4o, gpt-4-turbo, etc.)
+    - gemini: Google Gemini models (gemini-1.5-pro, gemini-1.5-flash, etc.)
+
+Embeddings:
+    - OpenAI only (text-embedding-3-small) - required for pgvector consistency
 """
 
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Union
 
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from pydantic import Field
 from pydantic_settings import BaseSettings
+
+# Import Gemini - will be available after adding langchain-google-genai
+try:
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    ChatGoogleGenerativeAI = None  # type: ignore
+
+# Type alias for supported providers
+LLMProvider = Literal["anthropic", "openai", "gemini"]
 
 
 class LangChainSettings(BaseSettings):
@@ -20,9 +39,10 @@ class LangChainSettings(BaseSettings):
     # API Keys
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
     openai_api_key: str = Field(default="", alias="OPENAI_API_KEY")
+    google_api_key: str = Field(default="", alias="GOOGLE_API_KEY")
     
     # Model Configuration
-    default_llm_provider: Literal["anthropic", "openai"] = Field(
+    default_llm_provider: LLMProvider = Field(
         default="anthropic",
         alias="DEFAULT_LLM_PROVIDER"
     )
@@ -33,6 +53,10 @@ class LangChainSettings(BaseSettings):
     openai_model: str = Field(
         default="gpt-4o",
         alias="OPENAI_MODEL"
+    )
+    gemini_model: str = Field(
+        default="gemini-1.5-flash",
+        alias="GEMINI_MODEL"
     )
     embedding_model: str = Field(
         default="text-embedding-3-small",
@@ -58,33 +82,35 @@ def get_langchain_settings() -> LangChainSettings:
 
 
 def get_llm(
-    provider: Literal["anthropic", "openai"] | None = None,
+    provider: LLMProvider | None = None,
     api_key: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
-) -> ChatAnthropic | ChatOpenAI:
+) -> Union[ChatAnthropic, ChatOpenAI, "ChatGoogleGenerativeAI"]:
     """
     Get a configured LLM instance.
     
     Args:
-        provider: LLM provider to use. Defaults to settings.default_llm_provider.
+        provider: LLM provider to use ("anthropic", "openai", "gemini").
+                  Defaults to settings.default_llm_provider.
         api_key: Override API key (for BYOK). Uses system key if not provided.
         temperature: Override temperature. Defaults to settings.llm_temperature.
         max_tokens: Override max tokens. Defaults to settings.llm_max_tokens.
     
     Returns:
-        Configured ChatAnthropic or ChatOpenAI instance.
+        Configured LLM instance (ChatAnthropic, ChatOpenAI, or ChatGoogleGenerativeAI).
     
     Raises:
         ValueError: If no API key is available for the selected provider.
+        ImportError: If Gemini is selected but langchain-google-genai is not installed.
     
     Example:
         ```python
         # Use default provider with system API key
         llm = get_llm()
         
-        # Use specific provider with BYOK
-        llm = get_llm(provider="openai", api_key=user_api_key)
+        # Use Gemini with BYOK
+        llm = get_llm(provider="gemini", api_key=user_google_key)
         
         # Override parameters
         llm = get_llm(temperature=0.7, max_tokens=2000)
@@ -124,8 +150,27 @@ def get_llm(
             max_tokens=max_tokens,
         )
     
+    elif provider == "gemini":
+        if not GEMINI_AVAILABLE:
+            raise ImportError(
+                "Gemini support requires langchain-google-genai package. "
+                "Install it with: pip install langchain-google-genai"
+            )
+        key = api_key or settings.google_api_key
+        if not key:
+            raise ValueError(
+                "Google API key not configured. "
+                "Set GOOGLE_API_KEY environment variable or provide api_key parameter."
+            )
+        return ChatGoogleGenerativeAI(
+            model=settings.gemini_model,
+            google_api_key=key,
+            temperature=temperature,
+            max_output_tokens=max_tokens,
+        )
+    
     else:
-        raise ValueError(f"Unknown LLM provider: {provider}")
+        raise ValueError(f"Unknown LLM provider: {provider}. Supported: anthropic, openai, gemini")
 
 
 def get_embeddings(

@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.13.0] - 2026-02-14 🤖 GEMINI LLM SUPPORT
+
+### Added
+
+**Google Gemini Provider (`app/langchain/config.py`)**
+- Added `gemini` as third LLM provider option alongside `anthropic` and `openai`
+- Supports Gemini 1.5 Flash (default) and Gemini 1.5 Pro models
+- Graceful fallback if `langchain-google-genai` package not installed
+- Full BYOK (Bring Your Own Key) support for Google API keys
+
+**Configuration Settings**
+- `GOOGLE_API_KEY` - Google AI Studio API key
+- `GEMINI_MODEL` - Model selection (default: `gemini-1.5-flash`)
+- `DEFAULT_LLM_PROVIDER` now accepts `"gemini"` as valid option
+
+**AI Provider Architecture**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AI Provider Architecture                  │
+├─────────────────────────────────────────────────────────────┤
+│  EMBEDDINGS (Required)          LLM (User Choice)           │
+│  ┌─────────────────┐           ┌─────────────────┐         │
+│  │  OpenAI Only    │           │  Claude (Anthropic) │     │
+│  │  (mandatory for │           │  GPT (OpenAI)        │     │
+│  │   pgvector)     │           │  Gemini (Google)     │     │
+│  └─────────────────┘           └─────────────────┘         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Changed
+
+**Documentation Updates**
+- `.env.example` - Added Gemini configuration with organized AI section
+- `README.md` - Updated tech stack and added AI Provider Architecture diagram
+
+### Dependencies Added
+- `langchain-google-genai>=2.0.0` - Google Gemini support for LangChain
+
+### Notes
+- **Embeddings remain OpenAI-only** - Required for pgvector vector consistency across all CVs
+- **LLM is user choice** - Users can select Claude, GPT, or Gemini for evaluation and chat
+- Gemini integration follows same BYOK pattern as other providers
+
+---
+
 ## [0.12.0] - 2026-02-14 🛡️ RATE LIMITING
 
 ### Added
