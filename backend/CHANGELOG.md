@@ -47,12 +47,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `test_cv_service.py` - Updated all tests to mock `UserKeysService` and per-request LLM creation
 - `test_chat_service.py` - Updated tests for user keys architecture
 - `conftest.py` - Removed deprecated `anthropic_api_key` from test settings
+- `conftest.py` - Added `test_user_api_keys` fixture for integration tests
+- `test_chat_api.py` - Fixed integration tests for user keys architecture (mock paths, return types)
 
 ### Security
 
 - **No system API keys**: All AI operations use user-provided keys
 - Keys are encrypted in database (AES-256)
 - No fallback to `.env` - forces proper user setup
+
+### Fixed
+
+- `user_keys_service.py` - Fixed `get_user_keys()` to use `scorer_provider` instead of non-existent `default_llm_provider`
+- Integration tests - Fixed compare_cvs mocks to return dict (matching controller expectations)
 
 ---
 
