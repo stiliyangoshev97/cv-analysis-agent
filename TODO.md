@@ -804,8 +804,9 @@ interface Criterion {
 - [x] Fix all skipped tests (mocking for pgvector, delete verification)
 - [x] Fix ChatService: handle both dict and list formats for criteria_results
 - [x] Fix chat_routes.py: move /compare before /{cv_id} for proper route matching
+- [x] Add Notification API integration tests (29 tests)
 
-**Test Results**: 254 tests passing (169 unit + 85 integration), 0 skipped
+**Test Results**: 283 tests passing (169 unit + 114 integration), 0 skipped
 
 ### 8.2 Frontend Testing
 - [ ] Set up Vitest
@@ -837,7 +838,7 @@ interface Criterion {
    - 6.4 Semantic Search ✅ Backend Complete
    - Frontend implementation ⏳ Next
 9. **Phase 7**: Frontend Enhancements
-10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (254 tests passing: 169 unit + 85 integration)
+10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (283 tests passing: 169 unit + 114 integration)
 
 > **Note**: Phase 1.7 (User Configuration) will be implemented as part of Phase 2 (Database Layer) since it requires database persistence.
 

@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full dispatch pipeline (email + WhatsApp)
   - Test notification sending
 
-**Integration Tests (`app/tests/integration/`)** - 85 tests
+**Integration Tests (`app/tests/integration/`)** - 114 tests
 - `test_auth_api.py` - 14 tests for `/api/auth/*`:
   - Register, login, me, refresh endpoints
   - Validation errors, duplicate detection
@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Criterion management endpoints
   - Clone functionality
   - Authorization (system template protection)
-- `test_cv_api.py` - 14 tests for `/api/cv/*`:
+- `test_cv_api.py` - 18 tests for `/api/cv/*`:
   - List, get, delete CV endpoints
   - Similar CVs, ranking, comparison endpoints
   - Semantic search endpoint
@@ -79,6 +79,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Explain criterion score
   - Compare multiple CVs (2-5)
   - Authorization and validation
+- `test_notification_api.py` - 29 tests for `/api/notifications/*`:
+  - Get notification settings (with masked WhatsApp)
+  - Update notification settings (email, WhatsApp, threshold)
+  - Send test notifications (email, WhatsApp channels)
+  - Get service configuration status
+  - Validation (phone format, threshold bounds)
+  - Edge cases (concurrent updates, boundary values)
 
 ### Fixed
 
