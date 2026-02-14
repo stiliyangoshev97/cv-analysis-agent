@@ -100,18 +100,22 @@ class UserKeysService:
         gemini_key = await self.repository.get_decrypted_key(user_id, "gemini")
         
         # Get user's agent config for preferred provider
+        # Uses scorer_provider as the default for CV processing
         config = await self.repository.get_agent_config(user_id)
-        default_provider = config.default_llm_provider if config else "anthropic"
+        
+        # Determine default provider from agent config
+        # Priority: scorer_provider > chat_provider > first available key
+        default_provider = "anthropic"  # fallback
         default_model = None
         
         if config:
-            # Get the model for the default provider
-            if default_provider == "anthropic":
-                default_model = config.anthropic_model
-            elif default_provider == "openai":
-                default_model = config.openai_model
-            elif default_provider == "gemini":
-                default_model = config.gemini_model
+            # Use scorer provider as the primary for CV processing
+            if config.scorer_provider:
+                default_provider = config.scorer_provider
+                default_model = config.scorer_model
+            elif config.chat_provider:
+                default_provider = config.chat_provider
+                default_model = config.chat_model
         
         return UserAPIKeys(
             openai_key=openai_key,

@@ -37,6 +37,9 @@ from app.db.models.user import User
 from app.db.models.cv import CV, CVEvaluation, CVEmbedding
 from app.db.models.template import EvaluationTemplate, TemplateCriterion
 from app.db.models.chat import ChatHistory
+from app.db.models.api_key import UserApiKey
+from app.db.models.agent_config import UserAgentConfig
+from app.db.encryption import encrypt_api_key
 from app.core.security import hash_password, create_access_token
 from app.config import Settings, get_settings
 
@@ -193,6 +196,67 @@ async def test_user_2(db_session: AsyncSession) -> User:
     await db_session.commit()
     await db_session.refresh(user)
     return user
+
+
+@pytest.fixture
+async def test_user_api_keys(db_session: AsyncSession, test_user: User) -> list[UserApiKey]:
+    """Create test API keys for the test user (BYOK).
+    
+    Creates encrypted OpenAI and Anthropic keys for testing.
+    Also creates default agent config with Anthropic as default provider.
+    
+    Args:
+        db_session: Database session fixture.
+        test_user: User fixture.
+        
+    Returns:
+        List of UserApiKey instances.
+    """
+    # Create OpenAI key (required for embeddings)
+    openai_key = UserApiKey(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        provider="openai",
+        encrypted_key=encrypt_api_key("sk-test-openai-key-for-testing"),
+        key_hint="...ting",
+        is_valid=True,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    
+    # Create Anthropic key (for LLM)
+    anthropic_key = UserApiKey(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        provider="anthropic",
+        encrypted_key=encrypt_api_key("sk-ant-test-key-for-testing"),
+        key_hint="...ting",
+        is_valid=True,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    
+    db_session.add(openai_key)
+    db_session.add(anthropic_key)
+    
+    # Create default agent config with Anthropic as default for scoring/chat
+    agent_config = UserAgentConfig(
+        id=uuid.uuid4(),
+        user_id=test_user.id,
+        scorer_provider="anthropic",
+        scorer_model="claude-sonnet-4-20250514",
+        chat_provider="anthropic",
+        chat_model="claude-sonnet-4-20250514",
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    db_session.add(agent_config)
+    
+    await db_session.commit()
+    await db_session.refresh(openai_key)
+    await db_session.refresh(anthropic_key)
+    
+    return [openai_key, anthropic_key]
 
 
 @pytest.fixture
