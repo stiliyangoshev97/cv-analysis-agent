@@ -78,7 +78,7 @@ export const SettingsPage = () => {
                 Complete Setup to Upload CVs
               </Text>
               <Text size="sm" className="text-amber-700 mt-1">
-                Missing: {setupStatus.missing.join(', ')}
+                Missing: {setupStatus.missing?.join(', ') || 'Required configuration'}
               </Text>
             </div>
           </div>

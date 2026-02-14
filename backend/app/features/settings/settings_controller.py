@@ -227,12 +227,23 @@ class SettingsController:
             for k in keys.keys
         )
         
+        # Build missing items list
+        missing = []
+        if not openai_configured:
+            missing.append("OpenAI API key (required for embeddings)")
+        if not llm_configured:
+            missing.append("At least one LLM provider key (Anthropic, OpenAI, or Gemini)")
+        
+        is_complete = openai_configured and llm_configured
+        
         return {
+            "is_complete": is_complete,
             "openai_configured": openai_configured,
             "llm_configured": llm_configured,
+            "missing": missing,
             "ready_for_uploads": openai_configured,
             "message": (
-                "Setup complete!" if openai_configured and llm_configured
+                "Setup complete!" if is_complete
                 else "Please configure OpenAI API key for embeddings." if not openai_configured
                 else "Setup complete (using OpenAI for both embeddings and LLM)."
             )

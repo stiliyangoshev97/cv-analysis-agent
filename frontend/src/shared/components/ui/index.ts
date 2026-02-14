@@ -20,7 +20,7 @@ export { Badge } from './Badge';
 export { ProgressBar } from './ProgressBar';
 export { Spinner } from './Spinner';
 export { ToastProvider, toast } from './Toast';
-export { ErrorBoundary, PageErrorBoundary } from './ErrorBoundary';
+export { ErrorBoundary, PageErrorBoundary, RouteErrorBoundary } from './ErrorBoundary';
 export { ThemeToggle } from './ThemeToggle';
 
 // Layout & Containers

@@ -17,6 +17,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { CVPage } from '@/features/cv';
 import { NotificationSettingsPage } from '@/features/notification';
 import { SettingsPage } from '@/features/settings';
+import { RouteErrorBoundary } from '@/shared/components/ui';
 import { ProtectedRoute } from './guards';
 import { RootLayout } from './RootLayout';
 
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
         </RootLayout>
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorBoundary />,
   },
   {
     path: '/settings',
@@ -45,6 +47,7 @@ export const router = createBrowserRouter([
         </RootLayout>
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorBoundary />,
   },
   {
     path: '/settings/notifications',
@@ -55,6 +58,7 @@ export const router = createBrowserRouter([
         </RootLayout>
       </ProtectedRoute>
     ),
+    errorElement: <RouteErrorBoundary />,
   },
   {
     // Catch-all redirect to home
