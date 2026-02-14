@@ -505,6 +505,7 @@ class CVService:
         return UploadResponse(
             success=True,
             message="CV evaluated successfully",
+            cv_id=str(result.cv.id),
             evaluation=evaluation_response,
         )
     

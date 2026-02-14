@@ -169,17 +169,23 @@ class UploadResponse(BaseModel):
     Attributes:
         success: Whether the upload and evaluation was successful.
         message: Status message describing the result.
+        cv_id: UUID of the uploaded CV (for chat, history, etc.).
         evaluation: CV evaluation results if successful.
     
     Example:
         >>> response = UploadResponse(
         ...     success=True,
         ...     message="CV evaluated successfully",
+        ...     cv_id="550e8400-e29b-41d4-a716-446655440000",
         ...     evaluation=evaluation_response
         ... )
     """
     success: bool = Field(..., description="Whether the upload was successful")
     message: str = Field(..., description="Status message")
+    cv_id: Optional[str] = Field(
+        None,
+        description="UUID of the uploaded CV"
+    )
     evaluation: Optional[CVEvaluationResponse] = Field(
         None, 
         description="CV evaluation results if successful"

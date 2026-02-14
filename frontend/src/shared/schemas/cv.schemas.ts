@@ -112,6 +112,8 @@ export const uploadResponseSchema = z.object({
   success: z.boolean(),
   /** Human-readable status message */
   message: z.string(),
+  /** UUID of the uploaded CV (for chat, history, etc.) */
+  cv_id: z.string().nullable(),
   /** Evaluation result, null on failure */
   evaluation: cvEvaluationResponseSchema.nullable(),
 });

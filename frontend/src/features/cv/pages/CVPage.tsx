@@ -127,10 +127,10 @@ export const CVPage = () => {
           );
         });
         
-        if (data.success && data.evaluation) {
+        if (data.success && data.evaluation && data.cv_id) {
           // Add to results
           const result: CVResult = {
-            id: crypto.randomUUID(),
+            id: data.cv_id,
             filename: stagedFile.file.name,
             evaluation: data.evaluation,
             uploadedAt: new Date(),

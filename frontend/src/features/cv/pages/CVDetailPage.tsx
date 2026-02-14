@@ -21,6 +21,7 @@ import {
   ModalFooter,
 } from '@/shared/components/ui';
 import { useCV, useDeleteCV } from '../hooks';
+import { ChatPanel } from '@/features/chat';
 
 // =============================================================================
 // Helper Components
@@ -141,6 +142,7 @@ export const CVDetailPage = () => {
   const { mutate: deleteCV, isPending: isDeleting } = useDeleteCV();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   if (isLoading) {
     return (
@@ -230,6 +232,25 @@ export const CVDetailPage = () => {
           </Text>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowChat(true)}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            Ask AI
+          </Button>
           <Button
             variant="danger"
             onClick={() => setShowDeleteModal(true)}
@@ -369,6 +390,14 @@ export const CVDetailPage = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      {/* Chat Panel */}
+      <ChatPanel
+        cvId={cv.id}
+        candidateName={cv.candidate_name ?? undefined}
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+      />
     </Container>
   );
 };
