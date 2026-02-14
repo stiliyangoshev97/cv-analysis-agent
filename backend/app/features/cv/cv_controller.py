@@ -38,8 +38,21 @@ from fastapi import UploadFile, HTTPException, status
 from app.config import get_settings
 from app.db.models.user import User
 
-from .cv_schemas import UploadResponse, CVListResponse, CVDetailResponse
+from .cv_schemas import (
+    UploadResponse,
+    CVListResponse,
+    CVDetailResponse,
+    SimilarCVsResponse,
+    SimilarCVResponse,
+    CVRankingResponse,
+    CVCompareRequest,
+    CVCompareResponse,
+    CVComparisonItemResponse,
+    CVSearchRequest,
+    CVSearchResponse,
+)
 from .cv_service import CVService
+from .similarity_service import SimilarityService
 
 logger = logging.getLogger(__name__)
 
@@ -357,3 +370,239 @@ class CVController:
                 "evaluated_at": latest_eval.evaluated_at.isoformat(),
             } if latest_eval else None,
         }
+    
+    # =========================================================================
+    # Similarity Search Methods
+    # =========================================================================
+    
+    async def find_similar_cvs(
+        self,
+        cv_id: uuid.UUID,
+        similarity_service: SimilarityService,
+        current_user: User,
+        limit: int = 5,
+        min_similarity: float = 0.0,
+    ) -> SimilarCVsResponse:
+        """Handle find similar CVs request.
+        
+        Finds CVs similar to the given CV using vector embeddings.
+        
+        Args:
+            cv_id: Source CV UUID.
+            similarity_service: Injected similarity service.
+            current_user: Authenticated user.
+            limit: Maximum results to return.
+            min_similarity: Minimum similarity threshold.
+            
+        Returns:
+            SimilarCVsResponse with similar CVs.
+            
+        Raises:
+            HTTPException: 404 if CV not found, 400 if no embeddings.
+        """
+        try:
+            results = await similarity_service.find_similar_cvs(
+                cv_id=cv_id,
+                user_id=current_user.id,
+                limit=limit,
+                min_similarity=min_similarity,
+            )
+            
+            return SimilarCVsResponse(
+                source_cv_id=str(cv_id),
+                similar_cvs=[
+                    SimilarCVResponse(
+                        cv_id=str(r.cv_id),
+                        filename=r.filename,
+                        candidate_name=r.candidate_name,
+                        similarity_score=r.similarity_score,
+                        evaluation_score=r.evaluation_score,
+                        status=r.status,
+                    )
+                    for r in results
+                ],
+                total=len(results),
+            )
+            
+        except ValueError as e:
+            error_msg = str(e)
+            if "not found" in error_msg.lower():
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=error_msg,
+                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_msg,
+            )
+    
+    async def get_cv_ranking(
+        self,
+        cv_id: uuid.UUID,
+        similarity_service: SimilarityService,
+        current_user: User,
+    ) -> CVRankingResponse:
+        """Handle CV ranking request.
+        
+        Returns percentile ranking for a CV among user's CVs.
+        
+        Args:
+            cv_id: CV UUID to rank.
+            similarity_service: Injected similarity service.
+            current_user: Authenticated user.
+            
+        Returns:
+            CVRankingResponse with percentile and rank info.
+            
+        Raises:
+            HTTPException: 404 if CV not found, 400 if not evaluated.
+        """
+        try:
+            ranking = await similarity_service.get_cv_ranking(
+                cv_id=cv_id,
+                user_id=current_user.id,
+            )
+            
+            # Generate human-readable label
+            if ranking.percentile >= 90:
+                label = "Top 10%"
+            elif ranking.percentile >= 75:
+                label = "Top 25%"
+            elif ranking.percentile >= 50:
+                label = "Above Average"
+            elif ranking.percentile >= 25:
+                label = "Below Average"
+            else:
+                label = "Bottom 25%"
+            
+            return CVRankingResponse(
+                cv_id=str(cv_id),
+                percentile=ranking.percentile,
+                rank=ranking.rank,
+                total_cvs=ranking.total_cvs,
+                evaluation_score=ranking.evaluation_score,
+                average_score=ranking.average_score,
+                highest_score=ranking.highest_score,
+                label=label,
+            )
+            
+        except ValueError as e:
+            error_msg = str(e)
+            if "not found" in error_msg.lower():
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=error_msg,
+                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_msg,
+            )
+    
+    async def compare_cvs(
+        self,
+        request: CVCompareRequest,
+        similarity_service: SimilarityService,
+        current_user: User,
+    ) -> CVCompareResponse:
+        """Handle CV comparison request.
+        
+        Compares multiple CVs head-to-head with similarity matrix.
+        
+        Args:
+            request: Request with CV IDs to compare.
+            similarity_service: Injected similarity service.
+            current_user: Authenticated user.
+            
+        Returns:
+            CVCompareResponse with comparison details.
+            
+        Raises:
+            HTTPException: 400 for validation errors, 404 if CV not found.
+        """
+        try:
+            cv_ids = [uuid.UUID(cid) for cid in request.cv_ids]
+            
+            comparison = await similarity_service.compare_cvs(
+                cv_ids=cv_ids,
+                user_id=current_user.id,
+            )
+            
+            # Format most similar pair
+            most_similar = None
+            if comparison.most_similar_pair:
+                cv1, cv2, sim = comparison.most_similar_pair
+                most_similar = {
+                    "cv_id_1": str(cv1),
+                    "cv_id_2": str(cv2),
+                    "similarity": sim,
+                }
+            
+            return CVCompareResponse(
+                cvs=[
+                    CVComparisonItemResponse(
+                        cv_id=str(item.cv_id),
+                        filename=item.filename,
+                        candidate_name=item.candidate_name,
+                        evaluation_score=item.evaluation_score,
+                        status=item.status,
+                        similarity_to_first=item.similarity_to_first,
+                    )
+                    for item in comparison.cvs
+                ],
+                similarity_matrix=comparison.similarity_matrix,
+                best_match_id=str(comparison.best_match_id) if comparison.best_match_id else None,
+                most_similar_pair=most_similar,
+            )
+            
+        except ValueError as e:
+            error_msg = str(e)
+            if "not found" in error_msg.lower():
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=error_msg,
+                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=error_msg,
+            )
+    
+    async def search_cvs(
+        self,
+        request: CVSearchRequest,
+        similarity_service: SimilarityService,
+        current_user: User,
+    ) -> CVSearchResponse:
+        """Handle semantic CV search request.
+        
+        Searches CVs by natural language query using embeddings.
+        
+        Args:
+            request: Request with search query.
+            similarity_service: Injected similarity service.
+            current_user: Authenticated user.
+            
+        Returns:
+            CVSearchResponse with matching CVs.
+        """
+        results = await similarity_service.search_by_query(
+            query=request.query,
+            user_id=current_user.id,
+            limit=request.limit,
+            min_similarity=request.min_similarity,
+        )
+        
+        return CVSearchResponse(
+            query=request.query,
+            results=[
+                SimilarCVResponse(
+                    cv_id=str(r.cv_id),
+                    filename=r.filename,
+                    candidate_name=r.candidate_name,
+                    similarity_score=r.similarity_score,
+                    evaluation_score=r.evaluation_score,
+                    status=r.status,
+                )
+                for r in results
+            ],
+            total=len(results),
+        )

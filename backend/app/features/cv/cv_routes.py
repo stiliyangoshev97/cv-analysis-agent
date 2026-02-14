@@ -31,9 +31,19 @@ from app.db.models.user import User
 from app.features.auth.auth_dependencies import get_current_user
 
 from .cv_controller import CVController
-from .cv_schemas import UploadResponse, ErrorResponse
-from .cv_dependencies import get_cv_service
+from .cv_schemas import (
+    UploadResponse,
+    ErrorResponse,
+    SimilarCVsResponse,
+    CVRankingResponse,
+    CVCompareRequest,
+    CVCompareResponse,
+    CVSearchRequest,
+    CVSearchResponse,
+)
+from .cv_dependencies import get_cv_service, get_similarity_service
 from .cv_service import CVService
+from .similarity_service import SimilarityService
 
 # Router instance with prefix and OpenAPI tags
 router = APIRouter(
@@ -176,3 +186,144 @@ async def health_check(
 ) -> dict:
     """Route handler for health check."""
     return await controller.health_check(cv_service)
+
+
+# =============================================================================
+# Similarity Search Routes
+# =============================================================================
+
+@router.get(
+    "/{cv_id}/similar",
+    response_model=SimilarCVsResponse,
+    summary="Find Similar CVs",
+    description="""
+    Find CVs similar to the given CV using vector embeddings.
+    
+    Uses cosine similarity on averaged chunk embeddings to find
+    semantically similar candidates in your CV collection.
+    
+    **Parameters:**
+    - `limit`: Maximum number of similar CVs to return (1-20)
+    - `min_similarity`: Minimum similarity threshold (0-1)
+    """,
+    responses={
+        400: {"model": ErrorResponse, "description": "CV has no embeddings"},
+        401: {"description": "Not authenticated"},
+        404: {"description": "CV not found"},
+    },
+)
+async def find_similar_cvs(
+    cv_id: uuid.UUID,
+    limit: int = Query(5, ge=1, le=20, description="Maximum results"),
+    min_similarity: float = Query(0.0, ge=0, le=1, description="Minimum similarity"),
+    similarity_service: SimilarityService = Depends(get_similarity_service),
+    current_user: User = Depends(get_current_user),
+) -> SimilarCVsResponse:
+    """Route handler for finding similar CVs."""
+    return await controller.find_similar_cvs(
+        cv_id=cv_id,
+        similarity_service=similarity_service,
+        current_user=current_user,
+        limit=limit,
+        min_similarity=min_similarity,
+    )
+
+
+@router.get(
+    "/{cv_id}/ranking",
+    response_model=CVRankingResponse,
+    summary="Get CV Ranking",
+    description="""
+    Get percentile ranking for a CV among your uploaded CVs.
+    
+    Rankings are based on evaluation scores, not similarity.
+    Returns the CV's rank, percentile, and comparison statistics.
+    
+    **Example Response:**
+    - `percentile: 85` means the CV scored better than 85% of candidates
+    - `rank: 3` means this is the 3rd best CV out of all
+    - `label: "Top 10%"` provides a human-readable label
+    """,
+    responses={
+        400: {"model": ErrorResponse, "description": "CV not evaluated"},
+        401: {"description": "Not authenticated"},
+        404: {"description": "CV not found"},
+    },
+)
+async def get_cv_ranking(
+    cv_id: uuid.UUID,
+    similarity_service: SimilarityService = Depends(get_similarity_service),
+    current_user: User = Depends(get_current_user),
+) -> CVRankingResponse:
+    """Route handler for getting CV ranking."""
+    return await controller.get_cv_ranking(
+        cv_id=cv_id,
+        similarity_service=similarity_service,
+        current_user=current_user,
+    )
+
+
+@router.post(
+    "/compare",
+    response_model=CVCompareResponse,
+    summary="Compare CVs",
+    description="""
+    Compare multiple CVs head-to-head.
+    
+    Returns:
+    - Detailed info for each CV (scores, status)
+    - Pairwise similarity matrix (NxN)
+    - Best match (highest score)
+    - Most similar pair
+    
+    **Limits:** 2-10 CVs per comparison.
+    """,
+    responses={
+        400: {"model": ErrorResponse, "description": "Invalid CV count or IDs"},
+        401: {"description": "Not authenticated"},
+        404: {"description": "CV not found"},
+    },
+)
+async def compare_cvs(
+    request: CVCompareRequest,
+    similarity_service: SimilarityService = Depends(get_similarity_service),
+    current_user: User = Depends(get_current_user),
+) -> CVCompareResponse:
+    """Route handler for comparing CVs."""
+    return await controller.compare_cvs(
+        request=request,
+        similarity_service=similarity_service,
+        current_user=current_user,
+    )
+
+
+@router.post(
+    "/search",
+    response_model=CVSearchResponse,
+    summary="Semantic CV Search",
+    description="""
+    Search CVs by natural language query.
+    
+    Converts your query to a vector embedding and finds CVs with
+    similar content. Great for finding candidates with specific skills.
+    
+    **Example queries:**
+    - "Python developer with fintech experience"
+    - "React developer familiar with AI tools"
+    - "Senior engineer with team lead experience"
+    """,
+    responses={
+        401: {"description": "Not authenticated"},
+    },
+)
+async def search_cvs(
+    request: CVSearchRequest,
+    similarity_service: SimilarityService = Depends(get_similarity_service),
+    current_user: User = Depends(get_current_user),
+) -> CVSearchResponse:
+    """Route handler for semantic CV search."""
+    return await controller.search_cvs(
+        request=request,
+        similarity_service=similarity_service,
+        current_user=current_user,
+    )

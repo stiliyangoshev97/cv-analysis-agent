@@ -7,6 +7,7 @@ Architecture (Controller-Service-Repository Pattern):
     - cv_routes.py: Route definitions (thin)
     - cv_controller.py: HTTP request/response handling
     - cv_service.py: Orchestration and business logic
+    - similarity_service.py: Vector similarity search
     - cv_schemas.py: Pydantic validation schemas
     - cv_repository.py: CV database operations
     - evaluation_repository.py: Evaluation database operations
@@ -23,12 +24,19 @@ Note:
 Exports:
     cv_router: FastAPI router with CV endpoints.
     CVService: Orchestration service.
+    SimilarityService: Vector similarity search service.
     PDFService: PDF processing service.
     EvaluationService: AI evaluation service.
 """
 
 from .cv_routes import router as cv_router
 from .cv_service import CVService, ProcessingResult
+from .similarity_service import (
+    SimilarityService,
+    SimilarCVResult,
+    CVRankingResult,
+    CVComparisonResult,
+)
 from .cv_schemas import (
     CVEvaluationResponse,
     CVEvaluationRequest,
@@ -40,6 +48,15 @@ from .cv_schemas import (
     CVListResponse,
     CVDetailResponse,
     EvaluationDetail,
+    # Similarity schemas
+    SimilarCVResponse,
+    SimilarCVsResponse,
+    CVRankingResponse,
+    CVCompareRequest,
+    CVCompareResponse,
+    CVComparisonItemResponse,
+    CVSearchRequest,
+    CVSearchResponse,
 )
 from .services.pdf_service import PDFService
 from .services.evaluation_service import EvaluationService
@@ -56,6 +73,10 @@ __all__ = [
     # Services
     "CVService",
     "ProcessingResult",
+    "SimilarityService",
+    "SimilarCVResult",
+    "CVRankingResult",
+    "CVComparisonResult",
     "PDFService",
     "EvaluationService",
     # Repositories
@@ -76,4 +97,13 @@ __all__ = [
     "CVListResponse",
     "CVDetailResponse",
     "EvaluationDetail",
+    # Similarity Schemas
+    "SimilarCVResponse",
+    "SimilarCVsResponse",
+    "CVRankingResponse",
+    "CVCompareRequest",
+    "CVCompareResponse",
+    "CVComparisonItemResponse",
+    "CVSearchRequest",
+    "CVSearchResponse",
 ]

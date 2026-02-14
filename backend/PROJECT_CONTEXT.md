@@ -39,8 +39,9 @@
 | **Multi-Agent System** | ✅ 100% | Phase 4 - 4 specialized agents + orchestrator |
 | **Notification System** | ✅ 100% | Phase 5 - Email + WhatsApp via Twilio |
 | **Hiring Profiles CRUD** | ✅ 100% | Phase 6.3 - Profile management API |
+| **Vector Similarity Search** | ✅ 100% | Phase 6.1 - Similar CVs, ranking, compare |
 
-**Overall Progress: ~90%** (Phases 1-5 + 6.3 Complete)
+**Overall Progress: ~92%** (Phases 1-5 + 6.1 + 6.3 Complete)
 
 ---
 
@@ -134,6 +135,7 @@ backend/
 │       │   ├── cv_routes.py            # Route definitions
 │       │   ├── cv_controller.py        # HTTP handlers
 │       │   ├── cv_service.py           # Orchestration + LangChain
+│       │   ├── similarity_service.py   # Vector similarity search
 │       │   ├── cv_repository.py        # CV CRUD operations
 │       │   ├── evaluation_repository.py # Evaluation operations
 │       │   ├── template_repository.py  # Template operations
@@ -238,6 +240,10 @@ notification_settings -- Alert preferences
 | `GET` | `/{cv_id}` | Get CV details with evaluation | ✅ |
 | `DELETE` | `/{cv_id}` | Delete CV and related data | ✅ |
 | `POST` | `/{cv_id}/re-evaluate` | Re-evaluate with different template | ✅ |
+| `GET` | `/{cv_id}/similar` | Find similar CVs | ✅ |
+| `GET` | `/{cv_id}/ranking` | Get percentile ranking | ✅ |
+| `POST` | `/compare` | Compare multiple CVs | ✅ |
+| `POST` | `/search` | Semantic search by query | ✅ |
 | `GET` | `/health` | Health check (LangChain status) | ❌ |
 
 ### Chat (`/api/chat/`)
@@ -326,5 +332,5 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 
 ### Phase 6: Signature Features (In Progress)
 - [x] **6.3 Hiring Profiles CRUD** - Profile management API
-- [ ] **6.1 Vector Similarity Search** - Find similar CVs
-- [ ] **6.4 Semantic Search** - Natural language CV search
+- [x] **6.1 Vector Similarity Search** - Find similar CVs, ranking, compare
+- [ ] **6.4 Semantic Search** - Natural language CV search (backend done, needs frontend)

@@ -8,8 +8,8 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Phase 6 - Signature Features (6.1 Vector Similarity, 6.4 Semantic Search)
-> **Completed**: Phase 6.3 Hiring Profiles CRUD ✅
+> **Current Focus**: Phase 6 - Signature Features (Frontend remaining)
+> **Completed**: Phase 6.1 Vector Similarity ✅, Phase 6.3 Hiring Profiles ✅, Phase 6.4 Semantic Search Backend ✅
 
 ### Priority 1: Remaining Repositories ✅ COMPLETED
 - [x] Create `CVRepository` - CRUD operations for CV documents
@@ -706,14 +706,14 @@ interface Criterion {
 
 ## Phase 6: Signature Features
 
-### 6.1 Vector Similarity Search (Candidate Match-Up)
-- [ ] Create `similarity_service.py` in cv feature
-- [ ] `GET /api/cv/{id}/similar` - Find similar CVs by embedding
-- [ ] `GET /api/cv/{id}/ranking` - Get percentile ranking
-- [ ] `POST /api/cv/compare` - Compare specific CVs
-- [ ] Update `embedding_repository.py` with similarity queries
-- [ ] Create comparison UI component
-- [ ] Show "Top X% of candidates" badge
+### 6.1 Vector Similarity Search (Candidate Match-Up) ✅ BACKEND COMPLETE
+- [x] Create `similarity_service.py` in cv feature
+- [x] `GET /api/cv/{id}/similar` - Find similar CVs by embedding
+- [x] `GET /api/cv/{id}/ranking` - Get percentile ranking
+- [x] `POST /api/cv/compare` - Compare specific CVs
+- [x] Update `embedding_repository.py` with similarity queries
+- [ ] Create comparison UI component (frontend)
+- [ ] Show "Top X% of candidates" badge (frontend)
 
 ### 6.2 Explainable Scoring (Conversational Deep-Dive) ✅ COMPLETED
 - [x] Create chat endpoint `POST /api/chat/{cv_id}` (ask question)
@@ -738,11 +738,11 @@ interface Criterion {
 - [ ] Create profile selector in upload UI (frontend)
 - [ ] Create profile management page (frontend)
 
-### 6.4 Semantic Search Dashboard
-- [ ] Create `search_service.py` in cv feature
-- [ ] `GET /api/cv/search?q=` - Semantic search endpoint
-- [ ] Implement natural language to vector query
-- [ ] Add filters: min_score, max_score, passed, limit, sort
+### 6.4 Semantic Search Dashboard ✅ BACKEND COMPLETE
+- [x] Create `search_service.py` in cv feature (implemented in similarity_service.py)
+- [x] `POST /api/cv/search` - Semantic search endpoint
+- [x] Implement natural language to vector query
+- [x] Add filters: min_score, max_score, passed, limit
 - [ ] Create search UI with TanStack Table (frontend)
 - [ ] Display similarity scores in results (frontend)
 
@@ -814,10 +814,11 @@ interface Criterion {
 6. **Phase 4**: Multi-Agent Architecture ✅ COMPLETED
 7. **Phase 5**: Notification System (Email + WhatsApp) ✅ COMPLETED
 8. **Phase 6**: Signature Features 🔄 IN PROGRESS
+   - 6.1 Vector Similarity ✅ Backend Complete
    - 6.2 Chat/Explain ✅ Backend Complete
    - 6.3 Hiring Profiles ✅ Backend Complete
-   - 6.1 Vector Similarity ⏳ Next
-   - 6.4 Semantic Search ⏳ Next
+   - 6.4 Semantic Search ✅ Backend Complete
+   - Frontend implementation ⏳ Next
 9. **Phase 7**: Frontend Enhancements
 10. **Phase 8**: Testing & Documentation
 

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.10.0] - 2026-02-14 📋 HIRING PROFILES CRUD (Phase 6.3)
+## [0.10.0] - 2026-02-14 📋 HIRING PROFILES + VECTOR SIMILARITY (Phase 6)
 
 ### Added
 
@@ -27,18 +27,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `profile_routes.py` - 9 REST endpoints with OpenAPI descriptions
 - `__init__.py` - Module exports with comprehensive docstrings
 
-**New API Endpoints (`/api/profiles`)**
+**Vector Similarity Search (`app/features/cv/similarity_service.py`)** - CV matching
+- `SimilarityService` class for vector-based CV search:
+  - `find_similar_cvs()` - Find CVs similar to a given CV
+  - `get_cv_ranking()` - Get percentile ranking among all CVs
+  - `compare_cvs()` - Head-to-head comparison with similarity matrix
+  - `search_by_query()` - Natural language semantic search
+- Dataclasses: `SimilarCVResult`, `CVRankingResult`, `CVComparisonResult`
+- Uses pgvector cosine similarity for embedding search
+
+**New API Endpoints**
+
+**Profiles (`/api/profiles`):**
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/profiles/` | List all profiles (system + user) |
-| `GET` | `/api/profiles/{id}` | Get profile with criteria |
-| `POST` | `/api/profiles/` | Create new profile |
-| `PUT` | `/api/profiles/{id}` | Update profile metadata |
-| `DELETE` | `/api/profiles/{id}` | Delete user profile |
-| `POST` | `/api/profiles/{id}/clone` | Clone profile (system or own) |
-| `POST` | `/api/profiles/{id}/criteria` | Add criterion to profile |
-| `PUT` | `/api/profiles/{id}/criteria/{cid}` | Update criterion |
-| `DELETE` | `/api/profiles/{id}/criteria/{cid}` | Delete criterion |
+| `GET` | `/` | List all profiles (system + user) |
+| `GET` | `/{id}` | Get profile with criteria |
+| `POST` | `/` | Create new profile |
+| `PUT` | `/{id}` | Update profile metadata |
+| `DELETE` | `/{id}` | Delete user profile |
+| `POST` | `/{id}/clone` | Clone profile (system or own) |
+| `POST` | `/{id}/criteria` | Add criterion to profile |
+| `PUT` | `/{id}/criteria/{cid}` | Update criterion |
+| `DELETE` | `/{id}/criteria/{cid}` | Delete criterion |
+
+**Similarity (`/api/cv`):**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/{id}/similar` | Find similar CVs |
+| `GET` | `/{id}/ranking` | Get percentile ranking |
+| `POST` | `/compare` | Compare multiple CVs |
+| `POST` | `/search` | Semantic search by query |
+
+**Updated Files:**
+- `cv_schemas.py` - Added similarity response schemas
+- `cv_controller.py` - Added similarity handler methods
+- `cv_routes.py` - Added 4 similarity endpoints
+- `cv_dependencies.py` - Added `get_similarity_service`
+- `cv/__init__.py` - Export new service and schemas
 
 **OpenAPI Documentation (`app/main.py`)**
 - Updated API description to reflect current features
@@ -48,24 +74,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Architecture
 
 ```
-ProfileController
-       │
-       ▼
-ProfileService (Authorization + Business Logic)
-       │
-       ▼
-TemplateRepository (Shared with CV feature)
-       │
-       ▼
-EvaluationTemplate + TemplateCriterion (DB Models)
+Similarity Search:
+┌─────────────────┐    ┌───────────────────┐    ┌────────────────────┐
+│ cv_routes.py    │───▶│ cv_controller.py  │───▶│ similarity_service │
+│ (4 endpoints)   │    │ (HTTP handlers)   │    │ (vector search)    │
+└─────────────────┘    └───────────────────┘    └────────────────────┘
+                                                          │
+                              ┌────────────────────────────┼────────────────┐
+                              ▼                            ▼                ▼
+                       EmbeddingRepository          CVRepository    EvaluationRepository
+                       (pgvector search)            (CV data)       (scores)
 ```
 
 ### Technical Details
-- Reuses existing `TemplateRepository` from cv feature
-- System templates are read-only (clone to customize)
-- User templates support full CRUD with ownership checks
+- Reuses existing `TemplateRepository` from cv feature for profiles
+- Vector similarity uses averaged chunk embeddings per CV
+- Cosine similarity for all comparisons
+- Percentile ranking based on evaluation scores
 - Google-style docstrings throughout with examples
-- Consistent with chat feature documentation patterns
 
 ---
 
