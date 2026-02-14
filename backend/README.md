@@ -1,20 +1,16 @@
 # CV Screening Agent - Backend 🐍
 
-FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores      └── cv/                     # CV Screening feature
-            ├── __init__.py             # Barrel exports
-            ├── cv_routes.py            # Route definitions
-            ├── cv_controller.py        # HTTP handlers
-            ├── cv_service.py           # Orchestration + LangChain integration
-            ├── cv_repository.py        # CV CRUD operations
-            ├── evaluation_repository.py # Evaluation operations
-            ├── template_repository.py  # Template operations
-            ├── chat_repository.py      # Chat history operations
-            ├── embedding_repository.py # Vector search operations
-            ├── cv_dependencies.py      # FastAPI dependencies
-            ├── cv_schemas.py           # Pydantic schemas
-            └── services/               # Legacy services
-                ├── pdf_service.py          # PDF text extraction (legacy)
-                └── evaluation_service.py   # Claude AI evaluation (legacy) PostgreSQL with vector embeddings, evaluates using Claude AI, and provides RAG-powered Q&A about candidates.
+FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores in PostgreSQL with vector embeddings, evaluates using Claude AI, and provides RAG-powered Q&A about candidates.
+
+## 📖 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [RUNBOOK.md](RUNBOOK.md) | Quick reference for all commands (server, tests, database) |
+| [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
+| [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) | Architecture overview and project status |
+| [docs/POSTGRESQL_SETUP.md](docs/POSTGRESQL_SETUP.md) | Database installation guide |
+| [docs/AI_CONCEPTS.md](docs/AI_CONCEPTS.md) | Embeddings, RAG, LangChain explained |
 
 ## 🎯 Features
 
@@ -313,10 +309,11 @@ response = await chat_chain.ask(cv.id, "What is their fintech experience?")
 # 1. Clone and setup virtual environment
 cd backend
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 
 # 2. Install dependencies
 pip install -r requirements.txt
+pip install -r requirements-test.txt  # For testing
 
 # 3. Configure environment
 cp .env.example .env
@@ -335,6 +332,8 @@ python -m app.db.seed
 # 7. Start development server
 uvicorn app.main:app --reload --port 8000
 ```
+
+> 📋 See [RUNBOOK.md](RUNBOOK.md) for complete command reference.
 
 ### Environment Variables
 
@@ -445,16 +444,46 @@ TWILIO_WHATSAPP_FROM=+14155238886
 
 ## 🧪 Testing
 
+**283 tests** (169 unit + 114 integration) with 100% passing.
+
 ```bash
 # Run all tests
 pytest
 
+# Run with verbose output
+pytest -v
+
 # Run with coverage
-pytest --cov=app
+pytest --cov=app --cov-report=term-missing
 
 # Run specific test file
-pytest tests/unit/test_cv_service.py
+pytest app/tests/unit/test_cv_service.py
+
+# Run integration tests only
+pytest app/tests/integration/
 ```
+
+### Test Structure
+
+```
+app/tests/
+├── conftest.py              # Shared fixtures (db, client, users, CVs)
+├── unit/                    # Unit tests (169 tests)
+│   ├── test_auth.py         # AuthService (21 tests)
+│   ├── test_profile_service.py    # ProfileService (28 tests)
+│   ├── test_similarity_service.py # SimilarityService (26 tests)
+│   ├── test_cv_service.py         # CVService (32 tests)
+│   ├── test_chat_service.py       # ChatService (28 tests)
+│   └── test_notification_service.py # NotificationService (34 tests)
+└── integration/             # Integration tests (114 tests)
+    ├── test_auth_api.py     # /api/auth/* (14 tests)
+    ├── test_profile_api.py  # /api/profiles/* (25 tests)
+    ├── test_cv_api.py       # /api/cv/* (18 tests)
+    ├── test_chat_api.py     # /api/chat/* (28 tests)
+    └── test_notification_api.py # /api/notifications/* (29 tests)
+```
+
+> 📋 See [RUNBOOK.md](RUNBOOK.md) for all testing commands and options.
 
 ---
 
@@ -465,7 +494,9 @@ pytest tests/unit/test_cv_service.py
 | **Swagger UI** | http://localhost:8000/docs |
 | **ReDoc** | http://localhost:8000/redoc |
 | **OpenAPI JSON** | http://localhost:8000/openapi.json |
-| **AI Concepts Guide** | [docs/AI_CONCEPTS.md](docs/AI_CONCEPTS.md) |
+| **Runbook** | [RUNBOOK.md](RUNBOOK.md) - All commands |
+| **Changelog** | [CHANGELOG.md](CHANGELOG.md) - Version history |
+| **AI Concepts** | [docs/AI_CONCEPTS.md](docs/AI_CONCEPTS.md) |
 | **PostgreSQL Setup** | [docs/POSTGRESQL_SETUP.md](docs/POSTGRESQL_SETUP.md) |
 
 ---
@@ -480,13 +511,15 @@ pytest tests/unit/test_cv_service.py
 - [x] Alembic migrations
 - [x] pgvector for semantic search
 - [x] LangChain integration (chains, embeddings, RAG)
-- [x] CV Repository + Evaluation Repository + Template Repository + Chat Repository + Embedding Repository
-- [x] CV API endpoints with authentication (upload, list, get, delete, re-evaluate)
-- [x] CV feature integrated with database persistence
+- [x] Full repository layer (CV, Evaluation, Template, Chat, Embedding)
+- [x] CV API endpoints with authentication
 - [x] Chat endpoints for RAG Q&A (ask, explain, compare)
-- [x] Multi-agent architecture (ParserAgent, ScorerAgent, ChatAgent, NotificationAgent, Orchestrator)
+- [x] Multi-agent architecture (Parser, Scorer, Chat, Notification agents)
 - [x] Email notifications (aiosmtplib with HTML templates)
-- [x] WhatsApp notifications (Twilio API integration)
+- [x] WhatsApp notifications (Twilio API)
+- [x] Hiring profiles CRUD API
+- [x] Vector similarity search (similar CVs, ranking, compare)
+- [x] **Backend testing complete** (283 tests: 169 unit + 114 integration)
 - [ ] Frontend notification settings UI
 - [ ] Semantic search dashboard
 - [ ] Adaptive scoring profiles
