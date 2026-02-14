@@ -40,6 +40,8 @@ from app.langchain.chains.conversation_chain import (
     ExplanationChain,
     ChatMessage,
 )
+from app.features.settings.user_keys_service import UserKeysService
+from app.langchain.config import get_llm
 from .chat_repository import ChatRepository
 
 
@@ -92,9 +94,11 @@ class ChatService:
         self.embedding_repo = EmbeddingRepository(session)
         self.chat_repo = ChatRepository(session)
         
-        # Initialize LangChain components
-        self.conversation_chain = ConversationChain(session)
-        self.explanation_chain = ExplanationChain()
+        # Initialize user keys service
+        self.user_keys_service = UserKeysService(session)
+        
+        # LangChain components are created per-request with user keys
+        # self.conversation_chain and self.explanation_chain are created dynamically
     
     async def _verify_cv_ownership(
         self,
@@ -208,12 +212,13 @@ class ChatService:
         
         Full RAG pipeline:
         1. Verify CV ownership
-        2. Save user's question
-        3. Get conversation history
-        4. Get evaluation summary
-        5. Generate AI response with context
-        6. Save assistant's response
-        7. Return result with sources
+        2. Get user's API keys
+        3. Save user's question
+        4. Get conversation history
+        5. Get evaluation summary
+        6. Generate AI response with context (using user's LLM key)
+        7. Save assistant's response
+        8. Return result with sources
         
         Args:
             cv_id: UUID of the CV to query.
@@ -224,22 +229,34 @@ class ChatService:
             ChatResult with response and metadata.
         
         Raises:
-            ValueError: If CV not found or access denied.
+            ValueError: If CV not found, access denied, or API keys not configured.
         """
         # 1. Verify ownership
         cv = await self._verify_cv_ownership(cv_id, user_id)
         
-        # 2. Save user's question
+        # 2. Get user's API keys
+        user_keys = await self.user_keys_service.validate_keys_for_cv_processing(user_id)
+        
+        # Create LLM with user's key
+        llm = get_llm(
+            provider=user_keys.default_provider,
+            api_key=user_keys.get_llm_key(),
+        )
+        
+        # Create conversation chain with user's LLM
+        conversation_chain = ConversationChain(self.session, llm=llm)
+        
+        # 3. Save user's question
         await self.chat_repo.add_user_message(user_id, cv_id, question)
         
-        # 3. Get conversation history (before the new question)
+        # 4. Get conversation history (before the new question)
         history = await self._get_conversation_history(user_id, cv_id)
         
-        # 4. Get evaluation summary
+        # 5. Get evaluation summary
         eval_summary = await self._get_evaluation_summary(cv_id)
         
-        # 5. Generate AI response
-        response = await self.conversation_chain.ask(
+        # 6. Generate AI response (using user's LLM key)
+        response = await conversation_chain.ask(
             cv_id=cv_id,
             question=question,
             chat_history=history,
@@ -361,6 +378,18 @@ class ChatService:
         # Verify ownership
         cv = await self._verify_cv_ownership(cv_id, user_id)
         
+        # Get user's API keys
+        user_keys = await self.user_keys_service.validate_keys_for_cv_processing(user_id)
+        
+        # Create LLM with user's key
+        llm = get_llm(
+            provider=user_keys.default_provider,
+            api_key=user_keys.get_llm_key(),
+        )
+        
+        # Create explanation chain with user's LLM
+        explanation_chain = ExplanationChain(llm=llm)
+        
         # Get evaluation
         evaluation = await self.evaluation_repo.get_latest_by_cv(cv_id)
         if not evaluation:
@@ -403,7 +432,7 @@ class ChatService:
         max_score = criterion_data.get("max_score", 0)
         reasoning = criterion_data.get("reasoning", "No reasoning available")
         
-        explanation = await self.explanation_chain.explain(
+        explanation = await explanation_chain.explain(
             cv_text=cv.original_text or "",
             criterion_name=criterion_name,
             score=score,
@@ -447,6 +476,9 @@ class ChatService:
         if len(cv_ids) < 2 or len(cv_ids) > 5:
             raise ValueError("Must compare between 2 and 5 CVs")
         
+        # Get user's API keys
+        user_keys = await self.user_keys_service.validate_keys_for_cv_processing(user_id)
+        
         # Verify all CVs belong to user
         cvs = []
         for cv_id in cv_ids:
@@ -488,9 +520,12 @@ Please provide:
 2. Strengths and weaknesses of each
 3. Recommendation on which candidate might be best (with caveats)"""
         
-        # Use the LLM directly for comparison (no single CV context)
-        from app.langchain.config import get_llm
-        llm = get_llm(temperature=0.3)
+        # Use the LLM directly for comparison (no single CV context, using user's key)
+        llm = get_llm(
+            provider=user_keys.default_provider,
+            api_key=user_keys.get_llm_key(),
+            temperature=0.3,
+        )
         
         response = await llm.ainvoke(comparison_question)
         

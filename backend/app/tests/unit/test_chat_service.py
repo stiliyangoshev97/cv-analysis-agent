@@ -79,6 +79,24 @@ def mock_explanation_chain():
 
 
 @pytest.fixture
+def mock_user_keys_service():
+    """Create a mock UserKeysService."""
+    service = AsyncMock()
+    # Return mock user keys with all providers configured
+    mock_keys = MagicMock()
+    mock_keys.openai_key = "sk-test-openai-key"
+    mock_keys.anthropic_key = "sk-test-anthropic-key"
+    mock_keys.gemini_key = None
+    mock_keys.default_provider = "anthropic"
+    mock_keys.has_openai = True
+    mock_keys.has_any_llm_key = True
+    mock_keys.get_llm_key = MagicMock(return_value="sk-test-anthropic-key")
+    service.validate_keys_for_cv_processing = AsyncMock(return_value=mock_keys)
+    service.get_user_keys = AsyncMock(return_value=mock_keys)
+    return service
+
+
+@pytest.fixture
 def sample_user_id():
     """Generate a sample user UUID."""
     return uuid.uuid4()
@@ -163,6 +181,7 @@ def chat_service(
     mock_chat_repo,
     mock_conversation_chain,
     mock_explanation_chain,
+    mock_user_keys_service,
 ):
     """Create a ChatService with all dependencies mocked."""
     with patch.object(ChatService, '__init__', lambda self, session: None):
@@ -174,6 +193,7 @@ def chat_service(
         service.chat_repo = mock_chat_repo
         service.conversation_chain = mock_conversation_chain
         service.explanation_chain = mock_explanation_chain
+        service.user_keys_service = mock_user_keys_service
         return service
 
 
@@ -233,15 +253,20 @@ class TestAsk:
         chat_service.chat_repo.add_user_message = AsyncMock()
         chat_service.chat_repo.get_recent_messages = AsyncMock(return_value=[])
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=None)
+        chat_service.chat_repo.add_assistant_message = AsyncMock(return_value=sample_chat_message)
         
         mock_response = MagicMock()
         mock_response.content = "John Doe has 5 years of Python experience."
-        chat_service.conversation_chain.ask = AsyncMock(return_value=mock_response)
-        chat_service.chat_repo.add_assistant_message = AsyncMock(return_value=sample_chat_message)
         
-        # Mock _get_relevant_chunks
-        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
+        # Mock _get_relevant_chunks and get_llm
+        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks, \
+             patch('app.features.chat.chat_service.get_llm') as mock_get_llm, \
+             patch('app.features.chat.chat_service.ConversationChain') as mock_chain_class:
             mock_chunks.return_value = ["Chunk 1...", "Chunk 2..."]
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.ask = AsyncMock(return_value=mock_response)
+            mock_chain_class.return_value = mock_chain_instance
             
             result = await chat_service.ask(sample_cv_id, sample_user_id, "What is their experience?")
         
@@ -264,14 +289,19 @@ class TestAsk:
         chat_service.chat_repo.add_user_message = AsyncMock()
         chat_service.chat_repo.get_recent_messages = AsyncMock(return_value=[])
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=None)
+        chat_service.chat_repo.add_assistant_message = AsyncMock(return_value=sample_chat_message)
         
         mock_response = MagicMock()
         mock_response.content = "Answer"
-        chat_service.conversation_chain.ask = AsyncMock(return_value=mock_response)
-        chat_service.chat_repo.add_assistant_message = AsyncMock(return_value=sample_chat_message)
         
-        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
+        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks, \
+             patch('app.features.chat.chat_service.get_llm') as mock_get_llm, \
+             patch('app.features.chat.chat_service.ConversationChain') as mock_chain_class:
             mock_chunks.return_value = []
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.ask = AsyncMock(return_value=mock_response)
+            mock_chain_class.return_value = mock_chain_instance
             
             await chat_service.ask(sample_cv_id, sample_user_id, "What is their experience?")
         
@@ -444,12 +474,17 @@ class TestExplainCriterion:
         """Should explain criterion and return result."""
         chat_service.cv_repo.get_by_id = AsyncMock(return_value=sample_cv)
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=sample_evaluation)
-        chat_service.explanation_chain.explain = AsyncMock(
-            return_value="Technical Skills score is 25/30 because of strong Python skills."
-        )
         
-        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
+        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks, \
+             patch('app.features.chat.chat_service.get_llm') as mock_get_llm, \
+             patch('app.features.chat.chat_service.ExplanationChain') as mock_chain_class:
             mock_chunks.return_value = ["Evidence chunk..."]
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.explain = AsyncMock(
+                return_value="Technical Skills score is 25/30 because of strong Python skills."
+            )
+            mock_chain_class.return_value = mock_chain_instance
             
             result = await chat_service.explain_criterion(
                 sample_cv_id, sample_user_id, "Technical Skills"
@@ -473,10 +508,15 @@ class TestExplainCriterion:
         """Should find criterion regardless of case."""
         chat_service.cv_repo.get_by_id = AsyncMock(return_value=sample_cv)
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=sample_evaluation)
-        chat_service.explanation_chain.explain = AsyncMock(return_value="Explanation")
         
-        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
+        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks, \
+             patch('app.features.chat.chat_service.get_llm') as mock_get_llm, \
+             patch('app.features.chat.chat_service.ExplanationChain') as mock_chain_class:
             mock_chunks.return_value = []
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.explain = AsyncMock(return_value="Explanation")
+            mock_chain_class.return_value = mock_chain_instance
             
             # Use lowercase name - should still find "Technical Skills"
             result = await chat_service.explain_criterion(
@@ -526,10 +566,15 @@ class TestExplainCriterion:
         chat_service.cv_repo.get_by_id = AsyncMock(return_value=sample_cv)
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=sample_evaluation)
         
-        with pytest.raises(ValueError, match="Criterion 'Nonexistent' not found"):
-            await chat_service.explain_criterion(
-                sample_cv_id, sample_user_id, "Nonexistent"
-            )
+        with patch('app.features.chat.chat_service.get_llm') as mock_get_llm, \
+             patch('app.features.chat.chat_service.ExplanationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_class.return_value = AsyncMock()
+            
+            with pytest.raises(ValueError, match="Criterion 'Nonexistent' not found"):
+                await chat_service.explain_criterion(
+                    sample_cv_id, sample_user_id, "Nonexistent"
+                )
 
 
 # =============================================================================
@@ -567,19 +612,18 @@ class TestCompareCVs:
         chat_service.cv_repo.get_by_id = AsyncMock(side_effect=[cv1, cv2])
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=sample_evaluation)
         
-        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
+        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks, \
+             patch('app.features.chat.chat_service.get_llm') as mock_get_llm:
             mock_chunks.return_value = ["Chunk..."]
+            mock_llm = AsyncMock()
+            mock_response = MagicMock()
+            mock_response.content = "John is stronger in Python, Jane in React."
+            mock_llm.ainvoke = AsyncMock(return_value=mock_response)
+            mock_get_llm.return_value = mock_llm
             
-            with patch('app.langchain.config.get_llm') as mock_get_llm:
-                mock_llm = AsyncMock()
-                mock_response = MagicMock()
-                mock_response.content = "John is stronger in Python, Jane in React."
-                mock_llm.ainvoke = AsyncMock(return_value=mock_response)
-                mock_get_llm.return_value = mock_llm
-                
-                result = await chat_service.compare_cvs(
-                    [cv_id_1, cv_id_2], sample_user_id
-                )
+            result = await chat_service.compare_cvs(
+                [cv_id_1, cv_id_2], sample_user_id
+            )
         
         assert result["cv_ids"] == [cv_id_1, cv_id_2]
         assert "comparison" in result
@@ -610,8 +654,11 @@ class TestCompareCVs:
         # First CV found, second not found
         chat_service.cv_repo.get_by_id = AsyncMock(side_effect=[sample_cv, None])
         
-        with pytest.raises(ValueError, match="CV not found"):
-            await chat_service.compare_cvs([cv_id_1, cv_id_2], sample_user_id)
+        with patch('app.features.chat.chat_service.get_llm') as mock_get_llm:
+            mock_get_llm.return_value = MagicMock()
+            
+            with pytest.raises(ValueError, match="CV not found"):
+                await chat_service.compare_cvs([cv_id_1, cv_id_2], sample_user_id)
     
     @pytest.mark.asyncio
     async def test_compare_cvs_one_wrong_user(self, chat_service, sample_cv, sample_user_id):
@@ -626,8 +673,11 @@ class TestCompareCVs:
         
         chat_service.cv_repo.get_by_id = AsyncMock(side_effect=[sample_cv, cv2])
         
-        with pytest.raises(ValueError, match="don't have access"):
-            await chat_service.compare_cvs([cv_id_1, cv_id_2], sample_user_id)
+        with patch('app.features.chat.chat_service.get_llm') as mock_get_llm:
+            mock_get_llm.return_value = MagicMock()
+            
+            with pytest.raises(ValueError, match="don't have access"):
+                await chat_service.compare_cvs([cv_id_1, cv_id_2], sample_user_id)
     
     @pytest.mark.asyncio
     async def test_compare_cvs_with_custom_question(
@@ -654,21 +704,20 @@ class TestCompareCVs:
         chat_service.cv_repo.get_by_id = AsyncMock(side_effect=[cv1, cv2])
         chat_service.evaluation_repo.get_latest_by_cv = AsyncMock(return_value=None)
         
-        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks:
+        with patch.object(chat_service, '_get_relevant_chunks', new_callable=AsyncMock) as mock_chunks, \
+             patch('app.features.chat.chat_service.get_llm') as mock_get_llm:
             mock_chunks.return_value = []
+            mock_llm = AsyncMock()
+            mock_response = MagicMock()
+            mock_response.content = "Both have Python skills."
+            mock_llm.ainvoke = AsyncMock(return_value=mock_response)
+            mock_get_llm.return_value = mock_llm
             
-            with patch('app.langchain.config.get_llm') as mock_get_llm:
-                mock_llm = AsyncMock()
-                mock_response = MagicMock()
-                mock_response.content = "Both have Python skills."
-                mock_llm.ainvoke = AsyncMock(return_value=mock_response)
-                mock_get_llm.return_value = mock_llm
-                
-                result = await chat_service.compare_cvs(
-                    [cv_id_1, cv_id_2],
-                    sample_user_id,
-                    question="Who has better Python skills?"
-                )
+            result = await chat_service.compare_cvs(
+                [cv_id_1, cv_id_2],
+                sample_user_id,
+                question="Who has better Python skills?"
+            )
         
         assert "comparison" in result
 

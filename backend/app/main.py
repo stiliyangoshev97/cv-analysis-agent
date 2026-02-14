@@ -47,13 +47,9 @@ async def lifespan(app: FastAPI):
     # Startup
     settings = get_settings()
     logger.info(f"Starting {settings.app_name}")
-    
-    if not settings.anthropic_api_key or settings.anthropic_api_key == "your_anthropic_api_key_here":
-        logger.warning("⚠️  ANTHROPIC_API_KEY not configured! Please set it in .env file.")
-    else:
-        logger.info("✅ Anthropic API key configured")
-    
-    logger.info(f"Using model: {settings.claude_model}")
+    logger.info("🔑 User API key management enabled via /api/settings")
+    logger.info("📋 Users configure their own LLM providers (OpenAI, Anthropic, Gemini)")
+    logger.info(f"🌐 CORS enabled for: {settings.frontend_url}")
     
     yield
     

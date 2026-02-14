@@ -50,6 +50,8 @@ from app.langchain.chains.evaluation_chain import (
     get_evaluation_chain,
 )
 from app.langchain.embeddings import EmbeddingService
+from app.langchain.config import get_llm, get_embeddings
+from app.features.settings.user_keys_service import UserKeysService, UserAPIKeys
 
 from .cv_repository import CVRepository
 from .evaluation_repository import EvaluationRepository
@@ -109,14 +111,17 @@ class CVService:
         self,
         session: AsyncSession,
         evaluation_chain: Optional[EvaluationChain] = None,
+        user_keys: Optional[UserAPIKeys] = None,
     ) -> None:
         """Initialize CV service with database session.
         
         Args:
             session: SQLAlchemy AsyncSession for database operations.
             evaluation_chain: Optional pre-configured evaluation chain.
+            user_keys: Optional user API keys (fetched separately for each user).
         """
         self.session = session
+        self.user_keys = user_keys
         
         # Initialize repositories
         self.cv_repo = CVRepository(session)
@@ -124,10 +129,12 @@ class CVService:
         self.template_repo = TemplateRepository(session)
         self.embedding_repo = EmbeddingRepository(session)
         
-        # Initialize LangChain components
+        # Initialize UserKeysService for fetching user keys
+        self.user_keys_service = UserKeysService(session)
+        
+        # Initialize LangChain components (will be configured per-request with user keys)
         self.document_processor = DocumentProcessor()
-        self.evaluation_chain = evaluation_chain or get_evaluation_chain()
-        self.embedding_service = EmbeddingService(session)
+        self._evaluation_chain = evaluation_chain  # May be overridden per-request
         
         # Legacy PDF service for validation
         self.pdf_service = PDFService()
@@ -173,6 +180,23 @@ class CVService:
         """
         logger.info(f"Starting CV processing: {filename} for user {user_id}")
         
+        # Step 0: Get user's API keys (required for embeddings and evaluation)
+        user_keys = await self.user_keys_service.validate_keys_for_cv_processing(user_id)
+        logger.debug(f"Using LLM provider: {user_keys.default_provider}")
+        
+        # Create embedding service with user's OpenAI key
+        embedding_service = EmbeddingService(
+            session=self.session,
+            api_key=user_keys.openai_key,
+        )
+        
+        # Create evaluation chain with user's LLM key
+        llm = get_llm(
+            provider=user_keys.default_provider,
+            api_key=user_keys.get_llm_key(),
+        )
+        evaluation_chain = self._evaluation_chain or EvaluationChain(llm=llm)
+        
         # Step 1: Validate file (for PDFs)
         if filename.lower().endswith('.pdf'):
             is_valid, error_msg = self.pdf_service.validate_pdf(file_content)
@@ -196,9 +220,9 @@ class CVService:
         logger.debug(f"Created CV record: {cv.id}")
         
         try:
-            # Step 4: Generate and store embeddings
+            # Step 4: Generate and store embeddings (using user's OpenAI key)
             logger.debug(f"Generating embeddings for {processed.chunk_count} chunks")
-            embeddings = await self.embedding_service.store_cv_embeddings(
+            embeddings = await embedding_service.store_cv_embeddings(
                 cv_id=cv.id,
                 chunks=processed.chunks,
             )
@@ -224,9 +248,9 @@ class CVService:
                 # Fallback to hardcoded criteria (shouldn't happen if seed data exists)
                 raise ValueError("No evaluation template available. Please run seed data.")
             
-            # Step 6: Evaluate CV using LangChain
+            # Step 6: Evaluate CV using LangChain (using user's LLM key)
             logger.debug(f"Evaluating CV with template: {template.name}")
-            evaluation = await self.evaluation_chain.evaluate_with_template(
+            evaluation = await evaluation_chain.evaluate_with_template(
                 cv_text=processed.full_text,
                 template=template,
                 criteria_list=criteria_list,
@@ -379,6 +403,17 @@ class CVService:
         if not cv or cv.user_id != user_id:
             return None
         
+        # Get user's API keys (required for evaluation)
+        user_keys = await self.user_keys_service.validate_keys_for_cv_processing(user_id)
+        logger.debug(f"Re-evaluating with LLM provider: {user_keys.default_provider}")
+        
+        # Create evaluation chain with user's LLM key
+        llm = get_llm(
+            provider=user_keys.default_provider,
+            api_key=user_keys.get_llm_key(),
+        )
+        evaluation_chain = self._evaluation_chain or EvaluationChain(llm=llm)
+        
         # Get template
         template = None
         if template_id:
@@ -390,7 +425,7 @@ class CVService:
             raise ValueError("No evaluation template available")
         
         # Re-evaluate using stored text
-        evaluation = await self.evaluation_chain.evaluate_with_template(
+        evaluation = await evaluation_chain.evaluate_with_template(
             cv_text=cv.original_text,
             template=template,
             criteria_list=template.criteria,

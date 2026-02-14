@@ -126,6 +126,7 @@ class EmbeddingService:
         self,
         session: AsyncSession,
         embeddings_model: OpenAIEmbeddings | None = None,
+        api_key: str | None = None,
     ):
         """
         Initialize the embedding service.
@@ -133,10 +134,18 @@ class EmbeddingService:
         Args:
             session: SQLAlchemy async session for database operations.
             embeddings_model: Optional pre-configured embeddings model.
+            api_key: Optional OpenAI API key for BYOK (overrides system key).
         """
         self.session = session
-        self.embeddings_model = embeddings_model or get_embeddings()
         self.settings = get_langchain_settings()
+        
+        # Use provided model, or create one with provided API key
+        if embeddings_model:
+            self.embeddings_model = embeddings_model
+        elif api_key:
+            self.embeddings_model = get_embeddings(api_key=api_key)
+        else:
+            self.embeddings_model = get_embeddings()
     
     async def store_cv_embeddings(
         self,

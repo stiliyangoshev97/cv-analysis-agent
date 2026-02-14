@@ -98,6 +98,24 @@ def mock_pdf_service():
 
 
 @pytest.fixture
+def mock_user_keys_service():
+    """Create a mock UserKeysService."""
+    service = AsyncMock()
+    # Return mock user keys with all providers configured
+    mock_keys = MagicMock()
+    mock_keys.openai_key = "sk-test-openai-key"
+    mock_keys.anthropic_key = "sk-test-anthropic-key"
+    mock_keys.gemini_key = None
+    mock_keys.default_provider = "anthropic"
+    mock_keys.has_openai = True
+    mock_keys.has_any_llm_key = True
+    mock_keys.get_llm_key = MagicMock(return_value="sk-test-anthropic-key")
+    service.validate_keys_for_cv_processing = AsyncMock(return_value=mock_keys)
+    service.get_user_keys = AsyncMock(return_value=mock_keys)
+    return service
+
+
+@pytest.fixture
 def sample_user_id():
     """Generate a sample user UUID."""
     return uuid.uuid4()
@@ -221,9 +239,10 @@ def cv_service(
     mock_evaluation_chain,
     mock_embedding_service,
     mock_pdf_service,
+    mock_user_keys_service,
 ):
     """Create a CVService with all dependencies mocked."""
-    with patch.object(CVService, '__init__', lambda self, session, evaluation_chain=None: None):
+    with patch.object(CVService, '__init__', lambda self, session, evaluation_chain=None, user_keys=None: None):
         service = CVService.__new__(CVService)
         service.session = mock_session
         service.cv_repo = mock_cv_repo
@@ -231,9 +250,10 @@ def cv_service(
         service.template_repo = mock_template_repo
         service.embedding_repo = mock_embedding_repo
         service.document_processor = mock_document_processor
-        service.evaluation_chain = mock_evaluation_chain
+        service._evaluation_chain = mock_evaluation_chain
         service.embedding_service = mock_embedding_service
         service.pdf_service = mock_pdf_service
+        service.user_keys_service = mock_user_keys_service
         return service
 
 
@@ -270,13 +290,13 @@ class TestCVServiceInit:
              patch('app.features.cv.cv_service.EmbeddingRepository'), \
              patch('app.features.cv.cv_service.DocumentProcessor'), \
              patch('app.features.cv.cv_service.get_evaluation_chain') as mock_get_chain, \
-             patch('app.features.cv.cv_service.EmbeddingService'), \
-             patch('app.features.cv.cv_service.PDFService'):
+             patch('app.features.cv.cv_service.PDFService'), \
+             patch('app.features.cv.cv_service.UserKeysService'):
             
             service = CVService(mock_session, evaluation_chain=mock_evaluation_chain)
             
             # Should not call get_evaluation_chain when one is provided
-            assert service.evaluation_chain == mock_evaluation_chain
+            assert service._evaluation_chain == mock_evaluation_chain
 
 
 # =============================================================================
@@ -303,18 +323,30 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[MagicMock(), MagicMock()])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(return_value=sample_evaluation)
         
-        # Execute
-        result = await cv_service.process_and_evaluate(
-            file_content=b"%PDF-1.4...",
-            filename="test.pdf",
-            user_id=sample_user_id,
-        )
+        # Clear the pre-configured chain so per-request chain creation is used
+        cv_service._evaluation_chain = None
+        
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[MagicMock(), MagicMock()])
+            mock_embed_class.return_value = mock_embed_instance
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            # Execute
+            result = await cv_service.process_and_evaluate(
+                file_content=b"%PDF-1.4...",
+                filename="test.pdf",
+                user_id=sample_user_id,
+            )
         
         # Assert
         assert isinstance(result, ProcessingResult)
@@ -340,18 +372,27 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[MagicMock()])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(return_value=sample_evaluation)
         
-        # Execute
-        result = await cv_service.process_and_evaluate(
-            file_content=b"PK...",
-            filename="test.docx",
-            user_id=sample_user_id,
-        )
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[MagicMock()])
+            mock_embed_class.return_value = mock_embed_instance
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            # Execute
+            result = await cv_service.process_and_evaluate(
+                file_content=b"PK...",
+                filename="test.docx",
+                user_id=sample_user_id,
+            )
         
         # Assert - PDF validation should not be called for DOCX
         cv_service.pdf_service.validate_pdf.assert_not_called()
@@ -387,18 +428,27 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(return_value=sample_evaluation)
         
-        # Execute
-        await cv_service.process_and_evaluate(
-            file_content=b"%PDF-1.4...",
-            filename="test.pdf",
-            user_id=sample_user_id,
-            template_id=sample_template_id,
-        )
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[])
+            mock_embed_class.return_value = mock_embed_instance
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            # Execute
+            await cv_service.process_and_evaluate(
+                file_content=b"%PDF-1.4...",
+                filename="test.pdf",
+                user_id=sample_user_id,
+                template_id=sample_template_id,
+            )
         
         # Assert template lookup was called with the ID
         cv_service.template_repo.get_with_criteria.assert_called_once_with(sample_template_id)
@@ -417,16 +467,22 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=None)
         
-        with pytest.raises(ValueError, match="No evaluation template available"):
-            await cv_service.process_and_evaluate(
-                file_content=b"%PDF-1.4...",
-                filename="test.pdf",
-                user_id=sample_user_id,
-            )
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[])
+            mock_embed_class.return_value = mock_embed_instance
+            
+            with pytest.raises(ValueError, match="No evaluation template available"):
+                await cv_service.process_and_evaluate(
+                    file_content=b"%PDF-1.4...",
+                    filename="test.pdf",
+                    user_id=sample_user_id,
+                )
     
     @pytest.mark.asyncio
     async def test_process_evaluation_failure_sets_error_status(
@@ -442,19 +498,29 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(
-            side_effect=Exception("LLM API error")
-        )
         
-        with pytest.raises(Exception, match="LLM API error"):
-            await cv_service.process_and_evaluate(
-                file_content=b"%PDF-1.4...",
-                filename="test.pdf",
-                user_id=sample_user_id,
-            )
+        # Clear the pre-configured chain so per-request chain creation is used
+        cv_service._evaluation_chain = None
+        
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[])
+            mock_embed_class.return_value = mock_embed_instance
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(side_effect=Exception("LLM API error"))
+            mock_chain_class.return_value = mock_chain_instance
+            
+            with pytest.raises(Exception, match="LLM API error"):
+                await cv_service.process_and_evaluate(
+                    file_content=b"%PDF-1.4...",
+                    filename="test.pdf",
+                    user_id=sample_user_id,
+                )
         
         # CV status should be updated to ERROR
         assert sample_cv.status == CVStatus.ERROR.value
@@ -478,17 +544,33 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(side_effect=lambda x: x)
         
-        await cv_service.process_and_evaluate(
-            file_content=b"%PDF-1.4...",
-            filename="test.pdf",
-            user_id=sample_user_id,
-        )
+        # Clear the pre-configured chain so per-request chain creation is used
+        cv_service._evaluation_chain = None
+        
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[])
+            mock_embed_class.return_value = mock_embed_instance
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            await cv_service.process_and_evaluate(
+                file_content=b"%PDF-1.4...",
+                filename="test.pdf",
+                user_id=sample_user_id,
+            )
+        
+        # Check evaluation was created with PASS status
+        call_args = cv_service.evaluation_repo.create.call_args[0][0]
+        assert call_args.status == EvaluationStatus.PASS.value
         
         # Check evaluation was created with PASS status
         call_args = cv_service.evaluation_repo.create.call_args[0][0]
@@ -512,17 +594,29 @@ class TestProcessAndEvaluate:
         cv_service.document_processor.process_upload = AsyncMock(return_value=sample_processed_document)
         cv_service.cv_repo.create = AsyncMock(return_value=sample_cv)
         cv_service.cv_repo.update = AsyncMock(return_value=sample_cv)
-        cv_service.embedding_service.store_cv_embeddings = AsyncMock(return_value=[])
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(side_effect=lambda x: x)
         
-        await cv_service.process_and_evaluate(
-            file_content=b"%PDF-1.4...",
-            filename="test.pdf",
-            user_id=sample_user_id,
-        )
+        # Clear the pre-configured chain so per-request chain creation is used
+        cv_service._evaluation_chain = None
+        
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EmbeddingService') as mock_embed_class, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_embed_instance = AsyncMock()
+            mock_embed_instance.store_cv_embeddings = AsyncMock(return_value=[])
+            mock_embed_class.return_value = mock_embed_instance
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            await cv_service.process_and_evaluate(
+                file_content=b"%PDF-1.4...",
+                filename="test.pdf",
+                user_id=sample_user_id,
+            )
         
         # Check evaluation was created with FAIL status
         call_args = cv_service.evaluation_repo.create.call_args[0][0]
@@ -697,11 +791,20 @@ class TestReEvaluate:
         """Should re-evaluate CV with new template."""
         cv_service.cv_repo.get_by_id = AsyncMock(return_value=sample_cv)
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(side_effect=lambda x: x)
         cv_service.embedding_repo.count_by_cv = AsyncMock(return_value=3)
         
-        result = await cv_service.re_evaluate(sample_cv_id, sample_user_id, sample_template_id)
+        # Clear the pre-configured chain so per-request chain creation is used
+        cv_service._evaluation_chain = None
+        
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            result = await cv_service.re_evaluate(sample_cv_id, sample_user_id, sample_template_id)
         
         assert isinstance(result, ProcessingResult)
         assert result.cv == sample_cv
@@ -742,11 +845,20 @@ class TestReEvaluate:
         cv_service.cv_repo.get_by_id = AsyncMock(return_value=sample_cv)
         cv_service.template_repo.get_with_criteria = AsyncMock(return_value=None)
         cv_service.template_repo.get_default_template = AsyncMock(return_value=sample_template)
-        cv_service.evaluation_chain.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
         cv_service.evaluation_repo.create = AsyncMock(side_effect=lambda x: x)
         cv_service.embedding_repo.count_by_cv = AsyncMock(return_value=0)
         
-        await cv_service.re_evaluate(sample_cv_id, sample_user_id)
+        # Clear the pre-configured chain so per-request chain creation is used
+        cv_service._evaluation_chain = None
+        
+        with patch('app.features.cv.cv_service.get_llm') as mock_get_llm, \
+             patch('app.features.cv.cv_service.EvaluationChain') as mock_chain_class:
+            mock_get_llm.return_value = MagicMock()
+            mock_chain_instance = AsyncMock()
+            mock_chain_instance.evaluate_with_template = AsyncMock(return_value=sample_langchain_evaluation)
+            mock_chain_class.return_value = mock_chain_instance
+            
+            await cv_service.re_evaluate(sample_cv_id, sample_user_id)
         
         cv_service.template_repo.get_default_template.assert_called_once()
     

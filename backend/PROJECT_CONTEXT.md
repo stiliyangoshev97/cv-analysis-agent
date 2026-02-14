@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 14, 2026 (v0.14.0 - User Settings API)
+> Last Updated: February 15, 2026 (v0.14.2 - User Keys Integration)
 
 ---
 
@@ -75,6 +75,13 @@ Request Flow: Routes → Controller → Service → Repository → Database
 │    pgvector storage           Evaluation, Chat, Compare     │
 │    (1536 dimensions)          (user selects provider)       │
 └─────────────────────────────────────────────────────────────┘
+
+API Key Architecture (BYOK - Bring Your Own Key):
+  - NO system-level API keys in .env (BYOK only)
+  - Users configure their keys via Settings UI
+  - Keys stored encrypted (AES-256) in database
+  - UserKeysService fetches keys per-request
+  - Services create LLM/Embedding instances with user keys
 
 User Setup Flow:
   1. Configure OpenAI key (required for embeddings)

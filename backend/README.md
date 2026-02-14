@@ -374,8 +374,7 @@ response = await chat_chain.ask(cv.id, "What is their fintech experience?")
 ### Prerequisites
 - Python 3.11+
 - PostgreSQL 17+ with pgvector extension
-- Anthropic API key
-- OpenAI API key (for embeddings)
+- API keys configured via Settings UI (BYOK - Bring Your Own Key)
 
 ### Installation
 
@@ -412,24 +411,35 @@ uvicorn app.main:app --reload --port 8000
 ### Environment Variables
 
 ```env
-# === Required ===
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
-DATABASE_URL=postgresql+asyncpg://username:password@localhost:5432/cv_screening_agent
-JWT_SECRET_KEY=your-secret-key-here
-ENCRYPTION_KEY=your-32-byte-encryption-key
+# ============================================================================
+# CV SCREENING AGENT - BACKEND CONFIGURATION
+# ============================================================================
+# This application uses BYOK (Bring Your Own Key) architecture.
+# Users configure their API keys via the Settings UI, NOT in this file.
+# ============================================================================
 
-# === Optional (with defaults) ===
+# === Database (Required) ===
+DATABASE_URL=postgresql+asyncpg://username:password@localhost:5432/cv_screening_agent
+
+# === Security (Required) ===
+JWT_SECRET_KEY=your-secret-key-here
+ENCRYPTION_KEY=your-32-byte-encryption-key-base64
+
+# === JWT Settings (Optional, with defaults) ===
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# === Google OAuth (Optional) ===
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+
+# === LLM Defaults (Optional, users can override in Settings UI) ===
 CLAUDE_MODEL=claude-sonnet-4-20250514
 EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIMENSIONS=1536
 LLM_TEMPERATURE=0.0
 LLM_MAX_TOKENS=4096
-JWT_ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
 
 # === Email Notifications (Optional) ===
 SMTP_HOST=smtp.gmail.com
@@ -445,6 +455,18 @@ TWILIO_ACCOUNT_SID=AC...
 TWILIO_AUTH_TOKEN=...
 TWILIO_WHATSAPP_FROM=+14155238886
 ```
+
+### Setting Up API Keys (BYOK)
+
+After installation, users must configure their API keys via the Settings UI:
+
+1. **Register/Login** to the application
+2. **Navigate to Settings** → API Keys
+3. **Configure OpenAI key** (required for embeddings)
+4. **Configure LLM key** (at least one: Anthropic, OpenAI, or Google)
+5. **Select default LLM provider** (Claude recommended)
+
+> 🔐 API keys are encrypted with AES-256 before storage in the database.
 
 ---
 

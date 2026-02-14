@@ -51,13 +51,16 @@ def test_settings() -> Settings:
     
     Returns:
         Settings configured for testing.
+    
+    Note:
+        API keys are now managed per-user via Settings UI (BYOK).
+        No system-level API keys needed for tests.
     """
     return Settings(
         debug=True,
         database_url="sqlite+aiosqlite:///:memory:",
         jwt_secret_key="test-secret-key-for-testing-only",
         encryption_key="dGVzdC1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcw==",  # Test key
-        anthropic_api_key="test-api-key",
         smtp_host="",
         twilio_account_sid="",
     )

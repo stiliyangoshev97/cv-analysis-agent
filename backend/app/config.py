@@ -73,9 +73,10 @@ class Settings(BaseSettings):
         Always override it in production via environment variable.
     """
     
-    # Anthropic API Configuration (deprecated - users now provide their own keys)
-    anthropic_api_key: str = ""
-    claude_model: str = "claude-sonnet-4-20250514"
+    # DEPRECATED: Legacy API key config (users now provide their own via Settings page)
+    # These are kept for backwards compatibility but should not be used
+    # anthropic_api_key: str = ""  # REMOVED - use user_api_keys table
+    # claude_model: str = ""  # REMOVED - use user_agent_config table
     
     # App Configuration
     app_name: str = "CV Screening Agent"

@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.2] - 2026-02-15 🔑 USER API KEYS INTEGRATION
+
+### Added
+
+**User Keys Service (`settings/user_keys_service.py`)**
+- `UserAPIKeys` dataclass - Container for user's decrypted API keys
+- `UserKeysService` class - Fetches and validates user keys for CV/Chat operations
+- `validate_keys_for_cv_processing()` - Ensures required keys are configured
+
+### Changed
+
+**CV Service (`cv_service.py`)**
+- Now fetches user's API keys before processing
+- Creates `EmbeddingService` with user's OpenAI key
+- Creates `EvaluationChain` with user's preferred LLM provider/key
+- `re_evaluate()` also uses user keys (per-request LLM instantiation)
+- Removed fallback to environment variables - users MUST configure keys
+
+**Chat Service (`chat_service.py`)**
+- `ask()` now uses user's LLM key for responses
+- `explain_criterion()` uses user's LLM key
+- `compare_cvs()` uses user's LLM key
+- LangChain components created per-request with user keys
+
+**Embedding Service (`langchain/embeddings.py`)**
+- Added `api_key` parameter to `__init__()`
+- Supports BYOK (Bring Your Own Key) for embeddings
+
+**main.py**
+- Removed Anthropic API key check from startup
+- Updated startup message to reflect user key management
+
+**config.py**
+- Commented out legacy `anthropic_api_key` setting
+- Added documentation that keys come from user settings
+
+**Tests Updated**
+- `test_cv_service.py` - Updated all tests to mock `UserKeysService` and per-request LLM creation
+- `test_chat_service.py` - Updated tests for user keys architecture
+- `conftest.py` - Removed deprecated `anthropic_api_key` from test settings
+
+### Security
+
+- **No system API keys**: All AI operations use user-provided keys
+- Keys are encrypted in database (AES-256)
+- No fallback to `.env` - forces proper user setup
+
+---
+
 ## [0.14.1] - 2026-02-14 🔒 FILE TYPE VALIDATION SECURITY
 
 ### Added
