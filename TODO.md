@@ -294,7 +294,7 @@ backend/app/
   - [x] Remove old files (router.py, schemas.py, dependencies.py)
 - [x] Update `main.py` to import from new locations ✅
 - [x] Remove old directories (`routers/`, `services/`, `models/`) ✅
-- [ ] Create `tests/` directory structure
+- [x] Create `tests/` directory structure ✅
 - [x] Verify all endpoints work after refactoring ✅
 
 ---
@@ -458,30 +458,30 @@ User Settings:
     └── embeddings: { provider: "openai", model: "text-embedding-3-small" }
 ```
 
-#### Backend Tasks
-- [ ] Create `user_api_keys` table (encrypted storage)
-- [ ] Create `user_agent_config` table
-- [ ] Implement AES-256 encryption for API keys
-- [ ] Create API key validation service (test API call on save)
-- [ ] Create provider abstraction layer (switch between Claude/GPT/Gemini/Groq/Ollama)
-- [ ] `POST /api/settings/api-keys` - Add/update API key
-- [ ] `GET /api/settings/api-keys` - List configured providers (masked keys)
-- [ ] `DELETE /api/settings/api-keys/{provider}` - Remove API key
-- [ ] `PUT /api/settings/agent-config` - Configure agent providers
-- [ ] `GET /api/settings/agent-config` - Get agent configuration
+#### Backend Tasks ✅ COMPLETED (v0.14.0)
+- [x] Create `user_api_keys` table (encrypted storage)
+- [x] Create `user_agent_config` table
+- [x] Implement AES-256 encryption for API keys
+- [x] Create API key validation service (test API call on save)
+- [x] Create provider abstraction layer (switch between Claude/GPT/Gemini)
+- [x] `PUT /api/settings/api-keys/{provider}` - Add/update API key
+- [x] `GET /api/settings/api-keys` - List configured providers (masked keys)
+- [x] `DELETE /api/settings/api-keys/{provider}` - Remove API key
+- [x] `PUT /api/settings/agent-config` - Configure agent providers
+- [x] `GET /api/settings/agent-config` - Get agent configuration
 
-#### Frontend Tasks
-- [ ] Create Settings page with tabs
-- [ ] Create API Keys section UI
-  - [ ] Add key form with provider selector
-  - [ ] Show masked keys (last 4 chars)
-  - [ ] Validate on save (show success/error)
-  - [ ] Delete key button with confirmation
-- [ ] Create Agent Configuration section UI
-  - [ ] Provider dropdown per agent
-  - [ ] Model dropdown (filtered by provider)
-  - [ ] "Use Defaults" button
-- [ ] Create onboarding flow for first-time users
+#### Frontend Tasks ✅ COMPLETED (v0.8.0)
+- [x] Create Settings page with tabs
+- [x] Create API Keys section UI
+  - [x] Add key form with provider selector
+  - [x] Show masked keys (last 4 chars)
+  - [x] Validate on save (show success/error)
+  - [x] Delete key button with confirmation
+- [x] Create Agent Configuration section UI
+  - [x] Provider dropdown per agent
+  - [x] Model dropdown (filtered by provider)
+  - [x] "Use Defaults" button
+- [ ] Create onboarding flow for first-time users (future enhancement)
   - [ ] Welcome screen
   - [ ] API key setup (at least one required)
   - [ ] Optional agent configuration
