@@ -137,6 +137,41 @@ pytest -n auto
 pytest -n 4
 ```
 
+### Rate Limit Testing
+```bash
+# Test rate limiting against a running server
+# Start the server first: uvicorn app.main:app --reload
+
+# Test public endpoints only (no auth needed)
+python scripts/test_rate_limits.py
+
+# Test specific tier
+python scripts/test_rate_limits.py --tier auth      # 5/min - login endpoint
+python scripts/test_rate_limits.py --tier public    # 60/min - health endpoint
+
+# Test authenticated endpoints (requires valid credentials)
+python scripts/test_rate_limits.py --email user@test.com --password mypass --tier all
+
+# Test all tiers
+python scripts/test_rate_limits.py --tier all --email user@test.com --password mypass
+
+# Verbose output (show every request)
+python scripts/test_rate_limits.py -v
+
+# Custom server URL
+python scripts/test_rate_limits.py --base-url http://localhost:8080
+```
+
+**Rate Limit Tiers:**
+| Tier | Limit | Endpoint | What it tests |
+|------|-------|----------|---------------|
+| `auth` | 5/min | `/api/auth/login` | Sends wrong credentials (401) |
+| `public` | 60/min | `/api/cv/health` | Hits health check |
+| `default` | 100/min | `/api/profiles/` | Authenticated list (needs token) |
+| `chat` | 30/min | `/api/chat/{id}` | Authenticated chat (needs token) |
+| `upload` | 100/hour | `/api/cv/upload` | Sends invalid file (needs token) |
+| `notification_test` | 5/hour | `/api/notifications/test/email` | Authenticated (needs token) |
+
 ---
 
 ## 🗄️ Database Commands

@@ -35,7 +35,7 @@ from fastapi import APIRouter, UploadFile, File, Depends, Query, Request, status
 
 from app.db.models.user import User
 from app.features.auth.auth_dependencies import get_current_user
-from app.core.rate_limit import limiter, RATE_LIMIT_UPLOAD, RATE_LIMIT_DEFAULT, RATE_LIMIT_PUBLIC
+from app.core.rate_limit import limiter, auth_limiter, RATE_LIMIT_UPLOAD, RATE_LIMIT_DEFAULT, RATE_LIMIT_PUBLIC, get_ip_address
 
 from .cv_controller import CVController
 from .cv_schemas import (
@@ -198,7 +198,7 @@ async def re_evaluate_cv(
     summary="Health Check",
     description="Check if the CV screening service is operational.",
 )
-@limiter.limit(RATE_LIMIT_PUBLIC)
+@auth_limiter.limit(RATE_LIMIT_PUBLIC)
 async def health_check(
     request: Request,
     cv_service: CVService = Depends(get_cv_service),
