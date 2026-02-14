@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.1] - 2026-02-14 🔒 FILE TYPE VALIDATION SECURITY
+
+### Added
+
+**File Type Security (`cv_controller.py`)**
+- `ALLOWED_EXTENSIONS` constant - Whitelist: `.pdf`, `.docx`, `.doc`
+- `ALLOWED_MIME_TYPES` constant - Valid MIME types for CVs
+- `BLOCKED_EXTENSIONS` constant - Blocklist of dangerous file types
+- `_validate_file_magic()` method - Magic byte validation for file authenticity
+
+**Magic Byte Validation**
+- PDF files must start with `%PDF-`
+- DOCX files must be valid ZIP archives (`PK\x03\x04`)
+- DOC files must be OLE compound documents (`\xD0\xCF\x11\xE0`)
+
+### Changed
+
+**CV Upload Validation**
+- Enhanced `_validate_upload()` with 4-layer security:
+  1. Extension whitelist check
+  2. Blocked extension check (images, executables, scripts, archives)
+  3. MIME type validation (blocks `image/*`, `video/*`, `audio/*`, `text/html`)
+  4. Magic byte verification
+
+### Security
+
+- **Defense in depth**: Multiple validation layers prevent malicious uploads
+- Blocks: `.exe`, `.bat`, `.sh`, `.js`, `.py`, `.php`, `.html`, `.zip`, `.tar`, images, media
+- Prevents file extension spoofing with magic byte verification
+- Works with frontend validation for comprehensive security
+
+---
+
 ## [0.14.0] - 2026-02-14 ⚙️ USER SETTINGS API
 
 ### Added

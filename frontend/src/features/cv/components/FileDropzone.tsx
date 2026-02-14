@@ -1,7 +1,7 @@
 /**
  * @fileoverview FileDropzone Component
  *
- * Drag-and-drop file upload zone for PDF CVs.
+ * Drag-and-drop file upload zone for CV documents (PDF/DOCX).
  * Provides visual feedback during drag operations and validates file types.
  *
  * @module features/cv/components/FileDropzone
@@ -9,7 +9,7 @@
  * FEATURES:
  * - Drag and drop support with visual feedback
  * - Click to browse fallback
- * - PDF-only file type validation
+ * - PDF and DOCX file type validation
  * - Single file limit enforcement
  * - Disabled state for upload-in-progress
  * - Error callbacks for validation failures
@@ -27,6 +27,30 @@
 import { useCallback, useState, type DragEvent, type ChangeEvent } from 'react';
 import { cn } from '@/shared/utils';
 
+/** Allowed MIME types for CV uploads */
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+  'application/msword', // .doc
+];
+
+/** Allowed file extensions for CV uploads */
+const ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.doc'];
+
+/**
+ * Check if a file is a valid CV document (PDF or DOCX).
+ */
+const isValidCVFile = (file: File): boolean => {
+  // Check MIME type
+  if (ALLOWED_MIME_TYPES.includes(file.type)) {
+    return true;
+  }
+  
+  // Fallback: check file extension (some browsers may not set MIME type correctly)
+  const filename = file.name.toLowerCase();
+  return ALLOWED_EXTENSIONS.some(ext => filename.endsWith(ext));
+};
+
 /**
  * FileDropzone component props.
  */
@@ -39,7 +63,7 @@ interface FileDropzoneProps {
   onError?: (message: string) => void;
   /** Disable the dropzone (e.g., during upload) */
   disabled?: boolean;
-  /** Accepted file types (default: '.pdf') */
+  /** Accepted file types (default: PDF and DOCX) */
   accept?: string;
   /** Allow multiple files (default: false) */
   multiple?: boolean;
@@ -61,7 +85,7 @@ export const FileDropzone = ({
   onFilesSelect,
   onError,
   disabled = false,
-  accept = '.pdf',
+  accept = '.pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword',
   multiple = false,
   maxFiles = 10,
 }: FileDropzoneProps) => {
@@ -73,35 +97,35 @@ export const FileDropzone = ({
   const processFiles = useCallback((fileList: FileList) => {
     const files = Array.from(fileList);
     
-    // Filter for PDF files only
-    const pdfFiles = files.filter(f => f.type === 'application/pdf');
-    const invalidCount = files.length - pdfFiles.length;
+    // Filter for valid CV files (PDF and DOCX only)
+    const validFiles = files.filter(isValidCVFile);
+    const invalidCount = files.length - validFiles.length;
     
     if (invalidCount > 0) {
-      onError?.(`${invalidCount} file(s) skipped. Only PDF files are accepted.`);
+      onError?.(`${invalidCount} file(s) skipped. Only PDF and DOCX files are accepted.`);
     }
     
-    if (pdfFiles.length === 0) {
-      onError?.('No valid PDF files found.');
+    if (validFiles.length === 0) {
+      onError?.('No valid files found. Please upload PDF or DOCX files only.');
       return;
     }
 
     if (multiple) {
       // Batch mode
-      if (pdfFiles.length > maxFiles) {
+      if (validFiles.length > maxFiles) {
         onError?.(`Maximum ${maxFiles} files allowed. Only the first ${maxFiles} will be added.`);
-        onFilesSelect?.(pdfFiles.slice(0, maxFiles));
+        onFilesSelect?.(validFiles.slice(0, maxFiles));
       } else {
-        onFilesSelect?.(pdfFiles);
+        onFilesSelect?.(validFiles);
       }
     } else {
       // Single file mode
       if (files.length > 1) {
-        onError?.('Only 1 file is allowed. Please upload a single PDF.');
+        onError?.('Only 1 file is allowed. Please upload a single CV.');
         return;
       }
-      if (pdfFiles.length === 1) {
-        onFileSelect(pdfFiles[0]);
+      if (validFiles.length === 1) {
+        onFileSelect(validFiles[0]);
       }
     }
   }, [multiple, maxFiles, onFileSelect, onFilesSelect, onError]);
@@ -182,7 +206,7 @@ export const FileDropzone = ({
             {isDragging ? 'Drop your CV(s) here' : multiple ? 'Drag & drop your CVs' : 'Drag & drop your CV'}
           </p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            or click to browse • PDF files only {multiple && `• Max ${maxFiles} files`}
+            or click to browse • PDF & DOCX only {multiple && `• Max ${maxFiles} files`}
           </p>
         </div>
       </div>

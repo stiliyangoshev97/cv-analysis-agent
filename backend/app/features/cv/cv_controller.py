@@ -56,6 +56,36 @@ from .similarity_service import SimilarityService
 
 logger = logging.getLogger(__name__)
 
+# =============================================================================
+# File Validation Constants
+# =============================================================================
+
+# Allowed file extensions for CV uploads
+ALLOWED_EXTENSIONS = {".pdf", ".docx", ".doc"}
+
+# Allowed MIME types for CV uploads
+ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # .docx
+    "application/msword",  # .doc
+    # Some systems may report these alternative types
+    "application/x-pdf",
+}
+
+# Dangerous file extensions that should NEVER be allowed (security blocklist)
+BLOCKED_EXTENSIONS = {
+    # Images
+    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".ico", ".tiff",
+    # Executables
+    ".exe", ".bat", ".cmd", ".sh", ".ps1", ".msi", ".dll", ".so",
+    # Scripts
+    ".js", ".py", ".rb", ".php", ".pl", ".vbs", ".jar", ".class",
+    # Archives
+    ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2",
+    # Other dangerous
+    ".html", ".htm", ".xml", ".json", ".csv", ".txt",
+}
+
 
 class CVController:
     """Controller for CV screening HTTP endpoints.
@@ -74,6 +104,35 @@ class CVController:
         >>> controller = CVController()
         >>> response = await controller.upload_and_evaluate(file, cv_service, user)
     """
+    
+    def _validate_file_magic(self, content: bytes, extension: str) -> bool:
+        """Validate file content against expected magic bytes.
+        
+        This provides defense-in-depth by checking actual file content,
+        not just the extension which can be easily spoofed.
+        
+        Args:
+            content: Raw file bytes.
+            extension: File extension (e.g., '.pdf').
+        
+        Returns:
+            True if file content matches expected format, False otherwise.
+        """
+        if len(content) < 8:
+            return False
+        
+        if extension == ".pdf":
+            # PDF files start with '%PDF-'
+            return content[:5] == b'%PDF-'
+        
+        elif extension in (".docx", ".doc"):
+            # DOCX files are ZIP archives (start with PK)
+            # DOC files start with MS Office compound document signature
+            docx_signature = content[:4] == b'PK\x03\x04'  # ZIP format
+            doc_signature = content[:8] == b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'  # OLE compound
+            return docx_signature or doc_signature
+        
+        return False
     
     async def upload_and_evaluate(
         self,
@@ -115,14 +174,39 @@ class CVController:
                 detail="No filename provided"
             )
         
-        # Validate file type (now supports PDF and DOCX)
-        valid_extensions = (".pdf", ".docx", ".doc")
-        if not file.filename.lower().endswith(valid_extensions):
-            logger.warning(f"Invalid file type: {file.filename}")
+        filename_lower = file.filename.lower()
+        
+        # Get file extension
+        extension = ""
+        if "." in filename_lower:
+            extension = "." + filename_lower.rsplit(".", 1)[-1]
+        
+        # SECURITY: Check against blocklist first (defense in depth)
+        if extension in BLOCKED_EXTENSIONS:
+            logger.warning(f"Blocked file type attempt: {file.filename}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This file type is not allowed. Please upload PDF or DOCX files only."
+            )
+        
+        # Validate file extension
+        if extension not in ALLOWED_EXTENSIONS:
+            logger.warning(f"Invalid file extension: {file.filename}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid file type. Accepted formats: PDF, DOCX"
             )
+        
+        # Validate MIME type (if provided by client)
+        if file.content_type:
+            # Allow some flexibility - browsers may not always send correct MIME type
+            # But block obviously wrong types
+            if file.content_type.startswith(("image/", "video/", "audio/", "text/html")):
+                logger.warning(f"Blocked MIME type: {file.content_type} for {file.filename}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid file type. Please upload PDF or DOCX files only."
+                )
         
         try:
             # Read file content
@@ -135,6 +219,14 @@ class CVController:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"File too large. Maximum size is {settings.max_file_size_mb}MB."
+                )
+            
+            # SECURITY: Validate magic bytes (file signature)
+            if not self._validate_file_magic(content, extension):
+                logger.warning(f"File magic bytes mismatch for: {file.filename}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid file content. The file does not appear to be a valid PDF or DOCX."
                 )
             
             # Process CV with LangChain integration

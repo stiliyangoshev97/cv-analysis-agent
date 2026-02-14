@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.1] - 2026-02-14 🔒 FILE TYPE VALIDATION SECURITY
+
+### Added
+
+**File Type Validation (`FileDropzone.tsx`)**
+- `ALLOWED_MIME_TYPES` constant - Whitelist of valid CV MIME types
+- `ALLOWED_EXTENSIONS` constant - Whitelist of valid file extensions
+- `isValidCVFile()` helper - Validates files by MIME type with extension fallback
+- Accepts only PDF and DOCX files (blocks images, executables, scripts, etc.)
+
+### Changed
+
+**FileDropzone**
+- Updated `accept` prop to include all valid MIME types for PDFs and Word documents
+- Enhanced file validation with MIME type and extension checking
+- Updated UI text to explicitly state "PDF & DOCX only"
+- Improved error messages for rejected file types
+
+### Security
+
+- **Defense in depth**: Frontend validation + backend validation (magic bytes)
+- Prevents upload of dangerous file types (images disguised as CVs, executables, scripts)
+- Consistent validation between frontend and backend
+
+---
+
 ## [0.10.0] - 2026-02-14 📦 BATCH CV UPLOAD
 
 ### Added
