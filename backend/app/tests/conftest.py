@@ -126,7 +126,7 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
     async_session_factory = async_sessionmaker(
         bind=db_engine,
         class_=AsyncSession,
-        expire_on_commit=False,
+        expire_on_commit=False,  # Keep objects valid for test assertions
         autocommit=False,
         autoflush=False,
     )

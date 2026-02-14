@@ -165,7 +165,6 @@ class TestSimilarCVsEndpoint:
         
         assert response.status_code == 404
     
-    @pytest.mark.skip(reason="CVEmbedding.chunk_index doesn't exist - bug in embedding_repository")
     async def test_similar_cvs_no_embeddings(self, client, auth_headers, test_cv):
         """Should return 400 when CV has no embeddings."""
         response = await client.get(
@@ -176,14 +175,17 @@ class TestSimilarCVsEndpoint:
         # Should return error about no embeddings
         assert response.status_code in [400, 404]
     
-    @pytest.mark.skip(reason="CVEmbedding.chunk_index doesn't exist - bug in embedding_repository")
     async def test_similar_cvs_success(
         self, client, auth_headers, test_cv, test_embedding
     ):
-        """Should return similar CVs."""
-        with patch("app.features.cv.embedding_repository.EmbeddingRepository.search_similar_all") as mock:
-            mock.return_value = []
-            
+        """Should return similar CVs (mocked because pgvector not available in SQLite)."""
+        # Mock the similarity service's find_similar_cvs method
+        mock_similar_result = []  # Empty list = no similar CVs found
+        
+        with patch(
+            "app.features.cv.similarity_service.SimilarityService.find_similar_cvs",
+            return_value=mock_similar_result
+        ):
             response = await client.get(
                 f"/api/cv/{test_cv.id}/similar",
                 params={"limit": 5},
@@ -243,20 +245,46 @@ class TestCompareCVsEndpoint:
         # Pydantic validation returns 422, not 400
         assert response.status_code == 422
     
-    @pytest.mark.skip(reason="CVEmbedding.chunk_index doesn't exist - bug in similarity_service")
     async def test_compare_success(
         self, client, auth_headers, test_cv, test_cv_2, test_embedding
     ):
-        """Should compare CVs successfully."""
-        # Add embedding to second CV
-        from app.db.models.cv import CVEmbedding
-        from datetime import datetime, timezone
+        """Should compare CVs successfully (mocked because pgvector not available in SQLite)."""
+        from app.features.cv.similarity_service import CVComparisonResult, CVComparisonItem
         
-        response = await client.post(
-            "/api/cv/compare",
-            json={"cv_ids": [str(test_cv.id), str(test_cv_2.id)]},
-            headers=auth_headers,
+        # Mock the similarity service's compare_cvs method
+        mock_compare_result = CVComparisonResult(
+            cvs=[
+                CVComparisonItem(
+                    cv_id=test_cv.id,
+                    filename="test.pdf",
+                    candidate_name="Test Candidate",
+                    evaluation_score=75,
+                    status="pass",
+                    similarity_to_first=1.0,
+                ),
+                CVComparisonItem(
+                    cv_id=test_cv_2.id,
+                    filename="test2.pdf",
+                    candidate_name="Second Candidate",
+                    evaluation_score=80,
+                    status="pass",
+                    similarity_to_first=0.75,
+                ),
+            ],
+            similarity_matrix=[[1.0, 0.75], [0.75, 1.0]],
+            best_match_id=test_cv_2.id,
+            most_similar_pair=(test_cv.id, test_cv_2.id, 0.75),
         )
+        
+        with patch(
+            "app.features.cv.similarity_service.SimilarityService.compare_cvs",
+            return_value=mock_compare_result
+        ):
+            response = await client.post(
+                "/api/cv/compare",
+                json={"cv_ids": [str(test_cv.id), str(test_cv_2.id)]},
+                headers=auth_headers,
+            )
         
         assert response.status_code == 200
         data = response.json()

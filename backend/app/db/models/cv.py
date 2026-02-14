@@ -267,14 +267,17 @@ class CVEvaluation(Base):
 
 
 class CVEmbedding(Base):
-    """Vector embedding for a CV.
+    """Vector embedding for a CV chunk.
     
     Stores the vector embedding generated from CV text for semantic search.
     Uses pgvector extension for efficient similarity queries.
+    Each CV may have multiple embeddings (one per chunk).
     
     Attributes:
         id: Unique embedding identifier (UUID).
         cv_id: Foreign key to cvs table.
+        chunk_text: The text content this embedding represents.
+        chunk_index: Position of this chunk in the document (0-based).
         embedding: Vector embedding (1536 dimensions for OpenAI).
         created_at: Embedding generation timestamp.
         
@@ -285,6 +288,8 @@ class CVEmbedding(Base):
         >>> from pgvector.sqlalchemy import Vector
         >>> embedding = CVEmbedding(
         ...     cv_id=cv.id,
+        ...     chunk_text="John Doe, Software Engineer...",
+        ...     chunk_index=0,
         ...     embedding=[0.1, 0.2, 0.3, ...]  # 1536 floats
         ... )
     
@@ -310,6 +315,19 @@ class CVEmbedding(Base):
         index=True,
     )
     
+    # Chunk text content
+    chunk_text: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+    )
+    
+    # Chunk position in document
+    chunk_index: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+    )
+    
     # Note: Vector column will be added via Alembic migration
     # because SQLAlchemy mapped_column doesn't directly support pgvector
     # We'll use raw SQL in the migration for the vector column
@@ -328,4 +346,4 @@ class CVEmbedding(Base):
     )
     
     def __repr__(self) -> str:
-        return f"<CVEmbedding for CV {self.cv_id}>"
+        return f"<CVEmbedding for CV {self.cv_id} chunk {self.chunk_index}>"
