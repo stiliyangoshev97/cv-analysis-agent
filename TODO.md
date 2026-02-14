@@ -801,11 +801,10 @@ interface Criterion {
   - [ ] Notification API tests
 - [x] Fix test schemas to match actual API response structures
 - [x] Fix ProfileService bug: reload template after update
-- [ ] Fix application bugs blocking skipped tests:
-  - [ ] CVEmbedding.chunk_index attribute error in embedding_repository.py
-  - [ ] SQLAlchemy session caching in delete_criterion
+- [x] Fix CVEmbedding model: add chunk_text and chunk_index columns
+- [x] Fix all skipped tests (mocking for pgvector, delete verification)
 
-**Test Results**: 128 tests passing (75 unit + 53 integration), 4 skipped
+**Test Results**: 132 tests passing (75 unit + 57 integration), 0 skipped
 
 ### 8.2 Frontend Testing
 - [ ] Set up Vitest
@@ -837,7 +836,7 @@ interface Criterion {
    - 6.4 Semantic Search ✅ Backend Complete
    - Frontend implementation ⏳ Next
 9. **Phase 7**: Frontend Enhancements
-10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (128 tests passing: 75 unit + 53 integration)
+10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (132 tests passing: 75 unit + 57 integration)
 
 > **Note**: Phase 1.7 (User Configuration) will be implemented as part of Phase 2 (Database Layer) since it requires database persistence.
 
