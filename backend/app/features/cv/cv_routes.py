@@ -4,8 +4,8 @@ This module defines the FastAPI router for CV screening endpoints.
 Routes are thin - they only wire up URL paths to controller handlers.
 
 Rate Limits:
-    - upload: 10/hour - Expensive AI processing
-    - re-evaluate: 10/hour - Also expensive
+    - upload: 100/hour - BYOK users pay own costs
+    - re-evaluate: 100/hour - BYOK users pay own costs
     - Other endpoints: 100/minute - Standard authenticated
     - health: 60/minute - Public endpoint
 

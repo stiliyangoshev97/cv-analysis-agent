@@ -77,7 +77,7 @@ RAG-powered chat, and multi-channel notifications.
 | Endpoint Type | Limit | Scope |
 |--------------|-------|-------|
 | Auth (login, register) | 5/min | Per IP |
-| CV Upload | 10/hour | Per User |
+| CV Upload | 100/hour | Per User |
 | Chat/RAG | 30/min | Per User |
 | General API | 100/min | Per User |
 | Public (health) | 60/min | Per IP |

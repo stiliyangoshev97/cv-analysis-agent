@@ -5,7 +5,7 @@ limits based on endpoint type and authentication status.
 
 Rate Limit Tiers:
     - Auth endpoints (unauthenticated): 5/minute - Prevent brute force
-    - CV Upload (authenticated): 10/hour - Expensive AI processing
+    - CV Upload (authenticated): 100/hour - BYOK users pay own costs
     - Chat/RAG (authenticated): 30/minute - LLM API costs
     - General API (authenticated): 100/minute - Fair usage
     - Public endpoints: 60/minute - Health checks, etc.
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 RATE_LIMIT_AUTH = "5/minute"
 
 # CV Upload - Very expensive (AI processing + embeddings)
-RATE_LIMIT_UPLOAD = "10/hour"
+RATE_LIMIT_UPLOAD = "100/hour"
 
 # Chat/RAG endpoints - Moderate limits (LLM API calls)
 RATE_LIMIT_CHAT = "30/minute"
@@ -215,7 +215,7 @@ class RateLimits:
     
     @staticmethod
     def upload():
-        """Rate limit for CV upload (10/hour by user)."""
+        """Rate limit for CV upload (100/hour by user)."""
         return limiter.limit(RATE_LIMIT_UPLOAD)
     
     @staticmethod

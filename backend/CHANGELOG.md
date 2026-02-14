@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | Endpoint Type | Limit | Scope | Rationale |
 |--------------|-------|-------|-----------|
 | Auth (login, register) | 5/min | Per IP | Prevent brute force |
-| CV Upload | 10/hour | Per User | Expensive AI processing |
+| CV Upload | 100/hour | Per User | BYOK users pay own costs |
 | Chat/RAG | 30/min | Per User | LLM API costs |
 | General API | 100/min | Per User | Fair usage |
 | Test Notifications | 5/hour | Per User | Prevent spam |
