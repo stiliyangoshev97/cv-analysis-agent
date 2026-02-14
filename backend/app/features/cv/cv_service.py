@@ -52,6 +52,7 @@ from app.langchain.chains.evaluation_chain import (
 from app.langchain.embeddings import EmbeddingService
 from app.langchain.config import get_llm, get_embeddings
 from app.features.settings.user_keys_service import UserKeysService, UserAPIKeys
+from app.agents.tools import extract_candidate_name
 
 from .cv_repository import CVRepository
 from .evaluation_repository import EvaluationRepository
@@ -209,11 +210,16 @@ class CVService:
         processed = await self.document_processor.process_upload(file_content, filename)
         logger.info(f"Extracted {len(processed.full_text)} chars, {processed.chunk_count} chunks")
         
+        # Step 2.5: Extract candidate name from CV text
+        candidate_name = extract_candidate_name(processed.full_text)
+        logger.debug(f"Extracted candidate name: {candidate_name}")
+        
         # Step 3: Create CV record in database
         cv = CV(
             user_id=user_id,
             filename=filename,
             original_text=processed.full_text,
+            candidate_name=candidate_name,
             status=CVStatus.PROCESSING.value,
         )
         cv = await self.cv_repo.create(cv)
@@ -493,7 +499,7 @@ class CVService:
             match_score=int(result.evaluation.percentage),
             reasoning=result.evaluation.summary,
             criteria=criteria,
-            candidate_name=None,  # Could extract from CV text
+            candidate_name=result.cv.candidate_name,
         )
         
         return UploadResponse(

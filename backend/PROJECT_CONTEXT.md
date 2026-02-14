@@ -1,17 +1,18 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 15, 2026 (v0.14.2 - User Keys Integration)
+> Last Updated: February 15, 2026 (v0.14.3 - Candidate Name Extraction)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI (or GPT/Gemini) to evaluate resumes against customizable hiring criteria. The system extracts text from PDF/DOCX CVs, generates embeddings for semantic search, and provides RAG-powered Q&A about candidates.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI (or GPT/Gemini) to evaluate resumes against customizable hiring criteria. The system extracts text from PDF/DOCX CVs, automatically extracts candidate names, generates embeddings for semantic search, and provides RAG-powered Q&A about candidates.
 
 **Key Features**:
 - **Customizable Hiring Profiles**: Create evaluation criteria tailored to your roles
 - **Multi-LLM Support**: Choose between Claude, GPT, or Gemini for evaluation
+- **Candidate Name Extraction**: Automatic name extraction from CV text
 - **RAG Chat**: Ask questions about any CV with context-aware responses
 - **Multi-Channel Notifications**: Email and WhatsApp alerts for qualified candidates
 - **BYOK Support**: Users bring their own API keys (encrypted storage)

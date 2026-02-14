@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.3] - 2026-02-15 👤 CANDIDATE NAME EXTRACTION
+
+### Fixed
+
+**CV Service (`cv_service.py`)**
+- Now extracts candidate name from CV text during upload processing
+- Uses `extract_candidate_name()` function from `agents/tools.py`
+- Candidate name is stored in the CV record and returned in API responses
+- Fixed "Unknown Candidate" issue in history and comparison views
+
+### Changed
+
+**CV Service**
+- Added import for `extract_candidate_name` from `app.agents.tools`
+- Candidate name extraction happens after document processing (Step 2.5)
+- `convert_to_response()` now returns actual candidate name instead of `None`
+
+---
+
 ## [0.14.2] - 2026-02-15 🔑 USER API KEYS INTEGRATION
 
 ### Added
