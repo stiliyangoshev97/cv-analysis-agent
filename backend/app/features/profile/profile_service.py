@@ -264,6 +264,9 @@ class ProfileService:
         
         await self.repo.update(template)
         
+        # Reload with criteria for response (refresh doesn't load relationships)
+        template = await self.repo.get_with_criteria(profile_id)
+        
         logger.info(f"Updated profile {profile_id}")
         
         return self._to_profile_response(template)

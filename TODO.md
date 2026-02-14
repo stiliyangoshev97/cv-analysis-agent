@@ -783,12 +783,20 @@ interface Criterion {
 
 ## Phase 8: Testing & Documentation
 
-### 8.1 Backend Testing
-- [ ] Set up pytest
-- [ ] Write unit tests for services
-- [ ] Write integration tests for API endpoints
-- [ ] Write tests for auth flows
-- [ ] Write tests for multi-agent system
+### 8.1 Backend Testing 🔄 IN PROGRESS
+- [x] Set up pytest (pytest.ini, requirements-test.txt, conftest.py)
+- [x] Write unit tests for services:
+  - [x] SimilarityService (26 tests)
+  - [x] AuthService (21 tests - password hashing, JWT, auth flows)
+  - [x] ProfileService (28 tests - CRUD, clone, criteria)
+- [ ] Write unit tests for remaining services:
+  - [ ] CVService
+  - [ ] ChatService
+  - [ ] NotificationService
+- [ ] Write integration tests for API endpoints (needs schema alignment)
+- [x] Fix ProfileService bug: reload template after update
+
+**Test Results**: 75 unit tests passing
 
 ### 8.2 Frontend Testing
 - [ ] Set up Vitest
@@ -820,7 +828,7 @@ interface Criterion {
    - 6.4 Semantic Search ✅ Backend Complete
    - Frontend implementation ⏳ Next
 9. **Phase 7**: Frontend Enhancements
-10. **Phase 8**: Testing & Documentation
+10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (75 unit tests passing)
 
 > **Note**: Phase 1.7 (User Configuration) will be implemented as part of Phase 2 (Database Layer) since it requires database persistence.
 
