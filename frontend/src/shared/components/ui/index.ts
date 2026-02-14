@@ -26,6 +26,7 @@ export { ThemeToggle } from './ThemeToggle';
 // Layout & Containers
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
 export { Container } from './Container';
+export { Modal, ModalBody, ModalFooter } from './Modal';
 
 // Typography
 export { Text } from './Text';

@@ -1,13 +1,13 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.10.0 - Batch CV Upload)
+> Last Updated: February 2026 (v0.11.0 - Evaluation Profiles & Template Selector)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The frontend provides a clean, intuitive interface for uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, chatting with AI about candidates, and comparing multiple CVs.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, chatting with AI about candidates, and comparing multiple CVs.
 
 ---
 
@@ -19,9 +19,10 @@
 | TailwindCSS | ✅ 100% | Custom configuration + Dark Mode |
 | File Upload | ✅ 100% | Drag & drop + click to upload |
 | **Batch Upload** | ✅ 100% | Up to 10 CVs with confirmation |
+| **Template Selector** | ✅ 100% | Required before upload |
 | Upload Progress | ✅ 100% | Real-time progress tracking |
 | Scorecard Display | ✅ 100% | Full evaluation visualization |
-| **UI Component Library** | ✅ 100% | Button, Card, Badge, Input, etc. (all with dark mode) |
+| **UI Component Library** | ✅ 100% | Button, Card, Badge, Modal, etc. |
 | API Client | ✅ 100% | Axios with auth interceptors |
 | TanStack Query | ✅ 100% | Server state management |
 | Zustand Store | ✅ 100% | Auth state persistence |
@@ -36,9 +37,10 @@
 | **Toast Notifications** | ✅ 100% | Sonner integration |
 | **Error Boundaries** | ✅ 100% | Graceful error handling |
 | **Dark Mode** | ✅ 100% | System preference + manual toggle |
+| **Evaluation Profiles** | ✅ 100% | Full CRUD for templates/criteria |
 | **Dashboard** | ⏳ 0% | Future feature |
 
-**Overall Progress: ~90%** (Core features complete)
+**Overall Progress: ~95%** (Core features complete)
 
 ---
 
@@ -87,6 +89,7 @@ frontend/src/
 │   │   ├── Button.tsx          # 5 variants, 3 sizes, loading
 │   │   ├── Badge.tsx           # 5 variants, 3 sizes
 │   │   ├── Card.tsx            # CardHeader, CardContent, etc.
+│   │   ├── Modal.tsx           # Accessible modal with backdrop
 │   │   ├── Input.tsx           # Form input with forwardRef
 │   │   ├── Select.tsx          # Dropdown select
 │   │   ├── Textarea.tsx        # Multi-line input
@@ -108,6 +111,7 @@ frontend/src/
 │   │   ├── chat.schemas.ts     # Chat types
 │   │   ├── settings.schemas.ts # Settings types
 │   │   ├── notification.schemas.ts # Notification settings
+│   │   ├── profile.schemas.ts  # Profile/template types
 │   │   └── index.ts
 │   ├── types/
 │   │   └── index.ts            # Re-exported Zod types
@@ -133,6 +137,7 @@ frontend/src/
     │   ├── components/
     │   │   ├── FileDropzone.tsx    # Supports multiple files
     │   │   ├── CVFileList.tsx      # Staged files list
+    │   │   ├── TemplateSelector.tsx# Required template picker
     │   │   ├── UploadProgress.tsx
     │   │   ├── Scorecard.tsx
     │   │   ├── ScoreRing.tsx
@@ -143,6 +148,25 @@ frontend/src/
     │   │   ├── useCVList.ts
     │   │   └── index.ts
     │   ├── pages/CVPage.tsx
+    │   └── index.ts
+    │
+    ├── profile/                # Evaluation Profiles feature
+    │   ├── api/profileApi.ts
+    │   ├── components/
+    │   │   ├── ProfileCard.tsx
+    │   │   ├── ProfileList.tsx
+    │   │   ├── CloneProfileModal.tsx
+    │   │   ├── DeleteProfileModal.tsx
+    │   │   ├── CriterionCard.tsx
+    │   │   ├── CriterionForm.tsx
+    │   │   └── index.ts
+    │   ├── hooks/useProfiles.ts
+    │   ├── pages/
+    │   │   ├── ProfilesPage.tsx
+    │   │   ├── ProfileDetailPage.tsx
+    │   │   ├── ProfileEditPage.tsx
+    │   │   ├── ProfileCreatePage.tsx
+    │   │   └── index.ts
     │   └── index.ts
     │
     ├── chat/                   # AI Chat feature
@@ -195,8 +219,9 @@ frontend/src/
 | Component | Variants | Features |
 |-----------|----------|----------|
 | **Button** | primary, secondary, outline, ghost, danger | 3 sizes, loading state |
-| **Badge** | default, success, warning, error, info | 3 sizes |
-| **Card** | default, bordered, elevated | Sub-components |
+| **Badge** | success, error, warning, info, neutral | 3 sizes |
+| **Card** | default, hover, outlined | Sub-components |
+| **Modal** | sm, md, lg, xl, 2xl | Focus trap, backdrop, ESC close |
 | **Input** | - | label, error, helperText |
 | **Select** | - | forwardRef, custom arrow |
 | **Textarea** | - | forwardRef, label, error |

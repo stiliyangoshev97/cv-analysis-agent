@@ -7,6 +7,7 @@
 export { FileDropzone } from './FileDropzone';
 export { UploadProgress } from './UploadProgress';
 export { CVFileList, type StagedFile } from './CVFileList';
+export { TemplateSelector } from './TemplateSelector';
 
 // Scorecard components
 export { Scorecard } from './Scorecard';

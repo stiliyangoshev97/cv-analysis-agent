@@ -57,26 +57,31 @@ export const listCVs = async (
  */
 export const uploadCV = async (
   file: File,
+  templateId: string,
   onProgress?: (progress: UploadProgress) => void
 ): Promise<UploadResponse> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await apiClient.post<UploadResponse>('/api/cv/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    onUploadProgress: (progressEvent) => {
-      if (progressEvent.total && onProgress) {
-        const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        onProgress({
-          loaded: progressEvent.loaded,
-          total: progressEvent.total,
-          percentage,
-        });
-      }
-    },
-  });
+  const response = await apiClient.post<UploadResponse>(
+    `/api/cv/upload?template_id=${templateId}`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total && onProgress) {
+          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress({
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage,
+          });
+        }
+      },
+    }
+  );
 
   return response.data;
 };

@@ -36,11 +36,22 @@ import { toast } from '@/shared/components/ui';
 import type { UploadProgress, UploadResponse } from '@/shared/types';
 
 /**
+ * Upload parameters for CV mutation.
+ */
+interface UploadParams {
+  file: File;
+  templateId: string;
+}
+
+/**
  * Hook return type for useUploadCV.
  */
 interface UseUploadCVReturn {
   /** Function to trigger file upload */
-  upload: typeof useMutation<UploadResponse, Error, File>['prototype']['mutate'];
+  upload: (
+    params: UploadParams,
+    options?: { onSuccess?: (data: UploadResponse) => void; onError?: (error: Error) => void }
+  ) => void;
   /** Whether upload is in progress */
   isUploading: boolean;
   /** Current upload progress (null when not uploading) */
@@ -63,8 +74,9 @@ interface UseUploadCVReturn {
 export const useUploadCV = (): UseUploadCVReturn => {
   const [progress, setProgress] = useState<UploadProgress | null>(null);
 
-  const mutation = useMutation<UploadResponse, Error, File>({
-    mutationFn: (file: File) => uploadCV(file, setProgress),
+  const mutation = useMutation<UploadResponse, Error, UploadParams>({
+    mutationFn: ({ file, templateId }: UploadParams) =>
+      uploadCV(file, templateId, setProgress),
     onMutate: () => {
       setProgress({ loaded: 0, total: 0, percentage: 0 });
     },

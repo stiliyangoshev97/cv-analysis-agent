@@ -8,6 +8,10 @@
  * ROUTE STRUCTURE:
  * ```
  * /                           [PROTECTED] CV Upload/Evaluation page
+ * /profiles                   [PROTECTED] Evaluation profiles list
+ * /profiles/new               [PROTECTED] Create new profile
+ * /profiles/:id               [PROTECTED] View profile details
+ * /profiles/:id/edit          [PROTECTED] Edit profile
  * /settings                   [PROTECTED] API Keys & LLM Preferences
  * /settings/notifications     [PROTECTED] Notification settings page
  * ```
@@ -16,6 +20,12 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { CVPage } from '@/features/cv';
 import { NotificationSettingsPage } from '@/features/notification';
+import {
+  ProfilesPage,
+  ProfileDetailPage,
+  ProfileEditPage,
+  ProfileCreatePage,
+} from '@/features/profile';
 import { SettingsPage } from '@/features/settings';
 import { RouteErrorBoundary } from '@/shared/components/ui';
 import { ProtectedRoute } from './guards';
@@ -33,6 +43,50 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RootLayout>
           <CVPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/profiles',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <ProfilesPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/profiles/new',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <ProfileCreatePage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/profiles/:id',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <ProfileDetailPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/profiles/:id/edit',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <ProfileEditPage />
         </RootLayout>
       </ProtectedRoute>
     ),

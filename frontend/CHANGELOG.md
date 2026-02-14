@@ -7,6 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.11.0] - 2026-02-15 📋 EVALUATION PROFILES & TEMPLATE SELECTOR
+
+### Added
+
+**Evaluation Profiles Feature (`features/profile/`)**
+- Complete profile/template management UI for CV evaluation criteria
+- `ProfilesPage` - List all evaluation profiles with search filtering
+- `ProfileDetailPage` - View profile with all criteria details
+- `ProfileEditPage` - Edit profile metadata and manage criteria
+- `ProfileCreatePage` - Create new profile with criteria
+- `ProfileCard` - Card component for profile summaries
+- `ProfileList` - Grid display with system/user profile separation
+- `CloneProfileModal` - Clone existing profiles with new name
+- `DeleteProfileModal` - Confirmation dialog for profile deletion
+- `CriterionCard` - Display individual evaluation criteria
+- `CriterionForm` - Add/edit criteria with keywords support
+
+**Template Selector (`TemplateSelector.tsx`)**
+- Dropdown for selecting evaluation template before CV upload
+- Grouped options (System Templates / My Templates)
+- LocalStorage persistence of last selected template
+- Preview of selected template info (criteria count, passing score)
+- Link to Profiles page for template management
+- Upload blocked until template is selected
+
+**Modal Component (`shared/components/ui/Modal.tsx`)**
+- Accessible modal/dialog component with backdrop
+- Focus trap and escape key handling
+- Multiple sizes (sm, md, lg, xl, 2xl)
+- Animated entrance with backdrop blur
+- `ModalBody` and `ModalFooter` sub-components
+
+**Navigation**
+- Added navigation links in header (Evaluate, Profiles, Settings)
+- Active state highlighting for current route
+- Responsive design with hidden text on mobile
+
+### Changed
+
+**CV Upload Flow (`CVPage.tsx`)**
+- Template selection now required before uploading CVs
+- Dropzone disabled until template is selected
+- Warning message shown when no template selected
+- Template ID passed to upload API for evaluation
+
+**Upload API (`cv.api.ts`, `useUploadCV.ts`)**
+- `uploadCV` function now accepts `templateId` parameter
+- `useUploadCV` hook updated to accept `{ file, templateId }` object
+- Template ID passed as query parameter to backend
+
+**Routes (`routes.tsx`)**
+- Added `/profiles` - Profiles list page
+- Added `/profiles/new` - Create new profile
+- Added `/profiles/:id` - View profile details
+- Added `/profiles/:id/edit` - Edit profile
+
+### API Integration
+
+**Profile Hooks (`useProfiles.ts`)**
+- `useProfiles` - Fetch all profiles
+- `useProfile` - Fetch single profile with criteria
+- `useCreateProfile` - Create profile mutation
+- `useUpdateProfile` - Update profile mutation
+- `useDeleteProfile` - Delete profile mutation
+- `useCloneProfile` - Clone profile mutation
+- `useAddCriterion` - Add criterion mutation
+- `useUpdateCriterion` - Update criterion mutation
+- `useDeleteCriterion` - Delete criterion mutation
+
+**Profile API (`profileApi.ts`)**
+- Full CRUD operations for profiles and criteria
+- Clone profile endpoint support
+
+**Zod Schemas (`profile.schemas.ts`)**
+- `ProfileSummary`, `ProfileResponse`, `ProfileCreate`, `ProfileUpdate`
+- `CriterionResponse`, `CriterionCreate`, `CriterionUpdate`
+- `CloneProfileRequest`, `ProfileListResponse`
+
+---
+
 ## [0.10.2] - 2026-02-15 🛡️ ERROR BOUNDARY & SETTINGS FIX
 
 ### Added

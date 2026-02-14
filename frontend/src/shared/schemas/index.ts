@@ -134,3 +134,27 @@ export {
   type CompareRequest,
   type CompareResponse,
 } from './chat.schemas';
+
+// Profile Schemas
+export {
+  // Schemas
+  criterionCreateSchema,
+  criterionUpdateSchema,
+  criterionResponseSchema,
+  profileCreateSchema,
+  profileUpdateSchema,
+  profileSummarySchema,
+  profileResponseSchema,
+  profileListResponseSchema,
+  cloneProfileRequestSchema,
+  // Types
+  type CriterionCreate,
+  type CriterionUpdate,
+  type CriterionResponse,
+  type ProfileCreate,
+  type ProfileUpdate,
+  type ProfileSummary,
+  type ProfileResponse,
+  type ProfileListResponse,
+  type CloneProfileRequest,
+} from './profile.schemas';

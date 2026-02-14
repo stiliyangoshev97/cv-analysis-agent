@@ -8,60 +8,71 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Frontend Profile/Templates UI
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI
+> **Current Focus**: Frontend Priority 2 (CV Similarity & Search)
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI
 
 ---
 
-## 🔴 Priority 1: Frontend - Evaluation Profiles/Templates UI (NOT STARTED)
+## ✅ Priority 1: Frontend - Evaluation Profiles/Templates UI (COMPLETED)
 
-**Backend API ready, frontend missing. Users need to create custom evaluation templates.**
+**Backend API ready, frontend implemented.**
 
 ### 1.1 Profiles List Page (`/profiles`)
-- [ ] Create `/profiles` route and page component
-- [ ] List all profiles (system templates + user-created)
-- [ ] Display profile cards with:
-  - [ ] Name, description, criteria count
-  - [ ] Badge for system vs user templates
-  - [ ] Last updated date
-- [ ] "Create New Profile" button
-- [ ] Clone button for system templates
-- [ ] Edit/Delete buttons for user profiles
-- [ ] Search/filter functionality
+- [x] Create `/profiles` route and page component
+- [x] List all profiles (system templates + user-created)
+- [x] Display profile cards with:
+  - [x] Name, description, criteria count
+  - [x] Badge for system vs user templates
+  - [x] Passing score display
+- [x] "Create New Profile" button
+- [x] Clone button for system templates
+- [x] Edit/Delete buttons for user profiles
+- [x] Search/filter functionality
 
 ### 1.2 Profile Create/Edit Page (`/profiles/new`, `/profiles/:id/edit`)
-- [ ] Profile metadata form:
-  - [ ] Name (required)
-  - [ ] Description (optional)
-  - [ ] Passing score threshold (default 60)
-  - [ ] Minimum criteria to pass (default 3)
-- [ ] Criteria management:
-  - [ ] List existing criteria with drag-to-reorder
-  - [ ] Add new criterion inline or modal
-  - [ ] Edit criterion (name, description, max points, keywords)
-  - [ ] Delete criterion with confirmation
-  - [ ] Mark criterion as required
-- [ ] Save/Cancel buttons
-- [ ] Validation before save
+- [x] Profile metadata form:
+  - [x] Name (required)
+  - [x] Description (optional)
+  - [x] Passing score threshold (default 60)
+  - [x] Minimum criteria to pass (default 3)
+- [x] Criteria management:
+  - [x] List existing criteria
+  - [x] Add new criterion inline form
+  - [x] Edit criterion (name, description, max points, keywords)
+  - [x] Delete criterion with confirmation
+  - [x] Mark criterion as required
+- [x] Save/Cancel buttons
+- [x] Validation before save
 
 ### 1.3 Profile Detail View (`/profiles/:id`)
-- [ ] Display full profile with all criteria
-- [ ] Preview of how CVs would be scored
-- [ ] Edit button (if user-owned)
-- [ ] Clone button (for any profile)
-- [ ] Delete button with confirmation (if user-owned)
+- [x] Display full profile with all criteria
+- [x] Stats display (criteria count, total points, passing score)
+- [x] Edit button (if user-owned)
+- [x] Clone button (for any profile)
+- [x] Delete button with confirmation (if user-owned)
 
 ### 1.4 Template Selector on CV Upload
-- [ ] Add dropdown/modal to select evaluation template before upload
-- [ ] Default to last-used template (stored in localStorage)
-- [ ] Quick preview of selected template's criteria
-- [ ] Pass `template_id` to upload API
+- [x] Add dropdown/modal to select evaluation template before upload
+- [x] Persist last-used template to localStorage
+- [x] Show preview of selected template's criteria count and passing score
+- [x] Pass `template_id` to upload API
+- [x] Block upload until template is selected
 
 ### 1.5 API Integration
-- [ ] Create `profileApi.ts` with all `/api/profiles/*` calls
-- [ ] Create Zod schemas for profile types
-- [ ] Create React Query hooks (`useProfiles`, `useProfile`, `useCreateProfile`, etc.)
-- [ ] Add profile types to shared types
+- [x] Create `profileApi.ts` with all `/api/profiles/*` calls
+- [x] Create Zod schemas for profile types
+- [x] Create React Query hooks (`useProfiles`, `useProfile`, `useCreateProfile`, etc.)
+- [x] Add profile types to shared types
+
+### 1.6 UI Components Created
+- [x] `Modal` component (shared UI)
+- [x] `ProfileCard` - displays profile summary
+- [x] `ProfileList` - grid of profiles with search
+- [x] `CloneProfileModal` - clone profile dialog
+- [x] `DeleteProfileModal` - delete confirmation
+- [x] `CriterionCard` - displays single criterion
+- [x] `CriterionForm` - add/edit criterion form
+- [x] Navigation links in header
 
 ---
 

@@ -8,12 +8,13 @@
  */
 
 import { useState, useCallback } from 'react';
-import { FileDropzone, CVFileList, Scorecard, type StagedFile } from '../components';
+import { FileDropzone, CVFileList, Scorecard, TemplateSelector, type StagedFile } from '../components';
 import { useUploadCV } from '../hooks';
 import { SetupRequiredScreen, useSetupStatus } from '@/features/settings';
 import { CompareCVsModal } from '@/features/chat';
 import { Heading, Text, Spinner, Button, Card, toast } from '@/shared/components/ui';
 import type { CVResult, UploadResponse } from '@/shared/types';
+import type { ProfileSummary } from '@/shared/schemas';
 
 /** Maximum number of CVs that can be uploaded at once */
 const MAX_FILES = 10;
@@ -36,6 +37,7 @@ export const CVPage = () => {
   const [fileError, setFileError] = useState<string | null>(null);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<ProfileSummary | null>(null);
   const { upload } = useUploadCV();
   
   // Check if setup is complete
@@ -101,7 +103,7 @@ export const CVPage = () => {
    * Start scanning all staged CVs.
    */
   const handleScanCVs = useCallback(async () => {
-    if (stagedFiles.length === 0) return;
+    if (stagedFiles.length === 0 || !selectedTemplate) return;
     
     setIsScanning(true);
     setFileError(null);
@@ -116,10 +118,13 @@ export const CVPage = () => {
       try {
         // Upload and evaluate
         const data = await new Promise<UploadResponse>((resolve, reject) => {
-          upload(stagedFile.file, {
-            onSuccess: (response: UploadResponse) => resolve(response),
-            onError: (error: Error) => reject(error),
-          });
+          upload(
+            { file: stagedFile.file, templateId: selectedTemplate.id },
+            {
+              onSuccess: (response: UploadResponse) => resolve(response),
+              onError: (error: Error) => reject(error),
+            }
+          );
         });
         
         if (data.success && data.evaluation) {
@@ -155,7 +160,7 @@ export const CVPage = () => {
       document.querySelector(`[data-file-id="${sf.id}"]`)?.getAttribute('data-status') === 'success'
     ).length || stagedFiles.length;
     toast.success(`Scanning complete`, `${successCount} CV(s) evaluated`);
-  }, [stagedFiles, upload]);
+  }, [stagedFiles, upload, selectedTemplate]);
 
   /**
    * Dismiss a scorecard result.
@@ -174,6 +179,7 @@ export const CVPage = () => {
   // Count pending files
   const pendingCount = stagedFiles.filter(sf => sf.status === 'pending').length;
   const hasCompleted = stagedFiles.some(sf => sf.status === 'success' || sf.status === 'error');
+  const canUpload = !!selectedTemplate;
 
   // Show loading while checking setup status
   if (isLoadingSetup) {
@@ -215,8 +221,17 @@ export const CVPage = () => {
           <div className="mb-4">
             <Heading level={2} className="text-lg">Upload CVs</Heading>
             <Text variant="muted" size="sm">
-              Add up to {MAX_FILES} CVs, review them, then click "Scan CVs" to start evaluation
+              Select an evaluation template, add up to {MAX_FILES} CVs, then click "Scan CVs"
             </Text>
+          </div>
+
+          {/* Template Selector */}
+          <div className="mb-6">
+            <TemplateSelector
+              selectedId={selectedTemplate?.id ?? null}
+              onSelect={setSelectedTemplate}
+              disabled={isScanning}
+            />
           </div>
 
           {/* Dropzone */}
@@ -224,10 +239,19 @@ export const CVPage = () => {
             onFileSelect={() => {}} // Not used in batch mode
             onFilesSelect={handleFilesSelect}
             onError={handleFileError}
-            disabled={isScanning || stagedFiles.length >= MAX_FILES}
+            disabled={!canUpload || isScanning || stagedFiles.length >= MAX_FILES}
             multiple
             maxFiles={MAX_FILES - stagedFiles.length}
           />
+
+          {/* Template Required Warning */}
+          {!canUpload && (
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+              <Text size="sm" className="text-yellow-800 dark:text-yellow-200">
+                Please select an evaluation template above before uploading CVs.
+              </Text>
+            </div>
+          )}
 
           {/* Error Message */}
           {fileError && (
@@ -266,7 +290,7 @@ export const CVPage = () => {
                     size="lg"
                     onClick={handleScanCVs}
                     isLoading={isScanning}
-                    disabled={isScanning}
+                    disabled={isScanning || !canUpload}
                     className="gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
