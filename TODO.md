@@ -8,8 +8,127 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Frontend Settings Page + Chat UI
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API
+> **Current Focus**: Frontend Profile/Templates UI
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI
+
+---
+
+## 🔴 Priority 1: Frontend - Evaluation Profiles/Templates UI (NOT STARTED)
+
+**Backend API ready, frontend missing. Users need to create custom evaluation templates.**
+
+### 1.1 Profiles List Page (`/profiles`)
+- [ ] Create `/profiles` route and page component
+- [ ] List all profiles (system templates + user-created)
+- [ ] Display profile cards with:
+  - [ ] Name, description, criteria count
+  - [ ] Badge for system vs user templates
+  - [ ] Last updated date
+- [ ] "Create New Profile" button
+- [ ] Clone button for system templates
+- [ ] Edit/Delete buttons for user profiles
+- [ ] Search/filter functionality
+
+### 1.2 Profile Create/Edit Page (`/profiles/new`, `/profiles/:id/edit`)
+- [ ] Profile metadata form:
+  - [ ] Name (required)
+  - [ ] Description (optional)
+  - [ ] Passing score threshold (default 60)
+  - [ ] Minimum criteria to pass (default 3)
+- [ ] Criteria management:
+  - [ ] List existing criteria with drag-to-reorder
+  - [ ] Add new criterion inline or modal
+  - [ ] Edit criterion (name, description, max points, keywords)
+  - [ ] Delete criterion with confirmation
+  - [ ] Mark criterion as required
+- [ ] Save/Cancel buttons
+- [ ] Validation before save
+
+### 1.3 Profile Detail View (`/profiles/:id`)
+- [ ] Display full profile with all criteria
+- [ ] Preview of how CVs would be scored
+- [ ] Edit button (if user-owned)
+- [ ] Clone button (for any profile)
+- [ ] Delete button with confirmation (if user-owned)
+
+### 1.4 Template Selector on CV Upload
+- [ ] Add dropdown/modal to select evaluation template before upload
+- [ ] Default to last-used template (stored in localStorage)
+- [ ] Quick preview of selected template's criteria
+- [ ] Pass `template_id` to upload API
+
+### 1.5 API Integration
+- [ ] Create `profileApi.ts` with all `/api/profiles/*` calls
+- [ ] Create Zod schemas for profile types
+- [ ] Create React Query hooks (`useProfiles`, `useProfile`, `useCreateProfile`, etc.)
+- [ ] Add profile types to shared types
+
+---
+
+## 🟡 Priority 2: Frontend - CV Similarity & Search (NOT STARTED)
+
+**Backend API ready, frontend missing.**
+
+### 2.1 Similar CVs Feature
+- [ ] Add "Find Similar" button on CV detail page
+- [ ] Display similar CVs in modal or sidebar
+- [ ] Show similarity score percentage
+- [ ] Link to similar CV detail pages
+
+### 2.2 CV Ranking
+- [ ] Add ranking badge/indicator on CV cards
+- [ ] Show percentile ranking (e.g., "Top 10%")
+- [ ] Sort CVs by ranking in list view
+
+### 2.3 Semantic Search
+- [ ] Add search bar to CV list page
+- [ ] Natural language search (e.g., "Python developers with fintech experience")
+- [ ] Display search results with relevance scores
+- [ ] Clear search button
+
+### 2.4 CV Comparison Page
+- [ ] Select multiple CVs for comparison
+- [ ] Side-by-side comparison view
+- [ ] Highlight differences in scores
+- [ ] AI-generated comparison summary
+
+---
+
+## 🟢 Priority 3: Frontend - Notifications UI (NOT STARTED)
+
+**Backend API ready, frontend partially implemented.**
+
+### 3.1 Notification Settings Page (`/settings/notifications`)
+- [x] Route exists in router
+- [ ] Form for email notification settings:
+  - [ ] Enable/disable email notifications
+  - [ ] Score threshold for notifications
+  - [ ] Email recipient address
+- [ ] Form for WhatsApp notification settings:
+  - [ ] Enable/disable WhatsApp notifications
+  - [ ] Phone number input
+  - [ ] Score threshold
+- [ ] Test notification buttons
+- [ ] Service status indicators (SMTP/Twilio configured)
+
+### 3.2 Notification History
+- [ ] List of sent notifications
+- [ ] Filter by type (email/WhatsApp)
+- [ ] Resend failed notifications
+
+---
+
+## 🔵 Priority 4: Frontend - Re-evaluate Feature (NOT STARTED)
+
+- [ ] Add "Re-evaluate" button on CV detail page
+- [ ] Select different template for re-evaluation
+- [ ] Show loading state during re-evaluation
+- [ ] Update evaluation display after completion
+- [ ] Keep history of previous evaluations
+
+---
+
+## ✅ COMPLETED FRONTEND FEATURES
 
 ### Priority 1: Frontend - User Settings Page ✅ COMPLETED
 **Required before CV uploads can work (user must configure OpenAI key)**
