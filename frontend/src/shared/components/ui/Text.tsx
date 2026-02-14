@@ -48,10 +48,10 @@ import { cn } from '../../utils';
 const textVariants = cva('', {
   variants: {
     variant: {
-      default: 'text-gray-900',
-      muted: 'text-gray-500',
-      error: 'text-red-600',
-      success: 'text-green-600',
+      default: 'text-gray-900 dark:text-gray-100',
+      muted: 'text-gray-500 dark:text-gray-400',
+      error: 'text-red-600 dark:text-red-400',
+      success: 'text-green-600 dark:text-green-400',
     },
     size: {
       xs: 'text-xs',

@@ -40,11 +40,14 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] Implement chat history display
 - [x] Add compare CVs modal/page
 
-### Priority 3: Frontend - Polish ✅ PARTIALLY COMPLETED
+### Priority 3: Frontend - Polish ✅ COMPLETED
 - [x] Error boundaries and loading states
 - [x] Toast notifications for API errors
-- [ ] Responsive design improvements
-- [ ] Dark mode support
+- [x] Dark mode support
+  - [x] useTheme hook with system preference detection
+  - [x] ThemeToggle component in header
+  - [x] All UI components updated with dark: variants
+- [ ] Responsive design improvements (future enhancement)
 
 ---
 

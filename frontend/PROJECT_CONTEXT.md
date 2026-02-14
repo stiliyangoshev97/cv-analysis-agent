@@ -1,13 +1,13 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.4.0 - Notification Settings UI)
+> Last Updated: February 2026 (v0.9.0 - Dark Mode & Polish)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The frontend provides a clean, intuitive interface for uploading CVs and viewing detailed evaluation scorecards.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against 5 modern hiring criteria. The frontend provides a clean, intuitive interface for uploading CVs, viewing detailed evaluation scorecards, chatting with AI about candidates, and comparing multiple CVs.
 
 ---
 
@@ -16,11 +16,11 @@
 | Component | Progress | Notes |
 |-----------|----------|-------|
 | Project Setup | ✅ 100% | Vite + React + TypeScript |
-| TailwindCSS | ✅ 100% | Custom configuration |
+| TailwindCSS | ✅ 100% | Custom configuration + Dark Mode |
 | File Upload | ✅ 100% | Drag & drop + click to upload |
 | Upload Progress | ✅ 100% | Real-time progress tracking |
 | Scorecard Display | ✅ 100% | Full evaluation visualization |
-| **UI Component Library** | ✅ 100% | Button, Card, Badge, Input, etc. |
+| **UI Component Library** | ✅ 100% | Button, Card, Badge, Input, etc. (all with dark mode) |
 | API Client | ✅ 100% | Axios with auth interceptors |
 | TanStack Query | ✅ 100% | Server state management |
 | Zustand Store | ✅ 100% | Auth state persistence |
@@ -28,12 +28,16 @@
 | **Path Aliases** | ✅ 100% | @/ prefix for imports |
 | **Project Structure** | ✅ 100% | Feature-based organization |
 | **React Router** | ✅ 100% | Client-side routing |
-| **Notification Settings UI** | ✅ 100% | Phase 5 - Email/WhatsApp toggles |
-| **Dashboard** | ⏳ 0% | Phase 7 |
-| **Semantic Search UI** | ⏳ 0% | Phase 6 |
-| **Chat Interface** | ⏳ 0% | Phase 6 |
+| **Notification Settings UI** | ✅ 100% | Email/WhatsApp toggles |
+| **Settings Page** | ✅ 100% | API Keys + LLM Preferences |
+| **Chat UI** | ✅ 100% | Ask AI, Why buttons, Chat panel |
+| **Compare CVs** | ✅ 100% | Modal for comparing 2-5 CVs |
+| **Toast Notifications** | ✅ 100% | Sonner integration |
+| **Error Boundaries** | ✅ 100% | Graceful error handling |
+| **Dark Mode** | ✅ 100% | System preference + manual toggle |
+| **Batch CV Upload** | ⏳ 0% | Next feature |
 
-**Overall Progress: ~45%** (MVP + Auth + Refactoring + Notifications Complete)
+**Overall Progress: ~85%** (Core features complete, polish ongoing)
 
 ---
 
@@ -42,10 +46,10 @@
 ### Tech Stack
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| Framework | React 18 | UI library with hooks |
+| Framework | React 19 | UI library with hooks |
 | Build Tool | Vite | Fast dev server & bundler |
 | Language | TypeScript | Type safety |
-| Styling | TailwindCSS | Utility-first CSS |
+| Styling | TailwindCSS | Utility-first CSS + Dark Mode |
 | Server State | TanStack Query | Caching & mutations |
 | Client State | Zustand | Auth store with persistence |
 | Routing | React Router v7 | Client-side navigation |
@@ -53,13 +57,14 @@
 | Validation | Zod | Schema validation & type inference |
 | Variants | CVA | Class-variance-authority for components |
 | Utils | clsx + tailwind-merge | Class name utilities |
+| Toasts | Sonner | Toast notifications |
 
 ### Project Structure
 ```
 frontend/src/
 ├── App.tsx                     # Main app component
 ├── main.tsx                    # Entry point with providers
-├── index.css                   # Global styles (Tailwind)
+├── index.css                   # Global styles (Tailwind + Dark Mode)
 │
 ├── providers/                  # React providers
 │   ├── QueryProvider.tsx       # TanStack Query setup
@@ -68,7 +73,7 @@ frontend/src/
 ├── router/                     # Routing configuration
 │   ├── index.ts                # Barrel exports
 │   ├── routes.tsx              # Route definitions (React Router)
-│   ├── RootLayout.tsx          # Layout with header
+│   ├── RootLayout.tsx          # Layout with header + ThemeToggle
 │   └── guards/
 │       ├── ProtectedRoute.tsx  # Auth guard component
 │       └── index.ts
@@ -77,7 +82,7 @@ frontend/src/
 │   ├── api/
 │   │   ├── apiClient.ts        # Axios instance with auth
 │   │   └── index.ts
-│   ├── components/ui/          # UI primitives (CVA-based)
+│   ├── components/ui/          # UI primitives (CVA-based, dark mode)
 │   │   ├── Button.tsx          # 5 variants, 3 sizes, loading
 │   │   ├── Badge.tsx           # 5 variants, 3 sizes
 │   │   ├── Card.tsx            # CardHeader, CardContent, etc.
@@ -89,12 +94,18 @@ frontend/src/
 │   │   ├── Spinner.tsx         # Loading indicator
 │   │   ├── Container.tsx       # Layout container
 │   │   ├── ProgressBar.tsx     # Linear progress
+│   │   ├── Toast.tsx           # Sonner wrapper
+│   │   ├── ErrorBoundary.tsx   # Error boundaries
+│   │   ├── ThemeToggle.tsx     # Dark mode toggle
 │   │   └── index.ts            # Barrel exports
 │   ├── hooks/
+│   │   ├── useTheme.ts         # Theme management
 │   │   └── index.ts
 │   ├── schemas/                # Zod schemas
 │   │   ├── auth.schemas.ts     # Auth request/response
 │   │   ├── cv.schemas.ts       # CV evaluation types
+│   │   ├── chat.schemas.ts     # Chat types
+│   │   ├── settings.schemas.ts # Settings types
 │   │   ├── notification.schemas.ts # Notification settings
 │   │   └── index.ts
 │   ├── types/
@@ -116,19 +127,45 @@ frontend/src/
     │   ├── pages/AuthPage.tsx
     │   └── index.ts
     │
-    └── cv/                     # CV Screening feature
-        ├── api/cv.api.ts
-        ├── components/
-        │   ├── FileDropzone.tsx
-        │   ├── UploadProgress.tsx
-        │   ├── Scorecard.tsx
-        │   ├── ScoreRing.tsx
-        │   ├── CriteriaItem.tsx
-        │   └── index.ts
-        ├── hooks/useUploadCV.ts
-        ├── pages/CVPage.tsx
-        └── index.ts
-
+    ├── cv/                     # CV Screening feature
+    │   ├── api/cv.api.ts
+    │   ├── components/
+    │   │   ├── FileDropzone.tsx
+    │   │   ├── UploadProgress.tsx
+    │   │   ├── Scorecard.tsx
+    │   │   ├── ScoreRing.tsx
+    │   │   ├── CriteriaItem.tsx
+    │   │   └── index.ts
+    │   ├── hooks/
+    │   │   ├── useUploadCV.ts
+    │   │   ├── useCVList.ts
+    │   │   └── index.ts
+    │   ├── pages/CVPage.tsx
+    │   └── index.ts
+    │
+    ├── chat/                   # AI Chat feature
+    │   ├── api/chat.api.ts
+    │   ├── components/
+    │   │   ├── ChatPanel.tsx
+    │   │   ├── ChatMessage.tsx
+    │   │   ├── ExplainModal.tsx
+    │   │   ├── CompareCVsModal.tsx
+    │   │   └── index.ts
+    │   ├── hooks/useChat.ts
+    │   └── index.ts
+    │
+    ├── settings/               # User Settings feature
+    │   ├── api/settings.api.ts
+    │   ├── components/
+    │   │   ├── ApiKeysTab.tsx
+    │   │   ├── LlmPreferencesTab.tsx
+    │   │   ├── SetupBanner.tsx
+    │   │   ├── SetupRequiredScreen.tsx
+    │   │   └── index.ts
+    │   ├── hooks/useSettings.ts
+    │   ├── pages/SettingsPage.tsx
+    │   └── index.ts
+    │
     └── notification/           # Notification Settings feature
         ├── api/
         │   ├── notificationApi.ts
@@ -235,22 +272,18 @@ npm run lint    # Run ESLint
 
 ## 📋 Planned Features (Roadmap)
 
-### Phase 5: Notification UI ✅
-- [x] Notification settings page
-- [x] Email/WhatsApp toggle switches
-- [x] Threshold score slider
-- [x] Test notification buttons
-- [x] React Router integration
+### Completed ✅
+- [x] Settings page (API keys + LLM preferences)
+- [x] Chat UI with "Ask AI" and "Why?" buttons
+- [x] Compare CVs modal
+- [x] Toast notifications (Sonner)
+- [x] Error boundaries
+- [x] Dark mode with system preference detection
 
-### Phase 6: Dashboard & Search
-- [ ] CV history list
-- [ ] Semantic search with filters
-- [ ] Candidate comparison view
-
-### Phase 7: Chat Interface
-- [ ] "Why did this CV pass/fail?" explanations
-- [ ] Conversational follow-up questions
-- [ ] Context from CV embeddings
+### Next Up 🔶
+- [ ] Batch CV upload with confirmation (max 10 CVs)
+- [ ] Dashboard with recent CVs and stats
+- [ ] Responsive design improvements
 
 ---
 
@@ -259,4 +292,5 @@ npm run lint    # Run ESLint
 | Path | Component | Auth | Description |
 |------|-----------|------|-------------|
 | `/` | `CVPage` | ✅ | CV Upload & Evaluation |
+| `/settings` | `SettingsPage` | ✅ | API Keys & LLM Preferences |
 | `/settings/notifications` | `NotificationSettingsPage` | ✅ | Notification preferences |

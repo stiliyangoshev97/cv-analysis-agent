@@ -45,7 +45,7 @@ import { cn } from '../../utils';
 /**
  * Heading variant styles using class-variance-authority.
  */
-const headingVariants = cva('font-bold text-gray-900', {
+const headingVariants = cva('font-bold text-gray-900 dark:text-white', {
   variants: {
     level: {
       1: 'text-4xl tracking-tight',

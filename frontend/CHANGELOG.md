@@ -7,7 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.7.0] - 2026-02-14 🔀 COMPARE CVs FEATURE
+## [0.9.0] - 2026-02-14 🌙 DARK MODE & THEME SUPPORT
+
+### Added
+
+**Theme System**
+- `useTheme` hook - Theme state management with localStorage persistence
+  - Supports 'light', 'dark', and 'system' modes
+  - Automatic system preference detection via `prefers-color-scheme`
+  - Applies 'dark' class to document root for Tailwind dark mode
+- `ThemeToggle` component - Toggle button with sun/moon icons
+  - Animated icon transitions
+  - Keyboard accessible
+
+**Dark Mode Styling**
+- Updated `tailwind.config.js` with `darkMode: 'class'` strategy
+- Added custom dark color tokens in Tailwind config
+- Updated `index.css` with dark mode CSS variables
+
+### Changed
+
+**Core UI Components - Dark Mode Variants**
+- `RootLayout` - Dark backgrounds, borders, and ThemeToggle in header
+- `Card` - Dark backgrounds and borders for all variants
+- `CardTitle` / `CardDescription` / `CardFooter` - Dark text colors
+- `Button` - Dark variants for all button styles (primary, secondary, outline, ghost, danger)
+- `Input` - Dark backgrounds, borders, labels, and error states
+- `Select` - Dark backgrounds, borders, and dropdown arrow
+- `Textarea` - Dark backgrounds, borders, and helper text
+- `Text` - Dark text colors for all variants (default, muted, error, success)
+- `Heading` - Dark text color
+- `Badge` - Dark backgrounds with adjusted opacity for colored variants
+- `ProgressBar` - Dark track and fill colors
+- `ErrorBoundary` - Dark backgrounds and icon colors
+
+---
+
+## [0.8.0] - 2026-02-14 ✨ POLISH (Error Handling & Toasts)
 
 ### Added
 

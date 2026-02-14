@@ -2,15 +2,21 @@
 
 React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
-**Version:** 0.5.0 | **Last Updated:** February 13, 2026
+**Version:** 0.9.0 | **Last Updated:** February 14, 2026
 
 ## 🎯 Features
 
 - **Drag & Drop Upload**: Intuitive PDF upload with progress tracking
 - **Real-time Evaluation**: Instant AI-powered CV scoring
 - **Visual Scorecard**: Beautiful display of pass/fail status and criteria
+- **Chat with AI**: Ask questions about CVs and get AI explanations
+- **Compare Candidates**: Side-by-side comparison of multiple CVs
 - **Authentication**: Secure login, registration, and session management
+- **Settings Management**: Configure API keys and LLM preferences
 - **Notification Settings**: Configure email/WhatsApp alerts with threshold
+- **Dark Mode**: Full dark theme support with system preference detection
+- **Toast Notifications**: Real-time feedback for all actions
+- **Error Boundaries**: Graceful error handling with recovery options
 - **React Router**: Client-side navigation with protected routes
 - **Responsive Design**: Works on desktop and mobile
 
@@ -29,13 +35,14 @@ React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and 
 | **Axios** | HTTP client with interceptors |
 | **Zod** | Schema validation |
 | **CVA** | Variant-based component styling |
+| **Sonner** | Toast notifications |
 
 ### Project Structure
 ```
 frontend/src/
 ├── App.tsx                     # Main app with RouterProvider
 ├── main.tsx                    # Entry point with providers
-├── index.css                   # Global styles (Tailwind)
+├── index.css                   # Global styles (Tailwind + Dark Mode)
 │
 ├── providers/                  # React providers
 │   └── QueryProvider.tsx       # TanStack Query setup
@@ -43,14 +50,14 @@ frontend/src/
 ├── router/                     # Routing (React Router 7)
 │   ├── index.ts                # Barrel exports
 │   ├── routes.tsx              # Route configuration
-│   ├── RootLayout.tsx          # Layout with header/footer
+│   ├── RootLayout.tsx          # Layout with header/footer + ThemeToggle
 │   └── guards/
 │       └── ProtectedRoute.tsx  # Auth guard
 │
 ├── shared/                     # Shared utilities
 │   ├── api/
 │   │   └── apiClient.ts        # Axios instance with auth
-│   ├── components/ui/          # UI primitives
+│   ├── components/ui/          # UI primitives (all with dark mode)
 │   │   ├── Button.tsx          # 5 variants, 3 sizes
 │   │   ├── Badge.tsx           # Status badges
 │   │   ├── Card.tsx            # Card with sub-components
@@ -61,10 +68,17 @@ frontend/src/
 │   │   ├── Heading.tsx         # h1-h6 semantic headings
 │   │   ├── Spinner.tsx         # Loading indicator
 │   │   ├── Container.tsx       # Layout container
-│   │   └── ProgressBar.tsx     # Linear progress
+│   │   ├── ProgressBar.tsx     # Linear progress
+│   │   ├── Toast.tsx           # Sonner toast wrapper
+│   │   ├── ErrorBoundary.tsx   # Error boundary components
+│   │   └── ThemeToggle.tsx     # Dark mode toggle
+│   ├── hooks/
+│   │   └── useTheme.ts         # Theme management hook
 │   ├── schemas/                # Zod validation
 │   │   ├── auth.schemas.ts
 │   │   ├── cv.schemas.ts
+│   │   ├── chat.schemas.ts
+│   │   ├── settings.schemas.ts
 │   │   └── notification.schemas.ts
 │   ├── types/                  # TypeScript types
 │   └── utils/
@@ -90,8 +104,29 @@ frontend/src/
     │   │   ├── Scorecard.tsx
     │   │   ├── ScoreRing.tsx
     │   │   └── CriteriaItem.tsx
-    │   ├── hooks/useUploadCV.ts
+    │   ├── hooks/
+    │   │   ├── useUploadCV.ts
+    │   │   └── useCVList.ts
     │   └── pages/CVPage.tsx
+    │
+    ├── chat/                   # AI Chat
+    │   ├── api/chat.api.ts
+    │   ├── components/
+    │   │   ├── ChatPanel.tsx
+    │   │   ├── ChatMessage.tsx
+    │   │   ├── ExplainModal.tsx
+    │   │   └── CompareCVsModal.tsx
+    │   └── hooks/useChat.ts
+    │
+    ├── settings/               # User Settings
+    │   ├── api/settings.api.ts
+    │   ├── components/
+    │   │   ├── ApiKeysTab.tsx
+    │   │   ├── LlmPreferencesTab.tsx
+    │   │   ├── SetupBanner.tsx
+    │   │   └── SetupRequiredScreen.tsx
+    │   ├── hooks/useSettings.ts
+    │   └── pages/SettingsPage.tsx
     │
     └── notification/           # Notification Settings
         ├── api/notificationApi.ts
@@ -102,12 +137,16 @@ frontend/src/
         ├── hooks/useNotificationSettings.ts
         └── pages/NotificationSettingsPage.tsx
 ```
+        ├── hooks/useNotificationSettings.ts
+        └── pages/NotificationSettingsPage.tsx
+```
 
 ## 🛤️ Routes
 
 | Path | Component | Auth Required | Description |
 |------|-----------|---------------|-------------|
 | `/` | `CVPage` | ✅ | Upload & evaluate CVs |
+| `/settings` | `SettingsPage` | ✅ | API keys & LLM preferences |
 | `/settings/notifications` | `NotificationSettingsPage` | ✅ | Notification preferences |
 
 ## 🚀 Quick Start
@@ -220,12 +259,15 @@ import { useAuth } from '@/features/auth/hooks';
 - [x] Path aliases (@/)
 - [x] React Router integration
 - [x] Notification settings page
+- [x] Settings page (API keys + LLM preferences)
+- [x] Chat UI with "Ask AI" and "Why?" buttons
+- [x] Compare CVs modal
+- [x] Toast notifications (Sonner)
+- [x] Error boundaries
+- [x] Dark mode with system preference detection
 
 ### Planned 🔶
+- [ ] Batch CV upload with confirmation
 - [ ] Dashboard with recent CVs and stats
 - [ ] CV history list with TanStack Table
-- [ ] CV detail page with full evaluation
-- [ ] Chat interface for CV Q&A
-- [ ] Candidate comparison UI
-- [ ] Semantic search UI
-- [ ] Hiring profiles management
+- [ ] Responsive design improvements

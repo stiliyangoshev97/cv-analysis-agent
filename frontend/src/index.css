@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* =============================================================================
+   Base Styles & Dark Mode
+   ============================================================================= */
+
+@layer base {
+  /* Light mode (default) */
+  :root {
+    --color-bg: 255 255 255;
+    --color-bg-secondary: 249 250 251;
+    --color-text: 17 24 39;
+    --color-text-muted: 107 114 128;
+    --color-border: 229 231 235;
+    --color-card: 255 255 255;
+  }
+
+  /* Dark mode */
+  .dark {
+    --color-bg: 15 15 15;
+    --color-bg-secondary: 26 26 26;
+    --color-text: 243 244 246;
+    --color-text-muted: 156 163 175;
+    --color-border: 55 55 55;
+    --color-card: 26 26 26;
+  }
+
+  /* Apply base styles */
+  body {
+    @apply bg-white dark:bg-dark-bg text-gray-900 dark:text-gray-100 transition-colors duration-200;
+  }
+
+  /* Smooth theme transition */
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+/* =============================================================================
+   Dark Mode Component Overrides
+   ============================================================================= */
+
+@layer components {
+  /* Cards */
+  .dark .card-dark {
+    @apply bg-dark-card border-dark-border;
+  }
+
+  /* Inputs */
+  .dark input,
+  .dark textarea,
+  .dark select {
+    @apply bg-dark-card border-dark-border text-gray-100 placeholder-gray-500;
+  }
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    @apply border-blue-500 ring-blue-500/20;
+  }
+
+  /* Scrollbar */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-dark-bg;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+}

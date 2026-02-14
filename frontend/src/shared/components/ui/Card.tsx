@@ -60,14 +60,14 @@ import { cn } from '../../utils';
 /**
  * Card variant styles using class-variance-authority.
  */
-const cardVariants = cva('rounded-xl', {
+const cardVariants = cva('rounded-xl transition-colors', {
   variants: {
     variant: {
-      default: 'bg-white border border-gray-200 shadow-sm',
-      hover: `bg-white border border-gray-200 shadow-sm
-              transition-all duration-200 hover:border-gray-300 
+      default: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm',
+      hover: `bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm
+              transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600
               hover:shadow-md hover:-translate-y-0.5 cursor-pointer`,
-      outlined: 'bg-transparent border border-gray-300',
+      outlined: 'bg-transparent border border-gray-300 dark:border-gray-600',
     },
     padding: {
       none: '',
@@ -139,7 +139,7 @@ interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
  */
 export const CardTitle = ({ className, children, ...props }: CardTitleProps) => {
   return (
-    <h3 className={cn('text-lg font-semibold text-gray-900', className)} {...props}>
+    <h3 className={cn('text-lg font-semibold text-gray-900 dark:text-white', className)} {...props}>
       {children}
     </h3>
   );
@@ -159,7 +159,7 @@ interface CardDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
  */
 export const CardDescription = ({ className, children, ...props }: CardDescriptionProps) => {
   return (
-    <p className={cn('text-sm text-gray-500 mt-1', className)} {...props}>
+    <p className={cn('text-sm text-gray-500 dark:text-gray-400 mt-1', className)} {...props}>
       {children}
     </p>
   );
@@ -199,7 +199,7 @@ interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
  */
 export const CardFooter = ({ className, children, ...props }: CardFooterProps) => {
   return (
-    <div className={cn('mt-4 pt-4 border-t border-gray-100', className)} {...props}>
+    <div className={cn('mt-4 pt-4 border-t border-gray-100 dark:border-gray-700', className)} {...props}>
       {children}
     </div>
   );

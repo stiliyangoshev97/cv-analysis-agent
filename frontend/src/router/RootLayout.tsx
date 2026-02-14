@@ -10,7 +10,7 @@
 import { Link } from 'react-router-dom';
 import { UserMenu } from '@/features/auth';
 import { SetupBanner } from '@/features/settings';
-import { Container, Text, Heading } from '@/shared/components/ui';
+import { Container, Text, Heading, ThemeToggle } from '@/shared/components/ui';
 
 /**
  * RootLayout component props.
@@ -30,16 +30,16 @@ interface RootLayoutProps {
  */
 export const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col transition-colors">
       {/* Setup Warning Banner (persists until configured) */}
       <SetupBanner />
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <Container className="py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-600 dark:bg-blue-500 rounded-lg flex items-center justify-center">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -55,11 +55,14 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
                 </svg>
               </div>
               <div>
-                <Heading level={4} className="text-xl">CV Screening Agent</Heading>
-                <Text variant="muted" size="sm">AI-Powered Resume Evaluation</Text>
+                <Heading level={4} className="text-xl text-gray-900 dark:text-white">CV Screening Agent</Heading>
+                <Text variant="muted" size="sm" className="dark:text-gray-400">AI-Powered Resume Evaluation</Text>
               </div>
             </Link>
-            <UserMenu />
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <UserMenu />
+            </div>
           </div>
         </Container>
       </header>
@@ -70,9 +73,9 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
+      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <Container className="py-4">
-          <Text variant="muted" size="sm" className="text-center">
+          <Text variant="muted" size="sm" className="text-center dark:text-gray-400">
             Powered by Claude AI
           </Text>
         </Container>

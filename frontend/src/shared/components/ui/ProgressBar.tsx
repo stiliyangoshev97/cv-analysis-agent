@@ -63,9 +63,9 @@ export const ProgressBar = ({
 
   return (
     <div className={cn('w-full', className)}>
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
-          className="h-full bg-blue-600 rounded-full transition-all duration-300 ease-out"
+          className="h-full bg-blue-600 dark:bg-blue-500 rounded-full transition-all duration-300 ease-out"
           style={{ width: `${percentage}%` }}
           role="progressbar"
           aria-valuenow={value}
@@ -74,7 +74,7 @@ export const ProgressBar = ({
         />
       </div>
       {showLabel && (
-        <p className="mt-1 text-sm text-gray-600 text-center">
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 text-center">
           {Math.round(percentage)}%
         </p>
       )}
