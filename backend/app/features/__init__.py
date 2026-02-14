@@ -10,6 +10,7 @@ Features:
     chat: RAG-powered chat for CV Q&A
     notification: Email and WhatsApp notifications
     profile: Hiring profiles (evaluation templates)
+    settings: User API keys and LLM provider configuration
 """
 
 from .auth import auth_router
@@ -17,6 +18,14 @@ from .cv import cv_router
 from .chat import chat_router
 from .notification import notification_router
 from .profile import profile_router
+from .settings import settings_router
 
-__all__ = ["auth_router", "cv_router", "chat_router", "notification_router", "profile_router"]
+__all__ = [
+    "auth_router",
+    "cv_router",
+    "chat_router",
+    "notification_router",
+    "profile_router",
+    "settings_router",
+]
 

@@ -20,7 +20,14 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from .config import get_settings
-from .features import auth_router, cv_router, chat_router, notification_router, profile_router
+from .features import (
+    auth_router,
+    cv_router,
+    chat_router,
+    notification_router,
+    profile_router,
+    settings_router,
+)
 from .core.rate_limit import limiter, rate_limit_exceeded_handler
 
 # Configure logging
@@ -100,8 +107,9 @@ RAG-powered chat, and multi-channel notifications.
 | `/api/chat` | RAG-powered Q&A about CVs |
 | `/api/profiles` | Hiring profile CRUD |
 | `/api/notifications` | Email/WhatsApp notification settings |
+| `/api/settings` | User API keys and LLM preferences |
 """,
-    version="0.12.0",
+    version="0.14.0",
     lifespan=lifespan
 )
 
@@ -131,6 +139,7 @@ app.include_router(cv_router)
 app.include_router(chat_router, prefix="/api/chat", tags=["Chat"])
 app.include_router(notification_router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(profile_router, prefix="/api/profiles", tags=["Profiles"])
+app.include_router(settings_router, prefix="/api", tags=["Settings"])
 
 
 @app.get("/", tags=["Root"])

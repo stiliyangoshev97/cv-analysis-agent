@@ -190,7 +190,7 @@ backend/
 │           ├── chat_repository.py   # Chat history operations
 │           └── chat_schemas.py      # Pydantic schemas
 │
-│       └── notification/            # Notification feature (Email + WhatsApp)
+│       ├── notification/            # Notification feature (Email + WhatsApp)
 │           ├── notification_routes.py      # Route definitions (/api/notifications/*)
 │           ├── notification_controller.py  # HTTP handlers
 │           ├── notification_service.py     # Dispatch orchestration
@@ -198,6 +198,13 @@ backend/
 │           ├── email_service.py            # Async SMTP (aiosmtplib)
 │           ├── whatsapp_service.py         # Twilio WhatsApp
 │           └── notification_schemas.py     # Pydantic schemas
+│
+│       └── settings/                # User Settings feature (API keys + LLM config)
+│           ├── settings_routes.py      # Route definitions (/api/settings/*)
+│           ├── settings_controller.py  # HTTP handlers
+│           ├── settings_service.py     # Key validation, encryption
+│           ├── settings_repository.py  # UserApiKey, UserAgentConfig CRUD
+│           └── settings_schemas.py     # Pydantic schemas
 │
 ├── alembic/                         # 🔄 Database migrations
 │   ├── env.py                       # Alembic configuration

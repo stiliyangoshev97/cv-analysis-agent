@@ -1,19 +1,20 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 15, 2026 (v0.11.0 - Testing Infrastructure)
+> Last Updated: February 14, 2026 (v0.14.0 - User Settings API)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable hiring criteria. The system extracts text from PDF/DOCX CVs, generates embeddings for semantic search, and provides RAG-powered Q&A about candidates.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI (or GPT/Gemini) to evaluate resumes against customizable hiring criteria. The system extracts text from PDF/DOCX CVs, generates embeddings for semantic search, and provides RAG-powered Q&A about candidates.
 
 **Key Features**:
 - **Customizable Hiring Profiles**: Create evaluation criteria tailored to your roles
-- **AI Evaluation**: Claude scores CVs against your criteria with explanations
+- **Multi-LLM Support**: Choose between Claude, GPT, or Gemini for evaluation
 - **RAG Chat**: Ask questions about any CV with context-aware responses
 - **Multi-Channel Notifications**: Email and WhatsApp alerts for qualified candidates
+- **BYOK Support**: Users bring their own API keys (encrypted storage)
 
 ---
 
@@ -23,7 +24,7 @@
 |-----------|----------|-------|
 | Project Setup | ✅ 100% | FastAPI + Python 3.13 |
 | PDF Processing | ✅ 100% | pdfplumber extraction |
-| AI Evaluation | ✅ 100% | Claude API with customizable criteria |
+| AI Evaluation | ✅ 100% | Claude/GPT/Gemini with customizable criteria |
 | CV Upload API | ✅ 100% | Single CV upload + evaluation |
 | Health Check | ✅ 100% | Basic health endpoint |
 | CORS Config | ✅ 100% | Frontend integration ready |
@@ -41,8 +42,11 @@
 | **Hiring Profiles CRUD** | ✅ 100% | Phase 6.3 - Profile management API |
 | **Vector Similarity Search** | ✅ 100% | Phase 6.1 - Similar CVs, ranking, compare |
 | **Testing Infrastructure** | ✅ 100% | 283 tests (169 unit + 114 integration) |
+| **Rate Limiting** | ✅ 100% | Tiered limits per endpoint type |
+| **Multi-LLM Support** | ✅ 100% | Claude, GPT, Gemini (user choice) |
+| **User Settings API** | ✅ 100% | API keys + LLM preferences |
 
-**Overall Progress: ~95%** (Phases 1-5 + 6.1 + 6.3 + Testing Complete)
+**Overall Progress: ~98%** (All backend features complete, frontend settings pending)
 
 ---
 
@@ -54,6 +58,29 @@ Request Flow: Routes → Controller → Service → Repository → Database
                 ↓          ↓           ↓           ↓
               Thin    HTTP Logic   Business    Database
                                     Logic      Operations
+```
+
+### AI Provider Architecture
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     AI Provider Layer                        │
+├─────────────────────────────────────────────────────────────┤
+│  EMBEDDINGS (Fixed)              LLM (User Choice)          │
+│  ┌─────────────────────┐        ┌─────────────────────────┐ │
+│  │ OpenAI              │        │ Claude (Anthropic)      │ │
+│  │ text-embedding-3-*  │        │ GPT-4 (OpenAI)          │ │
+│  │ (REQUIRED)          │        │ Gemini (Google)         │ │
+│  └─────────────────────┘        └─────────────────────────┘ │
+│         ↓                                ↓                  │
+│    pgvector storage           Evaluation, Chat, Compare     │
+│    (1536 dimensions)          (user selects provider)       │
+└─────────────────────────────────────────────────────────────┘
+
+User Setup Flow:
+  1. Configure OpenAI key (required for embeddings)
+  2. Configure LLM key (at least one: Claude/GPT/Gemini)
+  3. Select preferred LLM provider
+  4. Ready to upload CVs
 ```
 
 ### Tech Stack

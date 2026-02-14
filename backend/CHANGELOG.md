@@ -7,6 +7,90 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.0] - 2026-02-14 ⚙️ USER SETTINGS API
+
+### Added
+
+**Settings Feature (`app/features/settings/`)** - Complete user configuration module
+- `settings_schemas.py` - Pydantic schemas for API keys and agent config
+- `settings_repository.py` - Database CRUD for UserApiKey and UserAgentConfig
+- `settings_service.py` - Business logic with key validation
+- `settings_controller.py` - HTTP handlers
+- `settings_routes.py` - 8 REST endpoints with rate limiting
+
+**API Key Management**
+- Store encrypted API keys for OpenAI, Anthropic, and Gemini
+- Validate keys by making test API calls before storing
+- Display key hints (last 4 chars) for identification
+- AES-256 encryption for secure storage
+
+**LLM Provider Configuration**
+- Users can choose default LLM provider (Claude, GPT, or Gemini)
+- Per-agent overrides (chat vs evaluation)
+- Model selection per provider
+- Embeddings always use OpenAI (enforced, not user-configurable)
+
+**New API Endpoints (`/api/settings`)**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api-keys` | List API keys (hints only) |
+| `PUT` | `/api-keys/{provider}` | Set/update API key |
+| `DELETE` | `/api-keys/{provider}` | Delete API key |
+| `POST` | `/validate-key` | Validate key without storing |
+| `GET` | `/agent-config` | Get LLM preferences |
+| `PUT` | `/agent-config` | Update LLM preferences |
+| `GET` | `/available-models` | List available models |
+| `GET` | `/setup-status` | Check setup completion |
+
+**Available Models Endpoint**
+- Returns all supported LLM providers and their models
+- Anthropic: Claude Sonnet 4, Claude 3.5 Sonnet, Claude 3 Opus
+- OpenAI: GPT-4o, GPT-4 Turbo, GPT-4
+- Gemini: Gemini 1.5 Flash, Gemini 1.5 Pro, Gemini 2.0 Flash
+
+### Changed
+
+**Dependencies Updated**
+- Added `openai>=1.0.0` - Direct SDK for key validation
+- Added `google-generativeai>=0.5.0` - Direct SDK for key validation
+- Added `docx2txt>=0.8` - DOCX document processing
+- Reorganized `requirements.txt` with clear sections
+
+**Documentation**
+- Updated `.env.example` with clearer BYOK instructions
+- Updated `TODO.md` with frontend settings tasks
+- Updated `main.py` with settings router and v0.14.0 version
+
+### Architecture
+
+```
+BYOK (Bring Your Own Key) Flow:
+┌─────────────────┐    ┌────────────────┐    ┌─────────────────┐
+│ Frontend        │───▶│ /api/settings  │───▶│ Encrypted DB    │
+│ Settings Page   │    │ API            │    │ Storage         │
+└─────────────────┘    └────────────────┘    └─────────────────┘
+                              │
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+              API Key Validation   Agent Config
+              (test API calls)     (LLM preferences)
+
+Required Setup:
+  1. User configures OpenAI key (for embeddings) ← REQUIRED
+  2. User configures LLM key (Claude/GPT/Gemini) ← AT LEAST ONE
+  3. User selects preferred LLM provider
+  4. User can now upload CVs
+```
+
+### Notes
+- **OpenAI API key is MANDATORY** for CV uploads (embeddings)
+- **LLM provider is user's choice** - configure one or more
+- Keys are validated before storage with actual API calls
+- Frontend must check `/api/settings/setup-status` before allowing uploads
+
+---
+
 ## [0.13.0] - 2026-02-14 🤖 GEMINI LLM SUPPORT
 
 ### Added

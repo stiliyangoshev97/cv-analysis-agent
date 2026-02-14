@@ -8,17 +8,71 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Phase 6 - Signature Features (Frontend remaining)
-> **Completed**: Phase 6.1 Vector Similarity ✅, Phase 6.3 Hiring Profiles ✅, Phase 6.4 Semantic Search Backend ✅
+> **Current Focus**: Frontend Settings Page + Chat UI
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API
 
-### Priority 1: Remaining Repositories ✅ COMPLETED
+### Priority 1: Frontend - User Settings Page 🔴 NEW
+**Required before CV uploads can work (user must configure OpenAI key)**
+
+- [ ] Create `/settings` page with tabs: "API Keys" | "LLM Preferences"
+- [ ] **API Keys Tab**:
+  - [ ] Form to add/update API keys (OpenAI required, Anthropic/Gemini optional)
+  - [ ] Display key hints (last 4 chars) for configured keys
+  - [ ] Validation button to test keys before saving
+  - [ ] Warning indicator if OpenAI not configured
+  - [ ] Delete key functionality with confirmation
+- [ ] **LLM Preferences Tab**:
+  - [ ] Dropdown to select default LLM provider (Claude/GPT/Gemini)
+  - [ ] Model selector per provider
+  - [ ] Optional per-agent overrides (chat vs evaluation)
+  - [ ] Display that embeddings always use OpenAI (read-only)
+- [ ] **Setup Status Indicator**:
+  - [ ] Show in navbar/header if setup incomplete
+  - [ ] Block CV upload if OpenAI key not configured
+  - [ ] Redirect to settings on first login if not configured
+- [ ] API integration (`/api/settings/*` endpoints)
+- [ ] Zustand store for settings state
+
+### Priority 2: Frontend - Chat UI
+- [ ] Create chat components for CV detail page
+- [ ] Add "Ask AI" button to evaluation results
+- [ ] Add "Why?" button to each criterion score
+- [ ] Implement chat history display
+- [ ] Add compare CVs modal/page
+
+### Priority 3: Frontend - Polish
+- [ ] Error boundaries and loading states
+- [ ] Toast notifications for API errors
+- [ ] Responsive design improvements
+- [ ] Dark mode support
+
+---
+
+## 📋 Backend API Endpoints for Settings (v0.14.0) ✅ COMPLETED
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/settings/api-keys` | List user's API keys (hints only) |
+| `PUT` | `/api/settings/api-keys/{provider}` | Set/update API key |
+| `DELETE` | `/api/settings/api-keys/{provider}` | Delete API key |
+| `POST` | `/api/settings/validate-key` | Validate key without storing |
+| `GET` | `/api/settings/agent-config` | Get LLM preferences |
+| `PUT` | `/api/settings/agent-config` | Update LLM preferences |
+| `GET` | `/api/settings/available-models` | List available LLM models |
+| `GET` | `/api/settings/setup-status` | Check if setup complete |
+
+---
+
+### Completed Backend Tasks
+
+### ✅ Repositories COMPLETED
 - [x] Create `CVRepository` - CRUD operations for CV documents
 - [x] Create `EvaluationRepository` - Store/retrieve evaluations
 - [x] Create `TemplateRepository` - Evaluation templates CRUD
 - [x] Create `ChatRepository` - Chat history persistence
 - [x] Create `EmbeddingRepository` - Vector search helpers (wraps pgvector)
 
-### Priority 2: Integrate LangChain with CV Feature ✅ COMPLETED
+### ✅ LangChain Integration COMPLETED
 - [x] Update `cv_service.py` to use `DocumentProcessor` for PDF/DOCX loading
 - [x] Update `cv_service.py` to use `EvaluationChain` for scoring
 - [x] Store CV in database after upload (CVRepository)
@@ -28,7 +82,7 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] Update `cv_routes.py` with new endpoints (list, get, delete, re-evaluate)
 - [x] Add new schemas (CVSummary, CVListResponse, CVDetailResponse)
 
-### Priority 3: Add Chat Endpoints ✅ COMPLETED
+### ✅ Chat Endpoints COMPLETED
 - [x] Create `features/chat/` module (separate from CV for clean separation)
 - [x] Move `ChatRepository` from cv/ to chat/
 - [x] Create `ChatService` - RAG orchestration (ask, explain, compare)
@@ -40,13 +94,6 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] `DELETE /api/chat/{cv_id}` - Clear chat history
 - [x] `POST /api/chat/{cv_id}/explain/{criterion}` - Explain a score
 - [x] `POST /api/chat/compare` - Compare 2-5 CVs
-
-### Priority 4: Frontend Chat UI
-- [ ] Create chat components for CV detail page
-- [ ] Add "Ask AI" button to evaluation results
-- [ ] Add "Why?" button to each criterion score
-- [ ] Implement chat history display
-- [ ] Add compare CVs modal/page
 
 ---
 
