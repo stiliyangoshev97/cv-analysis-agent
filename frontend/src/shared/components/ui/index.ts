@@ -19,6 +19,8 @@ export { Button } from './Button';
 export { Badge } from './Badge';
 export { ProgressBar } from './ProgressBar';
 export { Spinner } from './Spinner';
+export { ToastProvider, toast } from './Toast';
+export { ErrorBoundary, PageErrorBoundary } from './ErrorBoundary';
 
 // Layout & Containers
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';

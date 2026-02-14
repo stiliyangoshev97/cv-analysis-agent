@@ -31,6 +31,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] - 2026-02-14 ✨ POLISH (Error Handling & Toasts)
+
+### Added
+
+**Toast Notifications (`shared/components/ui/Toast.tsx`)**
+- Integrated Sonner for toast notifications
+- ToastProvider component for app-level setup
+- toast utility with typed methods:
+  - `toast.success(message, description?)` - Success notifications
+  - `toast.error(message, description?)` - Error notifications
+  - `toast.info(message, description?)` - Info notifications
+  - `toast.warning(message, description?)` - Warning notifications
+  - `toast.loading(message)` - Loading state toasts
+  - `toast.promise(promise, options)` - Promise-based toasts
+- Rich colors and close buttons
+- Custom styling with Tailwind classes
+
+**Error Boundaries (`shared/components/ui/ErrorBoundary.tsx`)**
+- `ErrorBoundary` - Catches React errors and shows fallback UI
+- `PageErrorBoundary` - Full-page error boundary with navigation
+- Development mode shows error details
+- Try Again and Reload Page buttons
+
+**Global Error Handling**
+- Enhanced API client error interceptor
+- Extracts user-friendly error messages from responses
+- Handles 401 (auto-logout), 429 (rate limit), 500+ (server errors)
+
+### Changed
+- `main.tsx` - Wrapped app with PageErrorBoundary and ToastProvider
+- `useSettings` hooks - Added toast notifications for API key and config operations
+- `useChat` hooks - Added toast notifications for errors
+- `useUploadCV` hook - Added toast on successful evaluation
+- API client - Enhanced error message extraction
+
+---
+
+## [0.7.0] - 2026-02-14 🔄 COMPARE CVs MODAL
+
+### Added
+
+**CV List API & Hooks**
+- `cvSummarySchema` / `cvListResponseSchema` - Zod schemas for CV lists
+- `listCVs()` - API function to fetch user's CVs
+- `useCVList()` - React Query hook with caching
+
+**CompareCVsModal Component**
+- Select 2-5 CVs from list with checkbox interface
+- Optional comparison focus question input
+- AI-powered comparison analysis display
+- Candidate ranking with visual badges (1st, 2nd, 3rd...)
+- Score and status badges per candidate
+- Reset to compare different CVs
+
+### Changed
+- `CVPage` - Added "Compare CVs" button in page header
+- Updated schema and type exports
+
+---
+
 ## [0.6.0] - 2026-02-14 💬 CHAT UI (Ask AI & Explain Criteria)
 
 ### Added

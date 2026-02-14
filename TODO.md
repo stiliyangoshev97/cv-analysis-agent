@@ -40,9 +40,9 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] Implement chat history display
 - [x] Add compare CVs modal/page
 
-### Priority 3: Frontend - Polish
-- [ ] Error boundaries and loading states
-- [ ] Toast notifications for API errors
+### Priority 3: Frontend - Polish ✅ PARTIALLY COMPLETED
+- [x] Error boundaries and loading states
+- [x] Toast notifications for API errors
 - [ ] Responsive design improvements
 - [ ] Dark mode support
 

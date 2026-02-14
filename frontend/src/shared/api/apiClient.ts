@@ -56,19 +56,38 @@ apiClient.interceptors.request.use((config) => {
 });
 
 /**
- * Response interceptor: Handle 401 Unauthorized errors.
+ * Response interceptor: Handle errors globally.
  *
- * Clears auth state and reloads the page when a 401 is received,
- * forcing the user to re-authenticate.
+ * - 401: Clears auth state and reloads for re-authentication
+ * - 429: Rate limit exceeded
+ * - 500+: Server errors
+ * - Network errors: Connection issues
  */
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Handle 401 Unauthorized
     if (error.response?.status === 401) {
-      // Clear auth state on 401
       localStorage.removeItem('cv-agent-auth');
       window.location.reload();
+      return Promise.reject(error);
     }
+
+    // Extract error message from response
+    let errorMessage = 'An unexpected error occurred';
+    if (error.response?.data?.detail) {
+      errorMessage = error.response.data.detail;
+    } else if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    // Enhance error object with parsed message
+    error.message = errorMessage;
+
     return Promise.reject(error);
   }
 );

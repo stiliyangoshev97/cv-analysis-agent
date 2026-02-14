@@ -11,6 +11,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/shared/components/ui';
 import {
   askQuestion,
   getChatHistory,
@@ -77,6 +78,9 @@ export const useAskQuestion = () => {
       // Invalidate chat history to include new message
       queryClient.invalidateQueries({ queryKey: chatKeys.history(variables.cvId) });
     },
+    onError: (error) => {
+      toast.error('Failed to get response', error.message);
+    },
   });
 };
 
@@ -102,6 +106,10 @@ export const useClearChatHistory = () => {
         messages: [],
         total: 0,
       });
+      toast.success('Chat history cleared');
+    },
+    onError: (error) => {
+      toast.error('Failed to clear chat', error.message);
     },
   });
 };
@@ -132,6 +140,9 @@ export const useExplainCriterion = () => {
       criterion: string;
       includeCvEvidence?: boolean;
     }) => explainCriterion(cvId, criterion, includeCvEvidence),
+    onError: (error) => {
+      toast.error('Failed to explain criterion', error.message);
+    },
   });
 };
 
@@ -159,5 +170,8 @@ export const useCompareCVs = () => {
       cvIds: string[];
       question?: string;
     }) => compareCVs(cvIds, question),
+    onError: (error) => {
+      toast.error('Failed to compare CVs', error.message);
+    },
   });
 };

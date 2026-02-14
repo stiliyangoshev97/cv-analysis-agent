@@ -10,6 +10,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/shared/components/ui';
 import {
   getApiKeys,
   setApiKey,
@@ -77,10 +78,14 @@ export const useSetApiKey = () => {
   return useMutation({
     mutationFn: ({ provider, apiKey }: { provider: AIProvider; apiKey: string }) =>
       setApiKey(provider, apiKey),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       // Invalidate both API keys and setup status
       queryClient.invalidateQueries({ queryKey: settingsKeys.apiKeys() });
       queryClient.invalidateQueries({ queryKey: settingsKeys.setupStatus() });
+      toast.success(`${variables.provider.toUpperCase()} API key saved`, 'Your key has been securely stored.');
+    },
+    onError: (error) => {
+      toast.error('Failed to save API key', error.message);
     },
   });
 };
@@ -101,9 +106,13 @@ export const useDeleteApiKey = () => {
 
   return useMutation({
     mutationFn: (provider: AIProvider) => deleteApiKey(provider),
-    onSuccess: () => {
+    onSuccess: (_, provider) => {
       queryClient.invalidateQueries({ queryKey: settingsKeys.apiKeys() });
       queryClient.invalidateQueries({ queryKey: settingsKeys.setupStatus() });
+      toast.success(`${provider.toUpperCase()} API key deleted`);
+    },
+    onError: (error) => {
+      toast.error('Failed to delete API key', error.message);
     },
   });
 };
@@ -167,6 +176,10 @@ export const useUpdateAgentConfig = () => {
     mutationFn: (data: UpdateAgentConfigRequest) => updateAgentConfig(data),
     onSuccess: (data) => {
       queryClient.setQueryData(settingsKeys.agentConfig(), data);
+      toast.success('LLM preferences saved');
+    },
+    onError: (error) => {
+      toast.error('Failed to save preferences', error.message);
     },
   });
 };

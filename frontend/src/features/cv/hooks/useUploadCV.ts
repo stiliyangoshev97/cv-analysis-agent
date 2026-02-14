@@ -32,6 +32,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { uploadCV } from '../api';
+import { toast } from '@/shared/components/ui';
 import type { UploadProgress, UploadResponse } from '@/shared/types';
 
 /**
@@ -66,6 +67,15 @@ export const useUploadCV = (): UseUploadCVReturn => {
     mutationFn: (file: File) => uploadCV(file, setProgress),
     onMutate: () => {
       setProgress({ loaded: 0, total: 0, percentage: 0 });
+    },
+    onSuccess: (data) => {
+      if (data.success && data.evaluation) {
+        const status = data.evaluation.status === 'pass' ? 'passed' : 'failed';
+        toast.success('CV Evaluated', `${data.evaluation.candidate_name || 'Candidate'} ${status} with ${data.evaluation.match_score}% match`);
+      }
+    },
+    onError: (error) => {
+      toast.error('Upload failed', error.message);
     },
     onSettled: () => {
       setProgress(null);
