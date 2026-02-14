@@ -34,9 +34,10 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Optional, List
 
-from sqlalchemy import String, Integer, Text, ForeignKey, JSON, DateTime, func
+from sqlalchemy import String, Integer, Text, ForeignKey, JSON, DateTime, func, Column
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pgvector.sqlalchemy import Vector
 
 from app.db.base import Base
 
@@ -328,9 +329,15 @@ class CVEmbedding(Base):
         default=0,
     )
     
-    # Note: Vector column will be added via Alembic migration
-    # because SQLAlchemy mapped_column doesn't directly support pgvector
-    # We'll use raw SQL in the migration for the vector column
+    # Vector embedding (1536 dimensions for OpenAI text-embedding-3-small)
+    embedding = Column(Vector(1536), nullable=True)
+    
+    # Model used to generate the embedding
+    model: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        default="text-embedding-3-small",
+    )
     
     # Timestamp
     created_at: Mapped[datetime] = mapped_column(
