@@ -73,11 +73,11 @@ export const ProfileCreatePage = () => {
   const handleSubmit = () => {
     if (!name.trim() || criteria.length === 0) return;
 
-    // Remove tempId for API
+    // Remove tempId for API and set proper sort_order
     const cleanCriteria: CriterionCreate[] = criteria.map(
-      ({ tempId, ...rest }) => ({
+      ({ tempId, ...rest }, index) => ({
         ...rest,
-        sort_order: criteria.indexOf({ tempId, ...rest }),
+        sort_order: index,
       })
     );
 
@@ -172,9 +172,12 @@ export const ProfileCreatePage = () => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Senior Backend Developer"
+              placeholder="e.g., Senior Backend Developer, AI/ML Engineer, Product Manager"
               required
             />
+            <Text size="sm" color="muted" className="mt-1">
+              A descriptive name for the role you're hiring for
+            </Text>
           </div>
 
           <div className="md:col-span-2">
@@ -188,9 +191,12 @@ export const ProfileCreatePage = () => {
               id="profile-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what this profile evaluates"
-              rows={2}
+              placeholder="e.g., Looking for an experienced backend developer with strong Python skills, API design experience, and a passion for building scalable systems. Ideal candidate has worked with cloud infrastructure and microservices."
+              rows={3}
             />
+            <Text size="sm" color="muted" className="mt-1">
+              Describe the ideal candidate and key requirements for this role
+            </Text>
           </div>
 
           <div>

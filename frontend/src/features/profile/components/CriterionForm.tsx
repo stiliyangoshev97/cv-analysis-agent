@@ -128,10 +128,13 @@ export const CriterionForm = ({
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Python Experience"
+            placeholder="e.g., Python Experience, Cloud Infrastructure, Leadership Skills"
             required
             autoFocus
           />
+          <Text size="sm" color="muted" className="mt-1">
+            The skill or qualification you want to evaluate
+          </Text>
         </div>
 
         {/* Description */}
@@ -146,9 +149,12 @@ export const CriterionForm = ({
             id="criterion-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What does this criterion evaluate?"
+            placeholder="e.g., Evaluate the candidate's proficiency in Python programming, including experience with web frameworks (Django, FastAPI), data processing, and writing clean, maintainable code."
             rows={2}
           />
+          <Text size="sm" color="muted" className="mt-1">
+            Detailed description of what the AI should look for
+          </Text>
         </div>
 
         {/* Max Points & Required */}
@@ -200,7 +206,7 @@ export const CriterionForm = ({
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}
               onKeyDown={handleKeywordKeyDown}
-              placeholder="Type and press Enter"
+              placeholder="e.g., python, django, fastapi, flask"
               className="flex-1"
             />
             <Button
@@ -234,7 +240,7 @@ export const CriterionForm = ({
             </div>
           )}
           <Text size="sm" color="muted" className="mt-1">
-            Keywords help the AI identify relevant sections in CVs.
+            Keywords help the AI identify relevant sections in CVs. Press Enter or click Add after each keyword.
           </Text>
         </div>
 
@@ -250,12 +256,11 @@ export const CriterionForm = ({
             id="criterion-guidelines"
             value={guidelines}
             onChange={(e) => setGuidelines(e.target.value)}
-            placeholder="How should the AI score this criterion?"
-            rows={3}
+            placeholder="e.g., Award full points (20) for 5+ years of Python experience with production projects. Award 15 points for 3-5 years. Award 10 points for 1-3 years with strong portfolio. Award 5 points for basic knowledge or bootcamp completion. Award 0 points if no Python experience mentioned."
+            rows={4}
           />
           <Text size="sm" color="muted" className="mt-1">
-            Provide instructions for scoring, e.g., "Award full points for 5+
-            years experience"
+            Specific scoring instructions for the AI. Be clear about what earns full, partial, or no points.
           </Text>
         </div>
 
