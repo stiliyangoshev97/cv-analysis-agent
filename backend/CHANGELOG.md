@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - User, CV, template, evaluation fixtures
   - Auth token helpers
 
-**Unit Tests (`app/tests/unit/`)** - 75 tests
+**Unit Tests (`app/tests/unit/`)** - 169 tests
 - `test_auth.py` - 21 tests for AuthService:
   - Password hashing (bcrypt verification)
   - JWT token creation/validation
@@ -38,8 +38,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CV ranking algorithms
   - Similar CV search logic
   - Comparison matrix generation
+- `test_cv_service.py` - 32 tests for CVService:
+  - Process and evaluate pipeline
+  - CV retrieval with ownership checks
+  - Paginated CV listing
+  - CV deletion with cascading
+  - Re-evaluation with different templates
+  - Schema conversion helpers
+  - Service health checks
+- `test_chat_service.py` - 28 tests for ChatService:
+  - CV ownership verification
+  - RAG Q&A pipeline (ask)
+  - Chat history retrieval and clearing
+  - Criterion explanation
+  - Multi-CV comparison (2-5 CVs)
+- `test_notification_service.py` - 34 tests for NotificationService:
+  - NotificationDispatchResult dataclass
+  - Get/update notification settings
+  - Threshold checking
+  - Full dispatch pipeline (email + WhatsApp)
+  - Test notification sending
 
-**Integration Tests (`app/tests/integration/`)** - 53 tests
+**Integration Tests (`app/tests/integration/`)** - 57 tests
 - `test_auth_api.py` - 14 tests for `/api/auth/*`:
   - Register, login, me, refresh endpoints
   - Validation errors, duplicate detection
