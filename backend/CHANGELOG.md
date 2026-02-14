@@ -7,6 +7,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.11.0] - 2026-02-14 🧪 BACKEND TESTING (Phase 8.1)
+
+### Added
+
+**Testing Infrastructure**
+- `pytest.ini` - Pytest configuration with markers and asyncio settings
+- `requirements-test.txt` - Test dependencies (pytest-asyncio, pytest-mock, httpx, faker, etc.)
+- `app/tests/conftest.py` - Comprehensive shared fixtures:
+  - SQLite in-memory database for fast tests
+  - Async test client with OpenAI embeddings mock
+  - User, CV, template, evaluation fixtures
+  - Auth token helpers
+
+**Unit Tests (`app/tests/unit/`)** - 75 tests
+- `test_auth.py` - 21 tests for AuthService:
+  - Password hashing (bcrypt verification)
+  - JWT token creation/validation
+  - User registration with duplicate detection
+  - Login with password verification
+  - Token refresh flow
+- `test_profile_service.py` - 28 tests for ProfileService:
+  - Profile CRUD operations
+  - Authorization checks (system vs user templates)
+  - Profile cloning logic
+  - Criterion management
+- `test_similarity_service.py` - 26 tests for SimilarityService:
+  - Cosine similarity calculations
+  - Average embedding computation
+  - CV ranking algorithms
+  - Similar CV search logic
+  - Comparison matrix generation
+
+**Integration Tests (`app/tests/integration/`)** - 53 tests
+- `test_auth_api.py` - 14 tests for `/api/auth/*`:
+  - Register, login, me, refresh endpoints
+  - Validation errors, duplicate detection
+  - JWT token flows
+- `test_profile_api.py` - 25 tests for `/api/profiles/*`:
+  - Profile CRUD endpoints
+  - Criterion management endpoints
+  - Clone functionality
+  - Authorization (system template protection)
+- `test_cv_api.py` - 14 tests for `/api/cv/*`:
+  - List, get, delete CV endpoints
+  - Similar CVs, ranking, comparison endpoints
+  - Semantic search endpoint
+
+### Fixed
+
+**Bug Fixes Discovered During Testing**
+- `ProfileService.update_profile()` - Fixed: Reload template with criteria after update
+- `cv_routes.py` - Fixed: Return type hints (removed `-> dict` where Pydantic models returned)
+
+### Changed
+
+**Test Configuration**
+- Mocked OpenAI embeddings in conftest to avoid requiring API key
+- Session-scoped database engine for test isolation
+- Async test support with `pytest-asyncio`
+
+### Known Issues (Skipped Tests)
+
+| Test | Issue | Location |
+|------|-------|----------|
+| `test_similar_cvs_no_embeddings` | `CVEmbedding.chunk_index` doesn't exist | `embedding_repository.py` |
+| `test_similar_cvs_success` | Same as above | `embedding_repository.py` |
+| `test_compare_success` | Same as above | `similarity_service.py` |
+| `test_delete_criterion` | SQLAlchemy session caching issue | `profile_service.py` |
+
+### Test Summary
+
+```
+Total: 128 passed, 4 skipped
+├── Unit Tests: 75 passed
+│   ├── test_auth.py: 21 tests
+│   ├── test_profile_service.py: 28 tests
+│   └── test_similarity_service.py: 26 tests
+└── Integration Tests: 53 passed, 4 skipped
+    ├── test_auth_api.py: 14 tests
+    ├── test_profile_api.py: 24 tests + 1 skipped
+    └── test_cv_api.py: 15 tests + 3 skipped
+```
+
+---
+
 ## [0.10.0] - 2026-02-14 📋 HIRING PROFILES + VECTOR SIMILARITY (Phase 6)
 
 ### Added
