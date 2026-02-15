@@ -451,7 +451,9 @@ class ChatService:
         )
         
         # Get evidence (relevant chunks)
-        evidence = await self._get_relevant_chunks(cv_id, criterion_name)
+        evidence = await self._get_relevant_chunks(
+            cv_id, criterion_name, api_key=user_keys.openai_key
+        )
         
         return {
             "criterion": criterion_actual_name,
@@ -508,7 +510,9 @@ class ChatService:
                 eval_info = f" (Score: {evaluation.score}/100)"
             
             # Get relevant chunks for the comparison question
-            chunks = await self._get_relevant_chunks(cv.id, question, limit=2)
+            chunks = await self._get_relevant_chunks(
+                cv.id, question, limit=2, api_key=user_keys.openai_key
+            )
             chunks_text = "\n".join(chunks) if chunks else "No detailed content available."
             
             context_parts.append(

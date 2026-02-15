@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed embeddings using user's OpenAI API key instead of environment variable
 - `_get_relevant_chunks()` now accepts and passes `api_key` parameter
 - `ConversationChain` is created with user's OpenAI key for embeddings
+- **Fixed `compare_cvs()` - now passes `api_key=user_keys.openai_key` to `_get_relevant_chunks()`**
+- **Fixed `explain_criterion()` - now passes `api_key=user_keys.openai_key` to `_get_relevant_chunks()`**
 
 **Conversation Chain (`chains/conversation_chain.py`)**
 - Added `openai_api_key` parameter to `__init__()`
@@ -31,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Chat now properly uses user-configured OpenAI API key for embeddings
 - Fixed "OpenAI API key not configured for embeddings" error when using Ask AI
+- Fixed "OpenAI API key not configured for embeddings" error when comparing CVs
+- Fixed "OpenAI API key not configured for embeddings" error when explaining criterion
 
 ---
 
