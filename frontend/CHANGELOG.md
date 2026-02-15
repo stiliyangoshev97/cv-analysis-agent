@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.2] - 2026-02-15 💬 CV DETAIL CHAT & ID FIX
+
+### Added
+
+**Chat Panel on CV Detail Page**
+- "Ask AI" button on CV detail page header
+- Opens ChatPanel for RAG-powered Q&A about the CV
+- Uses correct CV ID from database for chat API calls
+
+### Fixed
+
+**CV ID in Upload Response**
+- Updated `uploadResponseSchema` to include `cv_id` field
+- `CVPage` now uses actual CV ID from backend instead of `crypto.randomUUID()`
+- Chat functionality now works correctly after CV upload
+
+### Changed
+
+**CV Page (`CVPage.tsx`)**
+- Changed from `id: crypto.randomUUID()` to `id: data.cv_id`
+- Chat now uses the real database CV ID
+
+**CV Detail Page (`CVDetailPage.tsx`)**
+- Added `ChatPanel` component import
+- Added `showChat` state for panel visibility
+- Added "Ask AI" button next to Delete button
+
+---
+
 ## [0.12.1] - 2026-02-15 📝 IMPROVED PROFILE CREATION UX
 
 ### Added

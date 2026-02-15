@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.12.1 - Improved Profile Creation UX)
+> Last Updated: February 2026 (v0.12.2 - CV Detail Chat & ID Fix)
 
 ---
 

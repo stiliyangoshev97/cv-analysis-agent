@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.4] - 2026-02-15 🔧 CHAT EMBEDDINGS FIX
+
+### Fixed
+
+**CV Schema (`cv_schemas.py`)**
+- Added `cv_id` field to `UploadResponse` schema
+- Now returns CV UUID so frontend can use it for chat/history
+
+**CV Service (`cv_service.py`)**
+- `convert_to_response()` now includes `cv_id=str(result.cv.id)`
+
+**Chat Service (`chat_service.py`)**
+- Fixed embeddings using user's OpenAI API key instead of environment variable
+- `_get_relevant_chunks()` now accepts and passes `api_key` parameter
+- `ConversationChain` is created with user's OpenAI key for embeddings
+
+**Conversation Chain (`chains/conversation_chain.py`)**
+- Added `openai_api_key` parameter to `__init__()`
+- `EmbeddingService` now receives user's OpenAI key for RAG retrieval
+
+### Changed
+
+- Chat now properly uses user-configured OpenAI API key for embeddings
+- Fixed "OpenAI API key not configured for embeddings" error when using Ask AI
+
+---
+
 ## [0.14.3] - 2026-02-15 👤 CANDIDATE NAME EXTRACTION
 
 ### Fixed

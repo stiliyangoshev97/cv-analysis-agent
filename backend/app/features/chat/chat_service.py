@@ -243,8 +243,12 @@ class ChatService:
             api_key=user_keys.get_llm_key(),
         )
         
-        # Create conversation chain with user's LLM
-        conversation_chain = ConversationChain(self.session, llm=llm)
+        # Create conversation chain with user's LLM and OpenAI key for embeddings
+        conversation_chain = ConversationChain(
+            self.session, 
+            llm=llm,
+            openai_api_key=user_keys.openai_key,
+        )
         
         # 3. Save user's question
         await self.chat_repo.add_user_message(user_id, cv_id, question)
@@ -270,7 +274,11 @@ class ChatService:
         
         # 7. Get sources (chunks used)
         # Note: We could enhance ConversationChain to return sources
-        sources = await self._get_relevant_chunks(cv_id, question)
+        sources = await self._get_relevant_chunks(
+            cv_id, 
+            question,
+            api_key=user_keys.openai_key,
+        )
         
         return ChatResult(
             message=assistant_msg,
@@ -283,6 +291,7 @@ class ChatService:
         cv_id: uuid.UUID,
         query: str,
         limit: int = 3,
+        api_key: str | None = None,
     ) -> List[str]:
         """Get relevant CV chunks for a query.
         
@@ -292,13 +301,14 @@ class ChatService:
             cv_id: CV's UUID.
             query: Query to search for.
             limit: Max chunks to return.
+            api_key: User's OpenAI API key for embeddings.
         
         Returns:
             List of chunk text excerpts.
         """
         from app.langchain.embeddings import EmbeddingService
         
-        embedding_service = EmbeddingService(self.session)
+        embedding_service = EmbeddingService(self.session, api_key=api_key)
         chunks = await embedding_service.search_similar(
             cv_id=cv_id,
             query=query,

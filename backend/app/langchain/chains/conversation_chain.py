@@ -97,6 +97,7 @@ class ConversationChain:
         session: AsyncSession,
         llm: ChatAnthropic | None = None,
         num_chunks: int = 5,
+        openai_api_key: str | None = None,
     ):
         """
         Initialize the conversation chain.
@@ -105,10 +106,11 @@ class ConversationChain:
             session: Database session for embedding retrieval.
             llm: Optional pre-configured LLM instance.
             num_chunks: Number of relevant chunks to retrieve per question.
+            openai_api_key: User's OpenAI API key for embeddings.
         """
         self.session = session
         self.llm = llm or get_llm(temperature=0.3)  # Slightly more creative for chat
-        self.embedding_service = EmbeddingService(session)
+        self.embedding_service = EmbeddingService(session, api_key=openai_api_key)
         self.num_chunks = num_chunks
         
         # Build the prompt template

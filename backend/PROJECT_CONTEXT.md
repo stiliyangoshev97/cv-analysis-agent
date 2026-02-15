@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 15, 2026 (v0.14.3 - Candidate Name Extraction)
+> Last Updated: February 15, 2026 (v0.14.4 - Chat Embeddings Fix)
 
 ---
 
