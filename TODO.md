@@ -160,6 +160,28 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ---
 
+## 🐛 BUG FIXES (v0.14.4 - 2026-02-15)
+
+### Chat & Embeddings API Key Fixes ✅ COMPLETED
+- [x] **CV ID Fix**: Frontend was using `crypto.randomUUID()` instead of actual CV ID from backend
+  - Added `cv_id` field to `UploadResponse` schema
+  - Frontend now uses `data.cv_id` for chat functionality
+- [x] **Chat Embeddings Fix**: `ask()` method wasn't passing user's OpenAI API key to embeddings
+  - `_get_relevant_chunks()` now accepts `api_key` parameter
+  - `ConversationChain` receives user's OpenAI key for RAG retrieval
+- [x] **CV Comparison Fix**: `compare_cvs()` wasn't passing API key to embeddings
+  - Fixed to pass `api_key=user_keys.openai_key` to `_get_relevant_chunks()`
+- [x] **Explain Criterion Fix**: `explain_criterion()` wasn't passing API key to embeddings
+  - Fixed to pass `api_key=user_keys.openai_key` to `_get_relevant_chunks()`
+- [x] **Profile Creation**: Fixed `sort_order: -1` validation bug (was using `criteria.indexOf()`)
+
+### Frontend Chat Improvements ✅ COMPLETED
+- [x] Added "Ask AI" button to CV detail page
+- [x] Added ChatPanel component to CV detail view
+- [x] Profile creation form now has helpful placeholder examples
+
+---
+
 ## ✅ COMPLETED FRONTEND FEATURES
 
 ### Priority 1: Frontend - User Settings Page ✅ COMPLETED
