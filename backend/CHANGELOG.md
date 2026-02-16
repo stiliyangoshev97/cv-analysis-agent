@@ -7,6 +7,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.0] - 2026-02-16 🔑 BYOK NOTIFICATIONS (Bring Your Own Keys)
+
+### Added
+
+**SMTP/Twilio BYOK Support (Pure BYOK - No Server Fallback)**
+- Users must configure their own SMTP credentials for email notifications
+- Users must configure their own Twilio credentials for WhatsApp notifications
+- Credentials are encrypted with AES-256 (Fernet) before storage
+- No server-level environment variable fallback - true multi-tenant BYOK
+
+**NotificationSettings Model (`db/models/notification.py`)**
+- Added encrypted SMTP fields: `smtp_host`, `smtp_port`, `smtp_username`, `smtp_password`, `smtp_from_email`, `smtp_from_name`, `smtp_use_tls`
+- Added encrypted Twilio fields: `twilio_account_sid`, `twilio_auth_token`, `twilio_whatsapp_from`
+- Added `has_smtp_config` and `has_twilio_config` properties
+
+**Notification Schemas (`notification_schemas.py`)**
+- Added `SmtpConfigUpdate` and `SmtpConfigResponse` schemas
+- Added `TwilioConfigUpdate` and `TwilioConfigResponse` schemas
+- Updated `NotificationSettingsResponse` to include SMTP/Twilio config status
+- Updated `NotificationSettingsUpdate` to accept SMTP/Twilio config
+
+**NotificationRepository (`notification_repository.py`)**
+- Added `update_smtp_config()` - encrypts and stores SMTP credentials
+- Added `update_twilio_config()` - encrypts and stores Twilio credentials
+- Added `get_decrypted_smtp_config()` - decrypts SMTP credentials for use
+- Added `get_decrypted_twilio_config()` - decrypts Twilio credentials for use
+- Added `get_smtp_config_hints()` - returns masked SMTP info for display
+- Added `get_twilio_config_hints()` - returns masked Twilio info for display
+- Added `clear_smtp_config()` and `clear_twilio_config()`
+
+**EmailService/WhatsAppService (`email_service.py`, `whatsapp_service.py`)**
+- Added `SmtpCredentials` and `TwilioCredentials` dataclasses
+- Services can now be initialized with BYOK credentials
+- Added `from_user_config()` class method for easy instantiation
+- Removed server-level config fallback (pure BYOK)
+- Graceful error handling for missing `twilio`/`aiosmtplib` packages
+
+**NotificationService (`notification_service.py`)**
+- Added `_get_email_service()` - creates EmailService with user config
+- Added `_get_whatsapp_service()` - creates WhatsAppService with user config
+- `update_settings()` now handles SMTP/Twilio config updates
+- `dispatch_cv_notification()` uses BYOK credentials
+- `send_test_notification()` uses BYOK credentials
+- Added `get_service_status()` - returns config source (user/none)
+- Added `clear_smtp_config()` and `clear_twilio_config()`
+
+### Removed
+
+**Server-Level Configuration**
+- Removed SMTP settings from `config.py` (SMTP_HOST, SMTP_PORT, etc.)
+- Removed Twilio settings from `config.py` (TWILIO_ACCOUNT_SID, etc.)
+- Removed server fallback from EmailService and WhatsAppService
+- Updated `.env.example` to explain BYOK approach
+
+**NotificationController (`notification_controller.py`)**
+- `_build_settings_response()` includes SMTP/Twilio config hints
+- `update_settings()` handles SMTP/Twilio config from request
+
+**Notification Routes (`notification_routes.py`)**
+- Added `DELETE /notifications/smtp-config` endpoint
+- Added `DELETE /notifications/twilio-config` endpoint
+
+**Database Migration**
+- Created `f03233686b7b_add_byok_smtp_twilio_fields.py`
+- Adds all SMTP and Twilio columns to `notification_settings` table
+
+---
+
 ## [0.14.5] - 2026-02-16 🔧 SIMILARITY & NAME EXTRACTION FIXES
 
 ### Fixed

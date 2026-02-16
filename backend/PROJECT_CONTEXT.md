@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 16, 2026 (v0.14.5 - Similarity & Name Extraction Fixes)
+> Last Updated: February 16, 2026 (v0.15.0 - BYOK Notifications)
 
 ---
 
@@ -16,8 +16,8 @@
 - **RAG Chat**: Ask questions about any CV with context-aware responses
 - **Semantic Search**: Find similar candidates using vector embeddings
 - **CV Comparison**: Compare multiple CVs side-by-side with similarity matrix
-- **Multi-Channel Notifications**: Email and WhatsApp alerts for qualified candidates
-- **BYOK Support**: Users bring their own API keys (encrypted storage)
+- **Multi-Channel Notifications**: Email (SMTP) and WhatsApp (Twilio) alerts
+- **Full BYOK Support**: Users bring their own API keys, SMTP, and Twilio credentials
 
 ---
 
@@ -323,9 +323,11 @@ notification_settings -- Alert preferences
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
 | `GET` | `/` | Get notification settings | ✅ |
-| `PUT` | `/` | Update notification settings | ✅ |
+| `PUT` | `/` | Update notification settings (incl. SMTP/Twilio) | ✅ |
 | `POST` | `/test/{channel}` | Send test notification | ✅ |
 | `GET` | `/status` | Get service configuration status | ✅ |
+| `DELETE` | `/smtp-config` | Clear SMTP configuration (BYOK) | ✅ |
+| `DELETE` | `/twilio-config` | Clear Twilio configuration (BYOK) | ✅ |
 
 ### Hiring Profiles (`/api/profiles/`)
 | Method | Endpoint | Description | Auth |

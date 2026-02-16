@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.0] - 2026-02-16 🔑 BYOK NOTIFICATIONS (Bring Your Own Keys)
+
+### Added
+
+**SMTP Configuration UI**
+- Collapsible SMTP configuration section in Email Notifications card
+- Form fields: Host, Port, Username, Password, From Email, From Name, Use TLS
+- Shows current configuration status with masked credentials
+- "Clear" button to remove custom SMTP configuration
+- Confirmation dialog before clearing
+
+**Twilio Configuration UI**
+- Collapsible Twilio configuration section in WhatsApp Notifications card
+- Form fields: Account SID, Auth Token, WhatsApp From Number
+- Shows current configuration status with masked credentials
+- "Clear" button to remove custom Twilio configuration
+- Confirmation dialog before clearing
+
+**Configuration Source Indicators**
+- Badge shows "BYOK" (green) when using user credentials
+- Badge shows "Not Configured" (gray) when not set up
+- No server fallback - pure BYOK architecture
+
+**New Schemas (`notification.schemas.ts`)**
+- `SmtpConfigUpdate` - SMTP configuration update request
+- `SmtpConfigResponse` - SMTP configuration response with masked credentials
+- `TwilioConfigUpdate` - Twilio configuration update request
+- `TwilioConfigResponse` - Twilio configuration response with masked credentials
+- Updated `NotificationSettings` to include SMTP/Twilio config
+- Updated `NotificationSettingsUpdate` to accept SMTP/Twilio config
+- Updated `NotificationServiceStatus` with `email_source` and `whatsapp_source`
+
+**New API Functions (`notificationApi.ts`)**
+- `clearSmtpConfig()` - Clear user's SMTP configuration
+- `clearTwilioConfig()` - Clear user's Twilio configuration
+
+**New Hooks (`useNotificationSettings.ts`)**
+- `useClearSmtpConfig()` - Mutation for clearing SMTP config
+- `useClearTwilioConfig()` - Mutation for clearing Twilio config
+
+### Changed
+
+**NotificationSettingsPanel**
+- Complete redesign to support BYOK configuration
+- Added collapsible SMTP and Twilio configuration sections
+- Added SettingsIcon, ChevronDownIcon, ChevronUpIcon components
+- Save button now enabled when SMTP/Twilio config is provided
+- Form fields clear after save (credentials stored encrypted on server)
+- Confirmation dialogs for clearing configurations
+
+---
+
 ## [0.13.0] - 2026-02-16 🔍 CV SIMILARITY & SEARCH
 
 ### Added

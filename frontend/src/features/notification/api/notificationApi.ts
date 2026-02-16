@@ -6,6 +6,7 @@
  * - Update notification settings
  * - Send test notifications
  * - Get service status
+ * - Clear SMTP/Twilio configuration (BYOK)
  *
  * @module features/notification/api
  */
@@ -97,5 +98,39 @@ export const sendTestNotification = async (
  */
 export const getNotificationStatus = async (): Promise<NotificationServiceStatus> => {
   const response = await apiClient.get<NotificationServiceStatus>('/api/notifications/status');
+  return response.data;
+};
+
+/**
+ * Clear user's SMTP configuration (BYOK).
+ *
+ * @returns Promise resolving to success message
+ *
+ * @example
+ * ```typescript
+ * await clearSmtpConfig();
+ * ```
+ */
+export const clearSmtpConfig = async (): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.delete<{ success: boolean; message: string }>(
+    '/api/notifications/smtp-config'
+  );
+  return response.data;
+};
+
+/**
+ * Clear user's Twilio configuration (BYOK).
+ *
+ * @returns Promise resolving to success message
+ *
+ * @example
+ * ```typescript
+ * await clearTwilioConfig();
+ * ```
+ */
+export const clearTwilioConfig = async (): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.delete<{ success: boolean; message: string }>(
+    '/api/notifications/twilio-config'
+  );
   return response.data;
 };

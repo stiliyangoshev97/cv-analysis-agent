@@ -3,6 +3,9 @@
 This module provides the main service for sending notifications
 based on user preferences and CV evaluation results.
 
+Supports BYOK (Bring Your Own Keys) for SMTP and Twilio credentials,
+allowing users to configure their own notification services.
+
 Classes:
     NotificationService: Orchestration service for notifications.
 
@@ -22,6 +25,7 @@ from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.user import User
+from app.db.models.notification import NotificationSettings
 from .notification_repository import NotificationRepository
 from .notification_schemas import CVNotificationData
 from .email_service import EmailService, EmailResult
@@ -80,11 +84,12 @@ class NotificationService:
     Coordinates email and WhatsApp notifications based on user
     preferences and CV evaluation results.
     
+    Uses BYOK (Bring Your Own Keys) - users must provide their own
+    SMTP/Twilio credentials via the Settings UI.
+    
     Attributes:
         session: AsyncSession for database operations.
         repo: NotificationRepository instance.
-        email_service: EmailService instance.
-        whatsapp_service: WhatsAppService instance.
     
     Example:
         >>> service = NotificationService(session)
@@ -104,8 +109,52 @@ class NotificationService:
         """
         self.session = session
         self.repo = NotificationRepository(session)
-        self.email_service = EmailService()
-        self.whatsapp_service = WhatsAppService()
+    
+    def _get_email_service(
+        self,
+        settings: NotificationSettings,
+    ) -> EmailService:
+        """Get EmailService using user's BYOK credentials.
+        
+        Args:
+            settings: User's notification settings.
+        
+        Returns:
+            EmailService instance (may be unconfigured if no BYOK credentials).
+        """
+        # Check if user has BYOK SMTP config
+        if settings.has_smtp_config:
+            smtp_config = self.repo.get_decrypted_smtp_config(settings)
+            if smtp_config:
+                logger.debug("Using user's SMTP configuration (BYOK)")
+                return EmailService.from_user_config(smtp_config)
+        
+        # Return unconfigured service
+        logger.debug("No SMTP configuration found")
+        return EmailService()
+    
+    def _get_whatsapp_service(
+        self,
+        settings: NotificationSettings,
+    ) -> WhatsAppService:
+        """Get WhatsAppService using user's BYOK credentials.
+        
+        Args:
+            settings: User's notification settings.
+        
+        Returns:
+            WhatsAppService instance (may be unconfigured if no BYOK credentials).
+        """
+        # Check if user has BYOK Twilio config
+        if settings.has_twilio_config:
+            twilio_config = self.repo.get_decrypted_twilio_config(settings)
+            if twilio_config:
+                logger.debug("Using user's Twilio configuration (BYOK)")
+                return WhatsAppService.from_user_config(twilio_config)
+        
+        # Return unconfigured service
+        logger.debug("No Twilio configuration found")
+        return WhatsAppService()
     
     async def get_settings(
         self,
@@ -128,6 +177,8 @@ class NotificationService:
         whatsapp_enabled: Optional[bool] = None,
         whatsapp_number: Optional[str] = None,
         threshold_score: Optional[int] = None,
+        smtp_config: Optional[dict] = None,
+        twilio_config: Optional[dict] = None,
     ):
         """Update notification settings for a user.
         
@@ -137,6 +188,8 @@ class NotificationService:
             whatsapp_enabled: Enable/disable WhatsApp.
             whatsapp_number: WhatsApp phone number.
             threshold_score: Notification threshold.
+            smtp_config: SMTP configuration (BYOK).
+            twilio_config: Twilio configuration (BYOK).
         
         Returns:
             Updated NotificationSettings.
@@ -151,6 +204,28 @@ class NotificationService:
             settings.whatsapp_number = whatsapp_number
         if threshold_score is not None:
             settings.threshold_score = threshold_score
+        
+        # Update SMTP config (BYOK)
+        if smtp_config is not None:
+            await self.repo.update_smtp_config(
+                settings,
+                host=smtp_config.get("host"),
+                port=smtp_config.get("port"),
+                username=smtp_config.get("username"),
+                password=smtp_config.get("password"),
+                from_email=smtp_config.get("from_email"),
+                from_name=smtp_config.get("from_name"),
+                use_tls=smtp_config.get("use_tls"),
+            )
+        
+        # Update Twilio config (BYOK)
+        if twilio_config is not None:
+            await self.repo.update_twilio_config(
+                settings,
+                account_sid=twilio_config.get("account_sid"),
+                auth_token=twilio_config.get("auth_token"),
+                whatsapp_from=twilio_config.get("whatsapp_from"),
+            )
         
         return await self.repo.update(settings)
     
@@ -181,7 +256,8 @@ class NotificationService:
         """Dispatch CV notification to enabled channels.
         
         Checks threshold and sends notifications to all enabled
-        channels (email and/or WhatsApp).
+        channels (email and/or WhatsApp). Uses BYOK credentials
+        configured by the user in Settings > Notifications.
         
         Args:
             user_id: UUID of the user.
@@ -228,13 +304,14 @@ class NotificationService:
         # Send email notification
         if settings.email_enabled:
             result.channels_attempted.append("email")
+            email_service = self._get_email_service(settings)
             
             if not user_email:
                 result.errors.append("User email not found")
-            elif not self.email_service.is_configured:
-                result.errors.append("Email service not configured")
+            elif not email_service.is_configured:
+                result.errors.append("Email service not configured (configure SMTP in Settings)")
             else:
-                email_result = await self.email_service.send_cv_notification(
+                email_result = await email_service.send_cv_notification(
                     to_email=user_email,
                     cv_data=cv_data,
                 )
@@ -246,13 +323,14 @@ class NotificationService:
         # Send WhatsApp notification
         if settings.whatsapp_enabled:
             result.channels_attempted.append("whatsapp")
+            whatsapp_service = self._get_whatsapp_service(settings)
             
             if not settings.whatsapp_number:
                 result.errors.append("WhatsApp number not configured")
-            elif not self.whatsapp_service.is_configured:
-                result.errors.append("WhatsApp service not configured")
+            elif not whatsapp_service.is_configured:
+                result.errors.append("WhatsApp service not configured (configure Twilio in Settings)")
             else:
-                whatsapp_result = await self.whatsapp_service.send_cv_notification(
+                whatsapp_result = await whatsapp_service.send_cv_notification(
                     to_number=settings.whatsapp_number,
                     cv_data=cv_data,
                 )
@@ -282,6 +360,8 @@ class NotificationService:
     ) -> dict:
         """Send a test notification.
         
+        Uses BYOK credentials configured in Settings > Notifications.
+        
         Args:
             user_id: UUID of the user.
             channel: Channel to test ('email' or 'whatsapp').
@@ -306,7 +386,11 @@ class NotificationService:
             if not user_email:
                 return {"success": False, "error": "User email not found"}
             
-            result = await self.email_service.send_test_email(user_email)
+            email_service = self._get_email_service(settings)
+            if not email_service.is_configured:
+                return {"success": False, "error": "Email service not configured. Configure SMTP credentials in Settings > Notifications."}
+            
+            result = await email_service.send_test_email(user_email)
             return {
                 "success": result.success,
                 "message": "Test email sent" if result.success else result.error,
@@ -316,7 +400,11 @@ class NotificationService:
             if not settings.whatsapp_number:
                 return {"success": False, "error": "WhatsApp number not configured"}
             
-            result = await self.whatsapp_service.send_test_message(
+            whatsapp_service = self._get_whatsapp_service(settings)
+            if not whatsapp_service.is_configured:
+                return {"success": False, "error": "WhatsApp service not configured. Configure Twilio credentials in Settings > Notifications."}
+            
+            result = await whatsapp_service.send_test_message(
                 settings.whatsapp_number
             )
             return {
@@ -326,3 +414,58 @@ class NotificationService:
         
         else:
             return {"success": False, "error": f"Unknown channel: {channel}"}
+    
+    async def get_service_status(
+        self,
+        user_id: uuid.UUID,
+    ) -> dict:
+        """Get notification service configuration status.
+        
+        Returns whether email/WhatsApp are configured via BYOK.
+        
+        Args:
+            user_id: UUID of the user.
+        
+        Returns:
+            Dict with configuration status.
+        """
+        settings = await self.repo.get_or_create(user_id)
+        
+        # Check if user has BYOK config
+        has_user_smtp = settings.has_smtp_config
+        has_user_twilio = settings.has_twilio_config
+        
+        return {
+            "email_configured": has_user_smtp,
+            "whatsapp_configured": has_user_twilio,
+            "email_source": "user" if has_user_smtp else "none",
+            "whatsapp_source": "user" if has_user_twilio else "none",
+            "email_service": "SMTP (BYOK)" if has_user_smtp else "Not Configured",
+            "whatsapp_service": "Twilio (BYOK)" if has_user_twilio else "Not Configured",
+        }
+    
+    async def clear_smtp_config(self, user_id: uuid.UUID) -> dict:
+        """Clear user's SMTP configuration.
+        
+        Args:
+            user_id: UUID of the user.
+        
+        Returns:
+            Dict with success status.
+        """
+        settings = await self.repo.get_or_create(user_id)
+        await self.repo.clear_smtp_config(settings)
+        return {"success": True, "message": "SMTP configuration cleared"}
+    
+    async def clear_twilio_config(self, user_id: uuid.UUID) -> dict:
+        """Clear user's Twilio configuration.
+        
+        Args:
+            user_id: UUID of the user.
+        
+        Returns:
+            Dict with success status.
+        """
+        settings = await self.repo.get_or_create(user_id)
+        await self.repo.clear_twilio_config(settings)
+        return {"success": True, "message": "Twilio configuration cleared"}

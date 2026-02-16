@@ -8,4 +8,6 @@ export {
   useUpdateNotificationSettings,
   useSendTestNotification,
   useNotificationStatus,
+  useClearSmtpConfig,
+  useClearTwilioConfig,
 } from './useNotificationSettings';

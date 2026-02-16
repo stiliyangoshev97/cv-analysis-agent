@@ -1,14 +1,22 @@
 """Email notification service using SMTP.
 
 This module provides async email sending functionality using aiosmtplib.
+Uses BYOK (Bring Your Own Keys) - users must provide their own SMTP credentials.
 
 Classes:
     EmailService: Service for sending email notifications.
 
 Example:
-    service = EmailService()
+    # Using user-provided credentials (BYOK)
+    service = EmailService(
+        host="smtp.gmail.com",
+        port=587,
+        username="user@gmail.com",
+        password="app-password",
+        from_email="user@gmail.com"
+    )
     await service.send_cv_notification(
-        to_email="user@example.com",
+        to_email="recipient@example.com",
         cv_data=cv_notification_data
     )
 """
@@ -19,7 +27,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
-from app.config import get_settings
 from .notification_schemas import CVNotificationData
 
 logger = logging.getLogger(__name__)
@@ -39,11 +46,38 @@ class EmailResult:
     error: Optional[str] = None
 
 
+@dataclass
+class SmtpCredentials:
+    """SMTP credentials for email service.
+    
+    Attributes:
+        host: SMTP server hostname.
+        port: SMTP server port.
+        username: SMTP authentication username.
+        password: SMTP authentication password.
+        from_email: Sender email address.
+        from_name: Sender display name.
+        use_tls: Whether to use STARTTLS.
+    """
+    host: str
+    port: int
+    username: str
+    password: str
+    from_email: str
+    from_name: str = "CV Screening Agent"
+    use_tls: bool = True
+
+
 class EmailService:
     """Service for sending email notifications.
     
     Uses aiosmtplib for async SMTP communication.
     Supports TLS and configurable SMTP settings.
+    
+    Can be initialized with:
+    - No arguments: Uses server-level configuration from environment
+    - SmtpCredentials: Uses user-provided credentials (BYOK)
+    - Individual parameters: Uses provided values
     
     Attributes:
         host: SMTP server hostname.
@@ -55,25 +89,75 @@ class EmailService:
         use_tls: Whether to use STARTTLS.
     
     Example:
+        >>> # Server config
         >>> service = EmailService()
-        >>> result = await service.send_cv_notification(
-        ...     to_email="hr@company.com",
-        ...     cv_data=cv_data
+        >>> 
+        >>> # BYOK with credentials object
+        >>> creds = SmtpCredentials(host="smtp.gmail.com", ...)
+        >>> service = EmailService(credentials=creds)
+        >>> 
+        >>> # BYOK with individual params
+        >>> service = EmailService(
+        ...     host="smtp.gmail.com",
+        ...     username="user@gmail.com",
+        ...     password="secret"
         ... )
-        >>> if result.success:
-        ...     print("Email sent!")
     """
     
-    def __init__(self) -> None:
-        """Initialize email service with settings."""
-        settings = get_settings()
-        self.host = settings.smtp_host
-        self.port = settings.smtp_port
-        self.username = settings.smtp_username
-        self.password = settings.smtp_password
-        self.from_email = settings.smtp_from_email
-        self.from_name = settings.smtp_from_name
-        self.use_tls = settings.smtp_use_tls
+    def __init__(
+        self,
+        credentials: Optional[SmtpCredentials] = None,
+        *,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        from_email: Optional[str] = None,
+        from_name: Optional[str] = None,
+        use_tls: Optional[bool] = None,
+    ) -> None:
+        """Initialize email service.
+        
+        BYOK Only - users must provide their own SMTP credentials.
+        No server-level fallback.
+        """
+        if credentials:
+            self.host = credentials.host
+            self.port = credentials.port
+            self.username = credentials.username
+            self.password = credentials.password
+            self.from_email = credentials.from_email
+            self.from_name = credentials.from_name
+            self.use_tls = credentials.use_tls
+        else:
+            # Individual parameters (BYOK) or empty (not configured)
+            self.host = host
+            self.port = port or 587
+            self.username = username
+            self.password = password
+            self.from_email = from_email
+            self.from_name = from_name or "CV Screening Agent"
+            self.use_tls = use_tls if use_tls is not None else True
+    
+    @classmethod
+    def from_user_config(cls, config: dict) -> "EmailService":
+        """Create EmailService from user configuration dict.
+        
+        Args:
+            config: Dict with SMTP configuration.
+        
+        Returns:
+            EmailService instance.
+        """
+        return cls(
+            host=config.get("host"),
+            port=config.get("port"),
+            username=config.get("username"),
+            password=config.get("password"),
+            from_email=config.get("from_email"),
+            from_name=config.get("from_name"),
+            use_tls=config.get("use_tls", True),
+        )
     
     @property
     def is_configured(self) -> bool:

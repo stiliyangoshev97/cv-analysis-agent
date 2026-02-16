@@ -20,14 +20,49 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.notification import NotificationSettings
+from app.db.encryption import encrypt_api_key, decrypt_api_key, get_key_hint
 
 logger = logging.getLogger(__name__)
+
+
+def _mask_email(email: str) -> str:
+    """Mask an email address for display.
+    
+    Args:
+        email: Email address to mask.
+    
+    Returns:
+        Masked email (e.g., "u***@example.com").
+    """
+    if not email or "@" not in email:
+        return "***"
+    local, domain = email.rsplit("@", 1)
+    if len(local) <= 2:
+        masked_local = local[0] + "***"
+    else:
+        masked_local = local[0] + "***" + local[-1]
+    return f"{masked_local}@{domain}"
+
+
+def _mask_phone(phone: str) -> str:
+    """Mask a phone number for display.
+    
+    Args:
+        phone: Phone number to mask.
+    
+    Returns:
+        Masked number (e.g., "+1***7890").
+    """
+    if not phone or len(phone) < 8:
+        return "***"
+    return phone[:3] + "***" + phone[-4:]
 
 
 class NotificationRepository:
     """Repository for notification settings operations.
     
     Provides CRUD operations for user notification preferences.
+    Handles encryption/decryption of sensitive credentials.
     
     Attributes:
         session: AsyncSession for database operations.
@@ -153,3 +188,243 @@ class NotificationRepository:
             logger.info(f"Deleted notification settings for user: {user_id}")
             return True
         return False
+    
+    # =========================================================================
+    # SMTP Configuration (BYOK)
+    # =========================================================================
+    
+    async def update_smtp_config(
+        self,
+        settings: NotificationSettings,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        from_email: Optional[str] = None,
+        from_name: Optional[str] = None,
+        use_tls: Optional[bool] = None,
+    ) -> NotificationSettings:
+        """Update SMTP configuration with encryption.
+        
+        Args:
+            settings: NotificationSettings instance to update.
+            host: SMTP server hostname.
+            port: SMTP server port.
+            username: SMTP username (will be encrypted).
+            password: SMTP password (will be encrypted).
+            from_email: Sender email (will be encrypted).
+            from_name: Sender display name.
+            use_tls: Whether to use TLS.
+        
+        Returns:
+            Updated NotificationSettings.
+        """
+        if host is not None:
+            settings.smtp_host = encrypt_api_key(host) if host else None
+        if port is not None:
+            settings.smtp_port = port
+        if username is not None:
+            settings.smtp_username = encrypt_api_key(username) if username else None
+        if password is not None:
+            settings.smtp_password = encrypt_api_key(password) if password else None
+        if from_email is not None:
+            settings.smtp_from_email = encrypt_api_key(from_email) if from_email else None
+        if from_name is not None:
+            settings.smtp_from_name = from_name
+        if use_tls is not None:
+            settings.smtp_use_tls = use_tls
+        
+        return await self.update(settings)
+    
+    def get_decrypted_smtp_config(
+        self,
+        settings: NotificationSettings,
+    ) -> dict:
+        """Get decrypted SMTP configuration.
+        
+        Args:
+            settings: NotificationSettings instance.
+        
+        Returns:
+            Dict with decrypted SMTP credentials.
+        """
+        if not settings.has_smtp_config:
+            return {}
+        
+        try:
+            return {
+                "host": decrypt_api_key(settings.smtp_host) if settings.smtp_host else None,
+                "port": settings.smtp_port,
+                "username": decrypt_api_key(settings.smtp_username) if settings.smtp_username else None,
+                "password": decrypt_api_key(settings.smtp_password) if settings.smtp_password else None,
+                "from_email": decrypt_api_key(settings.smtp_from_email) if settings.smtp_from_email else None,
+                "from_name": settings.smtp_from_name,
+                "use_tls": settings.smtp_use_tls,
+            }
+        except Exception as e:
+            logger.error(f"Failed to decrypt SMTP config: {e}")
+            return {}
+    
+    def get_smtp_config_hints(
+        self,
+        settings: NotificationSettings,
+    ) -> dict:
+        """Get SMTP configuration with masked credentials.
+        
+        Args:
+            settings: NotificationSettings instance.
+        
+        Returns:
+            Dict with masked SMTP info for display.
+        """
+        if not settings.has_smtp_config:
+            return {
+                "configured": False,
+                "host": None,
+                "port": None,
+                "from_email_hint": None,
+                "from_name": None,
+                "use_tls": True,
+            }
+        
+        try:
+            from_email = decrypt_api_key(settings.smtp_from_email) if settings.smtp_from_email else None
+            host = decrypt_api_key(settings.smtp_host) if settings.smtp_host else None
+            
+            return {
+                "configured": True,
+                "host": host,
+                "port": settings.smtp_port,
+                "from_email_hint": _mask_email(from_email) if from_email else None,
+                "from_name": settings.smtp_from_name,
+                "use_tls": settings.smtp_use_tls,
+            }
+        except Exception as e:
+            logger.error(f"Failed to get SMTP hints: {e}")
+            return {"configured": False}
+    
+    # =========================================================================
+    # Twilio Configuration (BYOK)
+    # =========================================================================
+    
+    async def update_twilio_config(
+        self,
+        settings: NotificationSettings,
+        account_sid: Optional[str] = None,
+        auth_token: Optional[str] = None,
+        whatsapp_from: Optional[str] = None,
+    ) -> NotificationSettings:
+        """Update Twilio configuration with encryption.
+        
+        Args:
+            settings: NotificationSettings instance to update.
+            account_sid: Twilio account SID (will be encrypted).
+            auth_token: Twilio auth token (will be encrypted).
+            whatsapp_from: WhatsApp sender number (will be encrypted).
+        
+        Returns:
+            Updated NotificationSettings.
+        """
+        if account_sid is not None:
+            settings.twilio_account_sid = encrypt_api_key(account_sid) if account_sid else None
+        if auth_token is not None:
+            settings.twilio_auth_token = encrypt_api_key(auth_token) if auth_token else None
+        if whatsapp_from is not None:
+            settings.twilio_whatsapp_from = encrypt_api_key(whatsapp_from) if whatsapp_from else None
+        
+        return await self.update(settings)
+    
+    def get_decrypted_twilio_config(
+        self,
+        settings: NotificationSettings,
+    ) -> dict:
+        """Get decrypted Twilio configuration.
+        
+        Args:
+            settings: NotificationSettings instance.
+        
+        Returns:
+            Dict with decrypted Twilio credentials.
+        """
+        if not settings.has_twilio_config:
+            return {}
+        
+        try:
+            return {
+                "account_sid": decrypt_api_key(settings.twilio_account_sid) if settings.twilio_account_sid else None,
+                "auth_token": decrypt_api_key(settings.twilio_auth_token) if settings.twilio_auth_token else None,
+                "whatsapp_from": decrypt_api_key(settings.twilio_whatsapp_from) if settings.twilio_whatsapp_from else None,
+            }
+        except Exception as e:
+            logger.error(f"Failed to decrypt Twilio config: {e}")
+            return {}
+    
+    def get_twilio_config_hints(
+        self,
+        settings: NotificationSettings,
+    ) -> dict:
+        """Get Twilio configuration with masked credentials.
+        
+        Args:
+            settings: NotificationSettings instance.
+        
+        Returns:
+            Dict with masked Twilio info for display.
+        """
+        if not settings.has_twilio_config:
+            return {
+                "configured": False,
+                "account_sid_hint": None,
+                "whatsapp_from_hint": None,
+            }
+        
+        try:
+            account_sid = decrypt_api_key(settings.twilio_account_sid) if settings.twilio_account_sid else None
+            whatsapp_from = decrypt_api_key(settings.twilio_whatsapp_from) if settings.twilio_whatsapp_from else None
+            
+            return {
+                "configured": True,
+                "account_sid_hint": get_key_hint(account_sid) if account_sid else None,
+                "whatsapp_from_hint": _mask_phone(whatsapp_from) if whatsapp_from else None,
+            }
+        except Exception as e:
+            logger.error(f"Failed to get Twilio hints: {e}")
+            return {"configured": False}
+    
+    async def clear_smtp_config(
+        self,
+        settings: NotificationSettings,
+    ) -> NotificationSettings:
+        """Clear SMTP configuration.
+        
+        Args:
+            settings: NotificationSettings instance.
+        
+        Returns:
+            Updated NotificationSettings.
+        """
+        settings.smtp_host = None
+        settings.smtp_port = 587
+        settings.smtp_username = None
+        settings.smtp_password = None
+        settings.smtp_from_email = None
+        settings.smtp_from_name = "CV Screening Agent"
+        settings.smtp_use_tls = True
+        return await self.update(settings)
+    
+    async def clear_twilio_config(
+        self,
+        settings: NotificationSettings,
+    ) -> NotificationSettings:
+        """Clear Twilio configuration.
+        
+        Args:
+            settings: NotificationSettings instance.
+        
+        Returns:
+            Updated NotificationSettings.
+        """
+        settings.twilio_account_sid = None
+        settings.twilio_auth_token = None
+        settings.twilio_whatsapp_from = None
+        return await self.update(settings)

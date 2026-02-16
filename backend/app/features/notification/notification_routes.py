@@ -1,6 +1,7 @@
 """Routes for notification endpoints.
 
 This module defines the FastAPI routes for notification settings management.
+Supports BYOK (Bring Your Own Keys) for SMTP and Twilio credentials.
 
 Rate Limits:
     - Settings endpoints: 100/minute (standard)
@@ -11,6 +12,8 @@ Endpoints:
     PUT /: Update notification settings
     POST /test/{channel}: Send test notification
     GET /status: Get service configuration status
+    DELETE /smtp-config: Clear SMTP configuration
+    DELETE /twilio-config: Clear Twilio configuration
 """
 
 from typing import Annotated
@@ -33,7 +36,7 @@ router = APIRouter(tags=["notifications"])
     "/",
     response_model=NotificationSettingsResponse,
     summary="Get notification settings",
-    description="Get the current user's notification preferences.",
+    description="Get the current user's notification preferences including SMTP/Twilio config status.",
 )
 @limiter.limit(RATE_LIMIT_DEFAULT)
 async def get_notification_settings(
@@ -48,7 +51,7 @@ async def get_notification_settings(
     "/",
     response_model=NotificationSettingsResponse,
     summary="Update notification settings",
-    description="Update the current user's notification preferences.",
+    description="Update the current user's notification preferences. Supports BYOK for SMTP and Twilio credentials.",
 )
 @limiter.limit(RATE_LIMIT_DEFAULT)
 async def update_notification_settings(
@@ -64,7 +67,7 @@ async def update_notification_settings(
     "/test/{channel}",
     response_model=NotificationResultResponse,
     summary="Send test notification",
-    description="Send a test notification to verify configuration.",
+    description="Send a test notification to verify configuration. Uses BYOK credentials if configured.",
 )
 @limiter.limit(RATE_LIMIT_NOTIFICATION_TEST)
 async def send_test_notification(
@@ -83,7 +86,7 @@ async def send_test_notification(
 @router.get(
     "/status",
     summary="Get service status",
-    description="Get the configuration status of notification services.",
+    description="Get the configuration status of notification services (BYOK and server).",
 )
 @limiter.limit(RATE_LIMIT_DEFAULT)
 async def get_service_status(
@@ -92,3 +95,31 @@ async def get_service_status(
 ) -> dict:
     """Get notification service configuration status."""
     return await controller.get_service_status()
+
+
+@router.delete(
+    "/smtp-config",
+    summary="Clear SMTP configuration",
+    description="Clear user's SMTP configuration (BYOK). Falls back to server config.",
+)
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def clear_smtp_config(
+    request: Request,
+    controller: Annotated[NotificationController, Depends(get_notification_controller)],
+) -> dict:
+    """Clear SMTP configuration."""
+    return await controller.clear_smtp_config()
+
+
+@router.delete(
+    "/twilio-config",
+    summary="Clear Twilio configuration",
+    description="Clear user's Twilio configuration (BYOK). Falls back to server config.",
+)
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def clear_twilio_config(
+    request: Request,
+    controller: Annotated[NotificationController, Depends(get_notification_controller)],
+) -> dict:
+    """Clear Twilio configuration."""
+    return await controller.clear_twilio_config()

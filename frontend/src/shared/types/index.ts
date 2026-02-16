@@ -53,6 +53,11 @@ export type {
   SendTestNotificationRequest,
   NotificationResult,
   NotificationServiceStatus,
+  // SMTP/Twilio BYOK Types
+  SmtpConfigUpdate,
+  SmtpConfigResponse,
+  TwilioConfigUpdate,
+  TwilioConfigResponse,
   // Settings Types
   AIProvider,
   LLMProvider,

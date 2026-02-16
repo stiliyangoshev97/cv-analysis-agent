@@ -1,13 +1,13 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.13.0 - CV Similarity & Search)
+> Last Updated: February 2026 (v0.14.0 - BYOK Notifications)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, browsing CV evaluation history, chatting with AI about candidates, comparing multiple CVs, and finding similar candidates using semantic search.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, browsing CV evaluation history, chatting with AI about candidates, comparing multiple CVs, finding similar candidates using semantic search, and configuring BYOK (Bring Your Own Keys) credentials for notifications.
 
 ---
 
@@ -30,7 +30,7 @@
 | **Path Aliases** | ✅ 100% | @/ prefix for imports |
 | **Project Structure** | ✅ 100% | Feature-based organization |
 | **React Router** | ✅ 100% | Client-side routing |
-| **Notification Settings UI** | ✅ 100% | Email/WhatsApp toggles |
+| **Notification Settings UI** | ✅ 100% | Email/WhatsApp + BYOK SMTP/Twilio |
 | **Settings Page** | ✅ 100% | API Keys + LLM Preferences |
 | **Chat UI** | ✅ 100% | Ask AI, Why buttons, Chat panel |
 | **Compare CVs** | ✅ 100% | Modal for comparing 2-5 CVs |

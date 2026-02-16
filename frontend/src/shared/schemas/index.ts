@@ -86,6 +86,11 @@ export {
   sendTestNotificationRequestSchema,
   notificationResultSchema,
   notificationServiceStatusSchema,
+  // SMTP/Twilio BYOK Schemas
+  smtpConfigUpdateSchema,
+  smtpConfigResponseSchema,
+  twilioConfigUpdateSchema,
+  twilioConfigResponseSchema,
   // Types
   type NotificationSettings,
   type NotificationSettingsUpdate,
@@ -93,6 +98,11 @@ export {
   type SendTestNotificationRequest,
   type NotificationResult,
   type NotificationServiceStatus,
+  // SMTP/Twilio BYOK Types
+  type SmtpConfigUpdate,
+  type SmtpConfigResponse,
+  type TwilioConfigUpdate,
+  type TwilioConfigResponse,
 } from './notification.schemas';
 
 // Settings Schemas

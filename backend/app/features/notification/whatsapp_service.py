@@ -1,12 +1,19 @@
 """WhatsApp notification service using Twilio.
 
 This module provides WhatsApp messaging functionality using the Twilio API.
+Uses BYOK (Bring Your Own Keys) - users must configure their own Twilio
+credentials via the Settings UI.
 
 Classes:
     WhatsAppService: Service for sending WhatsApp notifications.
 
 Example:
-    service = WhatsAppService()
+    # Using user-provided credentials (BYOK)
+    service = WhatsAppService(
+        account_sid="AC...",
+        auth_token="...",
+        from_number="+14155238886"
+    )
     await service.send_cv_notification(
         to_number="+1234567890",
         cv_data=cv_notification_data
@@ -14,14 +21,13 @@ Example:
 
 Note:
     Requires Twilio account with WhatsApp Business API enabled.
-    Set TWILIO_* environment variables.
+    Users configure their credentials via Settings > Notifications.
 """
 
 import logging
 from dataclasses import dataclass
 from typing import Optional
 
-from app.config import get_settings
 from .notification_schemas import CVNotificationData
 
 logger = logging.getLogger(__name__)
@@ -41,11 +47,28 @@ class WhatsAppResult:
     error: Optional[str] = None
 
 
+@dataclass
+class TwilioCredentials:
+    """Twilio credentials for WhatsApp service.
+    
+    Attributes:
+        account_sid: Twilio account SID.
+        auth_token: Twilio auth token.
+        from_number: WhatsApp sender number.
+    """
+    account_sid: str
+    auth_token: str
+    from_number: str
+
+
 class WhatsAppService:
     """Service for sending WhatsApp notifications via Twilio.
     
     Uses Twilio's WhatsApp Business API to send messages.
     Messages are sent asynchronously using a thread executor.
+    
+    This service uses BYOK (Bring Your Own Keys) - users must configure
+    their own Twilio credentials via the Settings UI.
     
     Attributes:
         account_sid: Twilio account SID.
@@ -53,25 +76,65 @@ class WhatsAppService:
         from_number: WhatsApp sender number (e.g., "whatsapp:+14155238886").
     
     Example:
-        >>> service = WhatsAppService()
-        >>> result = await service.send_cv_notification(
-        ...     to_number="+1234567890",
-        ...     cv_data=cv_data
+        >>> # BYOK with credentials object
+        >>> creds = TwilioCredentials(account_sid="AC...", ...)
+        >>> service = WhatsAppService(credentials=creds)
+        >>> 
+        >>> # BYOK with individual params
+        >>> service = WhatsAppService(
+        ...     account_sid="AC...",
+        ...     auth_token="...",
+        ...     from_number="+14155238886"
         ... )
-        >>> if result.success:
-        ...     print(f"Message sent: {result.message_sid}")
     
     Note:
         WhatsApp Business API requires approved templates for some messages.
         For notifications, ensure your template is approved.
     """
     
-    def __init__(self) -> None:
-        """Initialize WhatsApp service with settings."""
-        settings = get_settings()
-        self.account_sid = settings.twilio_account_sid
-        self.auth_token = settings.twilio_auth_token
-        self.from_number = settings.twilio_whatsapp_from
+    def __init__(
+        self,
+        credentials: Optional[TwilioCredentials] = None,
+        *,
+        account_sid: Optional[str] = None,
+        auth_token: Optional[str] = None,
+        from_number: Optional[str] = None,
+    ) -> None:
+        """Initialize WhatsApp service.
+        
+        Requires either:
+        1. TwilioCredentials object
+        2. Individual parameters (account_sid, auth_token, from_number)
+        
+        Note:
+            This service uses BYOK (Bring Your Own Keys) - users must
+            configure their own Twilio credentials via the Settings UI.
+        """
+        if credentials:
+            self.account_sid = credentials.account_sid
+            self.auth_token = credentials.auth_token
+            self.from_number = credentials.from_number
+        else:
+            # Individual parameters (may be None if not configured)
+            self.account_sid = account_sid
+            self.auth_token = auth_token
+            self.from_number = from_number
+    
+    @classmethod
+    def from_user_config(cls, config: dict) -> "WhatsAppService":
+        """Create WhatsAppService from user configuration dict.
+        
+        Args:
+            config: Dict with Twilio configuration.
+        
+        Returns:
+            WhatsAppService instance.
+        """
+        return cls(
+            account_sid=config.get("account_sid"),
+            auth_token=config.get("auth_token"),
+            from_number=config.get("whatsapp_from"),
+        )
     
     @property
     def is_configured(self) -> bool:

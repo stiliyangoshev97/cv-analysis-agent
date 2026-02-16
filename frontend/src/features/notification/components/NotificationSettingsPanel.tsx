@@ -2,8 +2,8 @@
  * @fileoverview Notification Settings Panel component.
  *
  * Main UI for managing notification preferences including:
- * - Email toggle
- * - WhatsApp toggle with phone number input
+ * - Email toggle with SMTP configuration (BYOK)
+ * - WhatsApp toggle with Twilio configuration (BYOK)
  * - Threshold score slider
  * - Test notification buttons
  *
@@ -19,8 +19,10 @@ import {
   useUpdateNotificationSettings,
   useSendTestNotification,
   useNotificationStatus,
+  useClearSmtpConfig,
+  useClearTwilioConfig,
 } from '../hooks';
-import type { NotificationChannel } from '@/shared/types';
+import type { NotificationChannel, SmtpConfigUpdate, TwilioConfigUpdate } from '@/shared/types';
 
 /**
  * Icon components for visual enhancement.
@@ -43,6 +45,13 @@ const BellIcon = () => (
   </svg>
 );
 
+const SettingsIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
 const CheckIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -52,6 +61,18 @@ const CheckIcon = () => (
 const XIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+);
+
+const ChevronUpIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
   </svg>
 );
 
@@ -68,6 +89,8 @@ export const NotificationSettingsPanel = () => {
   const { data: status, isLoading: statusLoading } = useNotificationStatus();
   const { mutate: updateSettings, isPending: isUpdating } = useUpdateNotificationSettings();
   const { mutate: sendTest, isPending: isSendingTest, data: testResult, reset: resetTest } = useSendTestNotification();
+  const { mutate: clearSmtp, isPending: isClearingSmtp } = useClearSmtpConfig();
+  const { mutate: clearTwilio, isPending: isClearingTwilio } = useClearTwilioConfig();
 
   // Local state for form
   const [emailEnabled, setEmailEnabled] = useState(false);
@@ -75,6 +98,22 @@ export const NotificationSettingsPanel = () => {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [threshold, setThreshold] = useState(70);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // SMTP configuration state (BYOK)
+  const [showSmtpConfig, setShowSmtpConfig] = useState(false);
+  const [smtpHost, setSmtpHost] = useState('');
+  const [smtpPort, setSmtpPort] = useState('587');
+  const [smtpUsername, setSmtpUsername] = useState('');
+  const [smtpPassword, setSmtpPassword] = useState('');
+  const [smtpFromEmail, setSmtpFromEmail] = useState('');
+  const [smtpFromName, setSmtpFromName] = useState('CV Screening Agent');
+  const [smtpUseTls, setSmtpUseTls] = useState(true);
+  
+  // Twilio configuration state (BYOK)
+  const [showTwilioConfig, setShowTwilioConfig] = useState(false);
+  const [twilioAccountSid, setTwilioAccountSid] = useState('');
+  const [twilioAuthToken, setTwilioAuthToken] = useState('');
+  const [twilioWhatsappFrom, setTwilioWhatsappFrom] = useState('');
 
   // Sync local state with fetched settings
   useEffect(() => {
@@ -99,20 +138,82 @@ export const NotificationSettingsPanel = () => {
     }
   }, [emailEnabled, whatsappEnabled, whatsappNumber, threshold, settings]);
 
+  // Check if SMTP form has values
+  const hasSmtpValues = smtpHost || smtpUsername || smtpPassword || smtpFromEmail;
+  
+  // Check if Twilio form has values
+  const hasTwilioValues = twilioAccountSid || twilioAuthToken || twilioWhatsappFrom;
+
   // Save settings
   const handleSave = () => {
-    updateSettings({
+    const updateData: {
+      email_enabled: boolean;
+      whatsapp_enabled: boolean;
+      whatsapp_number: string | null;
+      threshold_score: number;
+      smtp_config?: SmtpConfigUpdate;
+      twilio_config?: TwilioConfigUpdate;
+    } = {
       email_enabled: emailEnabled,
       whatsapp_enabled: whatsappEnabled,
       whatsapp_number: whatsappNumber || null,
       threshold_score: threshold,
-    });
+    };
+    
+    // Include SMTP config if values are provided
+    if (hasSmtpValues) {
+      updateData.smtp_config = {
+        host: smtpHost || null,
+        port: parseInt(smtpPort) || 587,
+        username: smtpUsername || null,
+        password: smtpPassword || null,
+        from_email: smtpFromEmail || null,
+        from_name: smtpFromName || 'CV Screening Agent',
+        use_tls: smtpUseTls,
+      };
+    }
+    
+    // Include Twilio config if values are provided
+    if (hasTwilioValues) {
+      updateData.twilio_config = {
+        account_sid: twilioAccountSid || null,
+        auth_token: twilioAuthToken || null,
+        whatsapp_from: twilioWhatsappFrom || null,
+      };
+    }
+    
+    updateSettings(updateData);
+    
+    // Clear form fields after save (credentials are stored encrypted)
+    setSmtpHost('');
+    setSmtpPort('587');
+    setSmtpUsername('');
+    setSmtpPassword('');
+    setSmtpFromEmail('');
+    setSmtpFromName('CV Screening Agent');
+    setTwilioAccountSid('');
+    setTwilioAuthToken('');
+    setTwilioWhatsappFrom('');
   };
 
   // Send test notification
   const handleTestNotification = (channel: NotificationChannel) => {
     resetTest();
     sendTest({ channel });
+  };
+  
+  // Clear SMTP config
+  const handleClearSmtp = () => {
+    if (confirm('Are you sure you want to clear your SMTP configuration?')) {
+      clearSmtp();
+    }
+  };
+  
+  // Clear Twilio config
+  const handleClearTwilio = () => {
+    if (confirm('Are you sure you want to clear your Twilio configuration?')) {
+      clearTwilio();
+    }
   };
 
   if (settingsLoading || statusLoading) {
@@ -135,6 +236,12 @@ export const NotificationSettingsPanel = () => {
       </Card>
     );
   }
+
+  // Determine configuration sources
+  const emailSource = status?.email_source || 'none';
+  const whatsappSource = status?.whatsapp_source || 'none';
+  const smtpConfigured = settings?.smtp_config?.configured || false;
+  const twilioConfigured = settings?.twilio_config?.configured || false;
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -160,8 +267,9 @@ export const NotificationSettingsPanel = () => {
               <div>
                 <Text className="font-medium text-yellow-800">Service Configuration</Text>
                 <Text size="sm" className="text-yellow-700">
-                  {!status.email_configured && 'Email service is not configured on the server. '}
-                  {!status.whatsapp_configured && 'WhatsApp service is not configured on the server.'}
+                  {!status.email_configured && 'Email service is not configured. '}
+                  {!status.whatsapp_configured && 'WhatsApp service is not configured. '}
+                  You can configure your own credentials below.
                 </Text>
               </div>
             </div>
@@ -205,11 +313,13 @@ export const NotificationSettingsPanel = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {status && (
-                <Badge variant={status.email_configured ? 'success' : 'warning'} size="sm">
-                  {status.email_configured ? 'Configured' : 'Not Configured'}
-                </Badge>
-              )}
+              <Badge 
+                variant={status?.email_configured ? 'success' : 'warning'} 
+                size="sm"
+                title={emailSource === 'user' ? 'Using your SMTP credentials' : emailSource === 'server' ? 'Using server configuration' : 'Not configured'}
+              >
+                {emailSource === 'user' ? 'BYOK' : emailSource === 'server' ? 'Server' : 'Not Configured'}
+              </Badge>
               <Toggle
                 checked={emailEnabled}
                 onChange={setEmailEnabled}
@@ -219,9 +329,115 @@ export const NotificationSettingsPanel = () => {
             </div>
           </div>
         </CardHeader>
-        {emailEnabled && status?.email_configured && (
-          <CardContent className="border-t">
-            <div className="flex items-center justify-between">
+        <CardContent className="border-t space-y-4">
+          {/* SMTP Configuration Section */}
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowSmtpConfig(!showSmtpConfig)}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              <SettingsIcon />
+              <span>Configure SMTP (Bring Your Own)</span>
+              {showSmtpConfig ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            </button>
+            
+            {showSmtpConfig && (
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                {smtpConfigured && (
+                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                    <div>
+                      <Text size="sm" className="font-medium text-green-800">SMTP Configured</Text>
+                      <Text size="sm" className="text-green-700">
+                        Host: {settings?.smtp_config?.host} • From: {settings?.smtp_config?.from_email_hint}
+                      </Text>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearSmtp}
+                      disabled={isClearingSmtp}
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                    >
+                      {isClearingSmtp ? <Spinner size="sm" /> : 'Clear'}
+                    </Button>
+                  </div>
+                )}
+                
+                <Text size="sm" className="text-gray-600">
+                  {smtpConfigured 
+                    ? 'Enter new credentials to update your SMTP configuration:'
+                    : 'Enter your SMTP server credentials to send emails from your own account:'}
+                </Text>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label="SMTP Host"
+                    placeholder="smtp.gmail.com"
+                    value={smtpHost}
+                    onChange={(e) => setSmtpHost(e.target.value)}
+                    disabled={isUpdating}
+                  />
+                  <Input
+                    label="SMTP Port"
+                    placeholder="587"
+                    type="number"
+                    value={smtpPort}
+                    onChange={(e) => setSmtpPort(e.target.value)}
+                    disabled={isUpdating}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label="Username"
+                    placeholder="your-email@gmail.com"
+                    value={smtpUsername}
+                    onChange={(e) => setSmtpUsername(e.target.value)}
+                    disabled={isUpdating}
+                  />
+                  <Input
+                    label="Password / App Password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={smtpPassword}
+                    onChange={(e) => setSmtpPassword(e.target.value)}
+                    disabled={isUpdating}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    label="From Email"
+                    placeholder="notifications@yourcompany.com"
+                    value={smtpFromEmail}
+                    onChange={(e) => setSmtpFromEmail(e.target.value)}
+                    disabled={isUpdating}
+                  />
+                  <Input
+                    label="From Name"
+                    placeholder="CV Screening Agent"
+                    value={smtpFromName}
+                    onChange={(e) => setSmtpFromName(e.target.value)}
+                    disabled={isUpdating}
+                  />
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Toggle
+                    checked={smtpUseTls}
+                    onChange={setSmtpUseTls}
+                    disabled={isUpdating}
+                    label="Use TLS"
+                  />
+                  <Text size="sm" color="muted">Use TLS/STARTTLS encryption (recommended)</Text>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {emailEnabled && status?.email_configured && (
+            <div className="flex items-center justify-between pt-3 border-t">
               <Text size="sm" color="muted">
                 Notifications will be sent to your account email
               </Text>
@@ -234,8 +450,8 @@ export const NotificationSettingsPanel = () => {
                 {isSendingTest ? <Spinner size="sm" /> : 'Send Test Email'}
               </Button>
             </div>
-          </CardContent>
-        )}
+          )}
+        </CardContent>
       </Card>
 
       {/* WhatsApp Notifications */}
@@ -254,11 +470,13 @@ export const NotificationSettingsPanel = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {status && (
-                <Badge variant={status.whatsapp_configured ? 'success' : 'warning'} size="sm">
-                  {status.whatsapp_configured ? 'Configured' : 'Not Configured'}
-                </Badge>
-              )}
+              <Badge 
+                variant={status?.whatsapp_configured ? 'success' : 'warning'} 
+                size="sm"
+                title={whatsappSource === 'user' ? 'Using your Twilio credentials' : whatsappSource === 'server' ? 'Using server configuration' : 'Not configured'}
+              >
+                {whatsappSource === 'user' ? 'BYOK' : whatsappSource === 'server' ? 'Server' : 'Not Configured'}
+              </Badge>
               <Toggle
                 checked={whatsappEnabled}
                 onChange={setWhatsappEnabled}
@@ -268,28 +486,101 @@ export const NotificationSettingsPanel = () => {
             </div>
           </div>
         </CardHeader>
-        {whatsappEnabled && status?.whatsapp_configured && (
-          <CardContent className="border-t space-y-4">
-            <Input
-              label="WhatsApp Number"
-              placeholder="+1234567890"
-              value={whatsappNumber}
-              onChange={(e) => setWhatsappNumber(e.target.value)}
-              helperText="Include country code (e.g., +1 for US)"
-              disabled={isUpdating}
-            />
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleTestNotification('whatsapp')}
-                disabled={isSendingTest || !whatsappEnabled || !whatsappNumber}
-              >
-                {isSendingTest ? <Spinner size="sm" /> : 'Send Test Message'}
-              </Button>
+        <CardContent className="border-t space-y-4">
+          {/* Twilio Configuration Section */}
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowTwilioConfig(!showTwilioConfig)}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              <SettingsIcon />
+              <span>Configure Twilio (Bring Your Own)</span>
+              {showTwilioConfig ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            </button>
+            
+            {showTwilioConfig && (
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                {twilioConfigured && (
+                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                    <div>
+                      <Text size="sm" className="font-medium text-green-800">Twilio Configured</Text>
+                      <Text size="sm" className="text-green-700">
+                        Account: ...{settings?.twilio_config?.account_sid_hint} • From: {settings?.twilio_config?.whatsapp_from_hint}
+                      </Text>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearTwilio}
+                      disabled={isClearingTwilio}
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                    >
+                      {isClearingTwilio ? <Spinner size="sm" /> : 'Clear'}
+                    </Button>
+                  </div>
+                )}
+                
+                <Text size="sm" className="text-gray-600">
+                  {twilioConfigured 
+                    ? 'Enter new credentials to update your Twilio configuration:'
+                    : 'Enter your Twilio credentials to send WhatsApp messages from your own account:'}
+                </Text>
+                
+                <Input
+                  label="Account SID"
+                  placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  value={twilioAccountSid}
+                  onChange={(e) => setTwilioAccountSid(e.target.value)}
+                  disabled={isUpdating}
+                />
+                
+                <Input
+                  label="Auth Token"
+                  type="password"
+                  placeholder="••••••••••••••••••••••••••••••••"
+                  value={twilioAuthToken}
+                  onChange={(e) => setTwilioAuthToken(e.target.value)}
+                  disabled={isUpdating}
+                />
+                
+                <Input
+                  label="WhatsApp Sender Number"
+                  placeholder="+14155238886"
+                  value={twilioWhatsappFrom}
+                  onChange={(e) => setTwilioWhatsappFrom(e.target.value)}
+                  helperText="Your Twilio WhatsApp-enabled phone number"
+                  disabled={isUpdating}
+                />
+              </div>
+            )}
+          </div>
+          
+          {(whatsappEnabled || status?.whatsapp_configured) && (
+            <div className="space-y-4 pt-3 border-t">
+              <Input
+                label="Your WhatsApp Number"
+                placeholder="+1234567890"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                helperText="Include country code (e.g., +1 for US)"
+                disabled={isUpdating}
+              />
+              {whatsappEnabled && status?.whatsapp_configured && (
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleTestNotification('whatsapp')}
+                    disabled={isSendingTest || !whatsappEnabled || !whatsappNumber}
+                  >
+                    {isSendingTest ? <Spinner size="sm" /> : 'Send Test Message'}
+                  </Button>
+                </div>
+              )}
             </div>
-          </CardContent>
-        )}
+          )}
+        </CardContent>
       </Card>
 
       {/* Test Result */}
@@ -320,7 +611,7 @@ export const NotificationSettingsPanel = () => {
         <Button
           variant="primary"
           onClick={handleSave}
-          disabled={!hasChanges || isUpdating}
+          disabled={(!hasChanges && !hasSmtpValues && !hasTwilioValues) || isUpdating}
         >
           {isUpdating ? (
             <>

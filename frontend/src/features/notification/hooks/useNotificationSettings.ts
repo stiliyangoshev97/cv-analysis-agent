@@ -2,6 +2,7 @@
  * @fileoverview Notification settings hooks.
  *
  * Provides React Query hooks for notification settings management.
+ * Supports BYOK (Bring Your Own Keys) for SMTP and Twilio credentials.
  *
  * @module features/notification/hooks
  */
@@ -12,6 +13,8 @@ import {
   updateNotificationSettings,
   sendTestNotification,
   getNotificationStatus,
+  clearSmtpConfig,
+  clearTwilioConfig,
 } from '../api';
 import type { NotificationSettingsUpdate, NotificationChannel } from '@/shared/types';
 
@@ -59,6 +62,8 @@ export const useUpdateNotificationSettings = () => {
     mutationFn: (data: NotificationSettingsUpdate) => updateNotificationSettings(data),
     onSuccess: (data) => {
       queryClient.setQueryData(SETTINGS_KEY, data);
+      // Also invalidate status since BYOK config may have changed
+      queryClient.invalidateQueries({ queryKey: STATUS_KEY });
     },
   });
 };
@@ -101,5 +106,51 @@ export const useNotificationStatus = () => {
     queryKey: STATUS_KEY,
     queryFn: getNotificationStatus,
     staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+};
+
+/**
+ * Hook to clear SMTP configuration (BYOK).
+ *
+ * @returns Mutation for clearing SMTP config
+ *
+ * @example
+ * ```tsx
+ * const { mutate: clearSmtp } = useClearSmtpConfig();
+ * clearSmtp();
+ * ```
+ */
+export const useClearSmtpConfig = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: clearSmtpConfig,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+      queryClient.invalidateQueries({ queryKey: STATUS_KEY });
+    },
+  });
+};
+
+/**
+ * Hook to clear Twilio configuration (BYOK).
+ *
+ * @returns Mutation for clearing Twilio config
+ *
+ * @example
+ * ```tsx
+ * const { mutate: clearTwilio } = useClearTwilioConfig();
+ * clearTwilio();
+ * ```
+ */
+export const useClearTwilioConfig = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: clearTwilioConfig,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+      queryClient.invalidateQueries({ queryKey: STATUS_KEY });
+    },
   });
 };

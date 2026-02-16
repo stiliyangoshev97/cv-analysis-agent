@@ -8,8 +8,8 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Frontend Priority 3 (Notifications UI)
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI
+> **Current Focus**: Frontend Priority 4 (Re-evaluate Feature)
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI, **Notifications UI with BYOK**
 
 ---
 
@@ -144,24 +144,37 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ---
 
-## 🟢 Priority 3: Frontend - Notifications UI (NOT STARTED)
+## ✅ Priority 3: Frontend - Notifications UI (COMPLETED)
 
-**Backend API ready, frontend partially implemented.**
+**Backend API ready, frontend fully implemented with BYOK support.**
 
 ### 3.1 Notification Settings Page (`/settings/notifications`)
 - [x] Route exists in router
-- [ ] Form for email notification settings:
-  - [ ] Enable/disable email notifications
-  - [ ] Score threshold for notifications
-  - [ ] Email recipient address
-- [ ] Form for WhatsApp notification settings:
-  - [ ] Enable/disable WhatsApp notifications
-  - [ ] Phone number input
-  - [ ] Score threshold
-- [ ] Test notification buttons
-- [ ] Service status indicators (SMTP/Twilio configured)
+- [x] Form for email notification settings:
+  - [x] Enable/disable email notifications
+  - [x] Score threshold slider (0-100)
+  - [x] Test notification button
+- [x] Form for WhatsApp notification settings:
+  - [x] Enable/disable WhatsApp notifications
+  - [x] Phone number input with validation
+  - [x] Test notification button
+- [x] Service status indicators (Configured/Not Configured)
 
-### 3.2 Notification History
+### 3.2 BYOK (Bring Your Own Keys) - NEW ✅
+- [x] SMTP configuration form:
+  - [x] Host, Port, Username, Password
+  - [x] From Email, From Name
+  - [x] Use TLS toggle
+  - [x] Clear configuration button
+- [x] Twilio configuration form:
+  - [x] Account SID, Auth Token
+  - [x] WhatsApp From Number
+  - [x] Clear configuration button
+- [x] Configuration source badges (BYOK/Server/Not Configured)
+- [x] Credentials encrypted with AES-256 (backend)
+- [x] Masked credentials display (security)
+
+### 3.3 Notification History (Future)
 - [ ] List of sent notifications
 - [ ] Filter by type (email/WhatsApp)
 - [ ] Resend failed notifications
