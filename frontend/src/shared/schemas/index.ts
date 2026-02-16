@@ -25,6 +25,15 @@ export {
   cvSummarySchema,
   cvListResponseSchema,
   cvResultSchema,
+  // Similarity & Search Schemas
+  similarCVSchema,
+  similarCVsResponseSchema,
+  cvRankingResponseSchema,
+  cvComparisonItemSchema,
+  cvCompareRequestSchema,
+  cvCompareResponseSchema,
+  cvSearchRequestSchema,
+  cvSearchResponseSchema,
   // Types
   type PassFailStatus,
   type EvaluationCriteria,
@@ -35,6 +44,15 @@ export {
   type CVSummary,
   type CVListResponse,
   type CVResult,
+  // Similarity & Search Types
+  type SimilarCV,
+  type SimilarCVsResponse,
+  type CVRankingResponse,
+  type CVComparisonItem,
+  type CVCompareRequest,
+  type CVCompareResponse,
+  type CVSearchRequest,
+  type CVSearchResponse,
 } from './cv.schemas';
 
 // Auth Schemas

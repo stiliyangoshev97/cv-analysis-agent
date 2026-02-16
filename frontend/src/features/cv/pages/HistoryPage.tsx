@@ -23,7 +23,13 @@ import {
   ModalFooter,
 } from '@/shared/components/ui';
 import { useCVList, useDeleteCV } from '../hooks';
-import type { CVSummary } from '@/shared/schemas';
+import {
+  SemanticSearchBar,
+  SearchResults,
+  CVComparisonModal,
+  RankingInline,
+} from '../components';
+import type { CVSummary, SimilarCV } from '@/shared/schemas';
 
 // =============================================================================
 // Helper Components
@@ -140,6 +146,7 @@ const CVHistoryItem = ({ cv, onDelete }: CVHistoryItemProps) => {
             <div className="flex items-center gap-2 flex-shrink-0">
               <ScoreBadge score={cv.score} />
               <StatusBadge status={cv.evaluation_status} />
+              {cv.evaluation_status && <RankingInline cvId={cv.id} />}
             </div>
           </div>
 
@@ -287,6 +294,9 @@ export const HistoryPage = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'pass' | 'fail'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
   const [cvToDelete, setCvToDelete] = useState<CVSummary | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
+  const [searchResults, setSearchResults] = useState<SimilarCV[] | null>(null);
+  const [searchQueryText, setSearchQueryText] = useState('');
 
   const { data, isLoading, error } = useCVList(100, 0);
   const { mutate: deleteCV, isPending: isDeleting } = useDeleteCV();
@@ -392,10 +402,55 @@ export const HistoryPage = () => {
             View and manage your CV evaluations
           </Text>
         </div>
-        <Link to="/">
-          <Button>
+        <div className="flex items-center gap-2">
+          {cvs.length >= 2 && (
+            <Button variant="outline" onClick={() => setShowComparison(true)}>
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+              Compare CVs
+            </Button>
+          )}
+          <Link to="/">
+            <Button>
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Upload CV
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats */}
+      {cvs.length > 0 && <HistoryStats cvs={cvs} />}
+
+      {/* Semantic Search */}
+      {cvs.length > 0 && (
+        <Card className="p-4 mb-6">
+          <div className="flex items-center gap-2 mb-3">
             <svg
-              className="w-4 h-4 mr-2"
+              className="w-5 h-5 text-blue-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -404,24 +459,40 @@ export const HistoryPage = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 4v16m8-8H4"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
               />
             </svg>
-            Upload CV
-          </Button>
-        </Link>
-      </div>
+            <Text weight="medium" className="text-gray-900 dark:text-white">
+              AI-Powered Search
+            </Text>
+          </div>
+          <SemanticSearchBar
+            onResults={(results) => {
+              setSearchResults(results);
+              setSearchQueryText(results.length > 0 ? 'search results' : '');
+            }}
+            onClear={() => {
+              setSearchResults(null);
+              setSearchQueryText('');
+            }}
+          />
+        </Card>
+      )}
 
-      {/* Stats */}
-      {cvs.length > 0 && <HistoryStats cvs={cvs} />}
+      {/* Search Results */}
+      {searchResults && (
+        <div className="mb-6">
+          <SearchResults results={searchResults} query={searchQueryText} />
+        </div>
+      )}
 
-      {/* Filters */}
-      {cvs.length > 0 && (
+      {/* Filters (only show when not in search mode) */}
+      {cvs.length > 0 && !searchResults && (
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Search */}
           <div className="flex-1">
             <Input
-              placeholder="Search by name or filename..."
+              placeholder="Filter by name or filename..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full"
@@ -567,6 +638,18 @@ export const HistoryPage = () => {
           </Button>
         </ModalFooter>
       </Modal>
+
+      {/* CV Comparison Modal */}
+      <CVComparisonModal
+        availableCVs={cvs.map((cv) => ({
+          id: cv.id,
+          candidate_name: cv.candidate_name,
+          filename: cv.filename,
+          score: cv.score,
+        }))}
+        isOpen={showComparison}
+        onClose={() => setShowComparison(false)}
+      />
     </Container>
   );
 };

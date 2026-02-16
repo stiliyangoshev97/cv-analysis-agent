@@ -22,6 +22,7 @@ import {
 } from '@/shared/components/ui';
 import { useCV, useDeleteCV } from '../hooks';
 import { ChatPanel } from '@/features/chat';
+import { SimilarCVsModal, RankingBadge } from '../components';
 
 // =============================================================================
 // Helper Components
@@ -143,6 +144,7 @@ export const CVDetailPage = () => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showSimilar, setShowSimilar] = useState(false);
 
   if (isLoading) {
     return (
@@ -216,12 +218,15 @@ export const CVDetailPage = () => {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Heading level={1}>
               {cv.candidate_name || 'Unknown Candidate'}
             </Heading>
             {cv.evaluation && (
-              <ScoreBadge score={cv.evaluation.score} />
+              <>
+                <ScoreBadge score={cv.evaluation.score} />
+                <RankingBadge cvId={cv.id} showDetails />
+              </>
             )}
           </div>
           <Text color="muted" className="mt-1">
@@ -232,6 +237,25 @@ export const CVDetailPage = () => {
           </Text>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowSimilar(true)}
+          >
+            <svg
+              className="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            Find Similar
+          </Button>
           <Button
             variant="outline"
             onClick={() => setShowChat(true)}
@@ -397,6 +421,14 @@ export const CVDetailPage = () => {
         candidateName={cv.candidate_name ?? undefined}
         isOpen={showChat}
         onClose={() => setShowChat(false)}
+      />
+
+      {/* Similar CVs Modal */}
+      <SimilarCVsModal
+        cvId={cv.id}
+        candidateName={cv.candidate_name ?? undefined}
+        isOpen={showSimilar}
+        onClose={() => setShowSimilar(false)}
       />
     </Container>
   );

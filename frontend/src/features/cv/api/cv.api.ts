@@ -1,13 +1,21 @@
 /**
  * @fileoverview CV feature API functions.
  *
- * Provides API calls for CV upload and evaluation.
+ * Provides API calls for CV upload, evaluation, similarity search, and ranking.
  *
  * @module features/cv/api
  */
 
 import { apiClient } from '@/shared/api';
-import type { UploadResponse, UploadProgress, CVListResponse } from '@/shared/types';
+import type {
+  UploadResponse,
+  UploadProgress,
+  CVListResponse,
+  SimilarCVsResponse,
+  CVRankingResponse,
+  CVCompareResponse,
+  CVSearchResponse,
+} from '@/shared/types';
 
 /**
  * Get a paginated list of the user's CVs.
@@ -170,4 +178,104 @@ export const getCV = async (cvId: string): Promise<CVDetailResponse> => {
  */
 export const deleteCV = async (cvId: string): Promise<void> => {
   await apiClient.delete(`/api/cv/${cvId}`);
+};
+
+// =============================================================================
+// Similarity & Search API Functions
+// =============================================================================
+
+/**
+ * Find CVs similar to a given CV.
+ *
+ * Uses vector embeddings to find semantically similar candidates.
+ *
+ * @param cvId - The UUID of the source CV
+ * @param limit - Maximum number of similar CVs to return (default 5)
+ * @param minSimilarity - Minimum similarity threshold 0-1 (default 0)
+ * @returns Promise resolving to similar CVs response
+ *
+ * @example
+ * ```typescript
+ * const { similar_cvs } = await findSimilarCVs('uuid', 5, 0.5);
+ * similar_cvs.forEach(cv => console.log(`${cv.candidate_name}: ${cv.similarity_score}`));
+ * ```
+ */
+export const findSimilarCVs = async (
+  cvId: string,
+  limit: number = 5,
+  minSimilarity: number = 0.3
+): Promise<SimilarCVsResponse> => {
+  const response = await apiClient.get<SimilarCVsResponse>(`/api/cv/${cvId}/similar`, {
+    params: { limit, min_similarity: minSimilarity },
+  });
+  return response.data;
+};
+
+/**
+ * Get ranking/percentile for a CV.
+ *
+ * Returns how this CV compares to all other CVs by evaluation score.
+ *
+ * @param cvId - The UUID of the CV to rank
+ * @returns Promise resolving to CV ranking response
+ *
+ * @example
+ * ```typescript
+ * const ranking = await getCVRanking('uuid');
+ * console.log(`Ranked #${ranking.rank} of ${ranking.total_cvs} (${ranking.label})`);
+ * ```
+ */
+export const getCVRanking = async (cvId: string): Promise<CVRankingResponse> => {
+  const response = await apiClient.get<CVRankingResponse>(`/api/cv/${cvId}/ranking`);
+  return response.data;
+};
+
+/**
+ * Compare multiple CVs head-to-head.
+ *
+ * Returns detailed comparison including similarity matrix and best match.
+ *
+ * @param cvIds - Array of CV UUIDs to compare (2-10)
+ * @returns Promise resolving to CV comparison response
+ *
+ * @example
+ * ```typescript
+ * const comparison = await compareCVs(['uuid1', 'uuid2', 'uuid3']);
+ * console.log(`Best match: ${comparison.best_match_id}`);
+ * ```
+ */
+export const compareCVs = async (cvIds: string[]): Promise<CVCompareResponse> => {
+  const response = await apiClient.post<CVCompareResponse>('/api/cv/compare', {
+    cv_ids: cvIds,
+  });
+  return response.data;
+};
+
+/**
+ * Search CVs by natural language query.
+ *
+ * Uses semantic search to find CVs matching the query.
+ *
+ * @param query - Natural language search query
+ * @param limit - Maximum results to return (default 10)
+ * @param minSimilarity - Minimum similarity threshold (default 0)
+ * @returns Promise resolving to search results
+ *
+ * @example
+ * ```typescript
+ * const { results } = await searchCVs('Python developer with fintech experience');
+ * results.forEach(cv => console.log(`${cv.candidate_name}: ${cv.similarity_score}`));
+ * ```
+ */
+export const searchCVs = async (
+  query: string,
+  limit: number = 10,
+  minSimilarity: number = 0
+): Promise<CVSearchResponse> => {
+  const response = await apiClient.post<CVSearchResponse>('/api/cv/search', {
+    query,
+    limit,
+    min_similarity: minSimilarity,
+  });
+  return response.data;
 };

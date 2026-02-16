@@ -89,6 +89,7 @@ def extract_candidate_name(cv_text: str) -> Optional[str]:
     
     Uses simple heuristics to find the candidate's name,
     typically found at the beginning of the document.
+    Supports both Latin and Cyrillic characters.
     
     Args:
         cv_text: Full text of the CV.
@@ -104,28 +105,56 @@ def extract_candidate_name(cv_text: str) -> Optional[str]:
         return None
     
     # Take first few lines
-    lines = cv_text.strip().split("\n")[:5]
+    lines = cv_text.strip().split("\n")[:10]  # Check more lines
     
     for line in lines:
         line = line.strip()
-        # Skip empty lines and common headers
-        if not line or len(line) < 3:
+        # Skip empty lines and very short lines
+        if not line or len(line) < 3 or len(line) > 60:
             continue
         
         # Skip lines that look like headers/titles
         lower = line.lower()
         if any(header in lower for header in [
             "curriculum vitae", "resume", "cv", "profile",
-            "email", "phone", "address", "linkedin"
+            "email", "phone", "address", "linkedin", "github",
+            "summary", "objective", "experience", "education",
+            "skills", "contact", "www.", "http", "@",
+            # Cyrillic headers
+            "резюме", "автобиография", "опыт", "образование",
+            "навыки", "контакт", "телефон", "почта", "адрес",
         ]):
             continue
         
-        # Likely a name if it's 2-4 words with capital letters
+        # Skip lines with too many numbers (likely phone/address)
+        digit_count = sum(c.isdigit() for c in line)
+        if digit_count > 3:
+            continue
+        
+        # Skip lines with special characters typical of non-name content
+        if any(c in line for c in ['@', '|', '•', '●', '►', '/', '\\', '#']):
+            continue
+        
+        # Likely a name if it's 2-4 words
         words = line.split()
         if 2 <= len(words) <= 4:
-            # Check if words look like names (capitalized)
-            if all(w[0].isupper() for w in words if w):
-                return line
+            # Check if words look like names (start with uppercase)
+            # This works for both Latin and Cyrillic characters
+            valid_name = True
+            for word in words:
+                # Clean word of punctuation
+                clean_word = ''.join(c for c in word if c.isalpha())
+                if not clean_word:
+                    valid_name = False
+                    break
+                # Check first letter is uppercase (works for Latin & Cyrillic)
+                if not clean_word[0].isupper():
+                    valid_name = False
+                    break
+            
+            if valid_name:
+                # Return cleaned name without extra punctuation
+                return ' '.join(words)
     
     return None
 

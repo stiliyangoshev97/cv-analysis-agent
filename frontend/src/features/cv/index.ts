@@ -21,11 +21,38 @@ export {
   Scorecard,
   ScoreRing,
   CriteriaItem,
+  // Similarity & Search components
+  SimilarCVsModal,
+  RankingBadge,
+  RankingInline,
+  SemanticSearchBar,
+  SearchResults,
+  CVComparisonModal,
 } from './components';
 
 // Hooks
-export { useUploadCV, useCVList, useDeleteCV, useCV } from './hooks';
+export {
+  useUploadCV,
+  useCVList,
+  useDeleteCV,
+  useCV,
+  useSimilarCVs,
+  useCVRanking,
+  useCompareCVs,
+  useSearchCVs,
+  useSearchCVsMutation,
+} from './hooks';
 
 // API
-export { uploadCV, checkHealth, deleteCV, getCV } from './api';
+export {
+  uploadCV,
+  checkHealth,
+  deleteCV,
+  getCV,
+  listCVs,
+  findSimilarCVs,
+  getCVRanking,
+  compareCVs,
+  searchCVs,
+} from './api';
 export type { CVDetailResponse } from './api';

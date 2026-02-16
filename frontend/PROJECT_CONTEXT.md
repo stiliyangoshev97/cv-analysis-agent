@@ -1,13 +1,13 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.12.2 - CV Detail Chat & ID Fix)
+> Last Updated: February 2026 (v0.13.0 - CV Similarity & Search)
 
 ---
 
 ## 🎯 Platform Overview
 
-**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, browsing CV evaluation history, chatting with AI about candidates, and comparing multiple CVs.
+**CV Analysis Agent** is an AI-powered CV screening platform that uses Claude AI to evaluate resumes against customizable evaluation criteria. The frontend provides a clean, intuitive interface for managing evaluation profiles/templates, uploading CVs (up to 10 at once), viewing detailed evaluation scorecards, browsing CV evaluation history, chatting with AI about candidates, comparing multiple CVs, and finding similar candidates using semantic search.
 
 ---
 
@@ -40,9 +40,13 @@
 | **Evaluation Profiles** | ✅ 100% | Full CRUD for templates/criteria |
 | **CV History** | ✅ 100% | List, filter, sort, delete CVs |
 | **CV Detail Page** | ✅ 100% | View evaluation details |
+| **CV Similarity** | ✅ 100% | Find Similar button, similarity modal |
+| **CV Ranking** | ✅ 100% | Percentile badges (Top X%) |
+| **Semantic Search** | ✅ 100% | AI-powered natural language search |
+| **CV Comparison** | ✅ 100% | Compare 2-10 CVs side-by-side |
 | **Dashboard** | ⏳ 0% | Future feature |
 
-**Overall Progress: ~97%** (Core features complete)
+**Overall Progress: ~98%** (Core features complete)
 
 ---
 
@@ -144,16 +148,21 @@ frontend/src/
     │   │   ├── Scorecard.tsx
     │   │   ├── ScoreRing.tsx
     │   │   ├── CriteriaItem.tsx
+    │   │   ├── SimilarCVsModal.tsx # Find similar CVs modal
+    │   │   ├── RankingBadge.tsx    # Percentile ranking display
+    │   │   ├── SemanticSearchBar.tsx # AI-powered search
+    │   │   ├── CVComparisonModal.tsx # Compare CVs side-by-side
     │   │   └── index.ts
     │   ├── hooks/
     │   │   ├── useUploadCV.ts
     │   │   ├── useCVList.ts
     │   │   ├── useCV.ts            # Single CV detail
     │   │   ├── useDeleteCV.ts      # Delete CV mutation
+    │   │   ├── useSimilarity.ts    # Similar CVs, ranking, compare, search
     │   │   └── index.ts
     │   ├── pages/
     │   │   ├── CVPage.tsx          # Upload page
-    │   │   ├── HistoryPage.tsx     # CV evaluation history
+    │   │   ├── HistoryPage.tsx     # CV evaluation history + search
     │   │   ├── CVDetailPage.tsx    # Single CV detail view
     │   │   └── index.ts
     │   └── index.ts

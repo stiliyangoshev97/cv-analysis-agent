@@ -7,6 +7,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.13.0] - 2026-02-16 🔍 CV SIMILARITY & SEARCH
+
+### Added
+
+**Find Similar CVs Feature**
+- "Find Similar" button on CV detail page header
+- `SimilarCVsModal` component showing similar candidates with similarity scores
+- Links to similar CV detail pages from modal
+
+**CV Ranking/Percentile Display**
+- `RankingBadge` component showing percentile ranking (e.g., "Top 10%")
+- `RankingInline` component for compact ranking display in lists
+- Ranking badge shown on CV detail page next to score
+- Inline ranking shown on CV history cards
+
+**Semantic Search**
+- `SemanticSearchBar` component for natural language CV search
+- AI-powered search on history page (e.g., "Python developer with fintech experience")
+- `SearchResults` component displaying search results with relevance scores
+- Clear search functionality
+
+**CV Comparison**
+- "Compare CVs" button on history page header
+- `CVComparisonModal` for comparing 2-10 CVs side-by-side
+- CV selection interface with checkboxes
+- Similarity matrix visualization
+- Best match highlighting
+- Most similar pair identification
+
+**New Schemas**
+- `similarCVSchema` - Similar CV response
+- `similarCVsResponseSchema` - Similar CVs endpoint response
+- `cvRankingResponseSchema` - CV ranking/percentile response
+- `cvComparisonItemSchema` - CV in comparison
+- `cvCompareRequestSchema` / `cvCompareResponseSchema` - Comparison request/response
+- `cvSearchRequestSchema` / `cvSearchResponseSchema` - Semantic search request/response
+
+**New API Functions**
+- `findSimilarCVs(cvId, limit, minSimilarity)` - Find similar CVs
+- `getCVRanking(cvId)` - Get CV percentile ranking
+- `compareCVs(cvIds)` - Compare multiple CVs
+- `searchCVs(query, limit, minSimilarity)` - Semantic search
+
+**New React Query Hooks**
+- `useSimilarCVs(cvId, limit, minSimilarity, enabled)` - Find similar CVs
+- `useCVRanking(cvId, enabled)` - Get ranking
+- `useCompareCVs()` - Mutation for comparison
+- `useSearchCVs(query, limit, minSimilarity, enabled)` - Reactive search
+- `useSearchCVsMutation()` - On-demand search mutation
+
+### Fixed
+
+**Similar CVs Accuracy**
+- Increased default minimum similarity threshold from 0 to 0.3 (30%)
+- `SimilarCVsModal` uses 0.5 (50%) for stricter filtering
+- Dissimilar CVs no longer appear in "Find Similar" results
+
+### Changed
+
+**CV Detail Page (`CVDetailPage.tsx`)**
+- Added "Find Similar" button next to "Ask AI" button
+- Added `RankingBadge` component showing percentile next to score
+- Added `SimilarCVsModal` for displaying similar candidates
+
+**History Page (`HistoryPage.tsx`)**
+- Added "Compare CVs" button in header (when 2+ CVs exist)
+- Added AI-Powered Search section with `SemanticSearchBar`
+- Added `SearchResults` display when search is active
+- Added `RankingInline` to CV history cards
+- Added `CVComparisonModal` for comparing selected CVs
+
+---
+
 ## [0.12.2] - 2026-02-15 💬 CV DETAIL CHAT & ID FIX
 
 ### Added

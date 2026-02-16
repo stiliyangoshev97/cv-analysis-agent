@@ -236,7 +236,7 @@ async def find_similar_cvs(
     request: Request,
     cv_id: uuid.UUID,
     limit: int = Query(5, ge=1, le=20, description="Maximum results"),
-    min_similarity: float = Query(0.0, ge=0, le=1, description="Minimum similarity"),
+    min_similarity: float = Query(0.3, ge=0, le=1, description="Minimum similarity (0-1)"),
     similarity_service: SimilarityService = Depends(get_similarity_service),
     current_user: User = Depends(get_current_user),
 ) -> SimilarCVsResponse:

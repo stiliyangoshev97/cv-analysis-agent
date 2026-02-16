@@ -175,7 +175,7 @@ class SimilarityService:
         cv_id: uuid.UUID,
         user_id: uuid.UUID,
         limit: int = 5,
-        min_similarity: float = 0.0,
+        min_similarity: float = 0.3,
     ) -> List[SimilarCVResult]:
         """Find CVs similar to a given CV.
         
@@ -186,7 +186,7 @@ class SimilarityService:
             cv_id: Source CV's UUID.
             user_id: User's UUID for authorization.
             limit: Maximum number of similar CVs to return.
-            min_similarity: Minimum similarity threshold (0-1).
+            min_similarity: Minimum similarity threshold (0-1, default 0.3).
             
         Returns:
             List of SimilarCVResult sorted by similarity (descending).

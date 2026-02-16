@@ -13,3 +13,9 @@ export { TemplateSelector } from './TemplateSelector';
 export { Scorecard } from './Scorecard';
 export { ScoreRing } from './ScoreRing';
 export { CriteriaItem } from './CriteriaItem';
+
+// Similarity & Search components
+export { SimilarCVsModal } from './SimilarCVsModal';
+export { RankingBadge, RankingInline } from './RankingBadge';
+export { SemanticSearchBar, SearchResults } from './SemanticSearchBar';
+export { CVComparisonModal } from './CVComparisonModal';

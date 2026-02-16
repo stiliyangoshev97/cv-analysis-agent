@@ -8,8 +8,24 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Frontend Priority 2 (CV Similarity & Search)
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History
+> **Current Focus**: Frontend Priority 3 (Notifications UI)
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI
+
+---
+
+## ✅ Bug Fixes (Feb 2026)
+
+### Similar CVs Accuracy Fix ✅
+- [x] Increased minimum similarity threshold from 0 to 0.3 (30%)
+- [x] Updated `SimilarCVsModal` to use 0.5 (50%) for stricter filtering
+- [x] Backend route, service, and frontend API all use 0.3 default
+- [x] Dissimilar CVs no longer appear in "Find Similar" results
+
+### Cyrillic Name Extraction Fix ✅
+- [x] `extract_candidate_name()` now checks 10 lines instead of 5
+- [x] Added Cyrillic header words to skip list (резюме, автобиография, etc.)
+- [x] Uses `isupper()` which works for both Latin and Cyrillic
+- [x] Proper validation for multi-word names with special characters
 
 ---
 
@@ -97,32 +113,34 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ---
 
-## 🟡 Priority 2: Frontend - CV Similarity & Search (NOT STARTED)
+## ✅ Priority 2: Frontend - CV Similarity & Search (COMPLETED)
 
-**Backend API ready, frontend missing.**
+**Backend API ready, frontend implemented.**
 
-### 2.1 Similar CVs Feature
-- [ ] Add "Find Similar" button on CV detail page
-- [ ] Display similar CVs in modal or sidebar
-- [ ] Show similarity score percentage
-- [ ] Link to similar CV detail pages
+### 2.1 Similar CVs Feature ✅
+- [x] Add "Find Similar" button on CV detail page
+- [x] Display similar CVs in modal (`SimilarCVsModal`)
+- [x] Show similarity score percentage
+- [x] Link to similar CV detail pages
 
-### 2.2 CV Ranking
-- [ ] Add ranking badge/indicator on CV cards
-- [ ] Show percentile ranking (e.g., "Top 10%")
-- [ ] Sort CVs by ranking in list view
+### 2.2 CV Ranking ✅
+- [x] Add ranking badge/indicator on CV cards (`RankingInline`)
+- [x] Show percentile ranking (e.g., "Top 10%") (`RankingBadge`)
+- [x] Display ranking on CV detail page
 
-### 2.3 Semantic Search
-- [ ] Add search bar to CV list page
-- [ ] Natural language search (e.g., "Python developers with fintech experience")
-- [ ] Display search results with relevance scores
-- [ ] Clear search button
+### 2.3 Semantic Search ✅
+- [x] Add AI-powered search bar to history page (`SemanticSearchBar`)
+- [x] Natural language search (e.g., "Python developers with fintech experience")
+- [x] Display search results with relevance scores (`SearchResults`)
+- [x] Clear search button
 
-### 2.4 CV Comparison Page
-- [ ] Select multiple CVs for comparison
-- [ ] Side-by-side comparison view
-- [ ] Highlight differences in scores
-- [ ] AI-generated comparison summary
+### 2.4 CV Comparison Modal ✅
+- [x] "Compare CVs" button on history page
+- [x] Select multiple CVs for comparison (2-10)
+- [x] Side-by-side comparison view (`CVComparisonModal`)
+- [x] Similarity matrix visualization
+- [x] Best match highlighting
+- [x] Most similar pair identification
 
 ---
 

@@ -28,6 +28,15 @@ export type {
   CVSummary,
   CVListResponse,
   CVResult,
+  // CV Similarity & Search Types
+  SimilarCV,
+  SimilarCVsResponse,
+  CVRankingResponse,
+  CVComparisonItem,
+  CVCompareRequest,
+  CVCompareResponse,
+  CVSearchRequest,
+  CVSearchResponse,
   // Auth Types
   AuthProvider,
   User,

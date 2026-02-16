@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.14.5] - 2026-02-16 🔧 SIMILARITY & NAME EXTRACTION FIXES
+
+### Fixed
+
+**Similar CVs Accuracy (`similarity_service.py`, `cv_routes.py`)**
+- Increased default minimum similarity threshold from 0.0 to 0.3 (30%)
+- Dissimilar CVs no longer appear in "Find Similar" results
+- Better filtering ensures only truly similar candidates are shown
+
+**Cyrillic Name Extraction (`agents/tools.py`)**
+- `extract_candidate_name()` now checks 10 lines instead of 5
+- Added Cyrillic header words to skip list (резюме, автобиография, опыт, образование, навыки, контакт, телефон, почта, адрес)
+- Uses `isupper()` which works for both Latin and Cyrillic characters
+- Proper validation for multi-word names with special characters
+- Fixed "Unknown Candidate" issue for CVs with Cyrillic names
+
+---
+
 ## [0.14.4] - 2026-02-15 🔧 CHAT EMBEDDINGS FIX
 
 ### Fixed
