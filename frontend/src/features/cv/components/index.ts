@@ -19,3 +19,6 @@ export { SimilarCVsModal } from './SimilarCVsModal';
 export { RankingBadge, RankingInline } from './RankingBadge';
 export { SemanticSearchBar, SearchResults } from './SemanticSearchBar';
 export { CVComparisonModal } from './CVComparisonModal';
+
+// Re-evaluate component
+export { ReEvaluateModal } from './ReEvaluateModal';

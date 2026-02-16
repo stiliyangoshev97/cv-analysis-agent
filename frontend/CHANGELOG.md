@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.0] - 2026-02-16 🔄 RE-EVALUATE FEATURE
+
+### Added
+
+**Re-evaluate CV with Different Profile**
+- "Re-evaluate" button on CV detail page header
+- `ReEvaluateModal` component with profile selector
+- Shows all available profiles (system + user-created)
+- Current profile marked with "Current" badge
+- System templates marked with "System" badge
+- Warning message about replacing previous evaluation
+- Loading state during re-evaluation
+- Auto-refresh of CV data after successful re-evaluation
+
+**New Files**
+- `ReEvaluateModal.tsx` - Modal component for profile selection
+- `useReEvaluateCV.ts` - React Query mutation hook
+
+**API**
+- `reEvaluateCV(cvId, templateId)` - API function for re-evaluation
+
+---
+
 ## [0.14.0] - 2026-02-16 🔑 BYOK NOTIFICATIONS (Bring Your Own Keys)
 
 ### Added

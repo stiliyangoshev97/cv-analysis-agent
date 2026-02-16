@@ -279,3 +279,37 @@ export const searchCVs = async (
   });
   return response.data;
 };
+
+// =============================================================================
+// Re-evaluate API Function
+// =============================================================================
+
+/**
+ * Re-evaluate an existing CV with a different evaluation template.
+ *
+ * Triggers a new AI evaluation using the specified profile.
+ * The previous evaluation is replaced with the new one.
+ *
+ * @param cvId - The UUID of the CV to re-evaluate
+ * @param templateId - The UUID of the new evaluation template to use
+ * @returns Promise resolving to the new evaluation response
+ *
+ * @example
+ * ```typescript
+ * const result = await reEvaluateCV('cv-uuid', 'template-uuid');
+ * if (result.success) {
+ *   console.log(`New score: ${result.evaluation.match_score}`);
+ * }
+ * ```
+ *
+ * @throws {AxiosError} On network errors or if CV/template not found
+ */
+export const reEvaluateCV = async (
+  cvId: string,
+  templateId: string
+): Promise<UploadResponse> => {
+  const response = await apiClient.post<UploadResponse>(
+    `/api/cv/${cvId}/re-evaluate?template_id=${templateId}`
+  );
+  return response.data;
+};

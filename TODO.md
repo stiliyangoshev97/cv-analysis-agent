@@ -8,8 +8,8 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Frontend Priority 4 (Re-evaluate Feature)
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI, **Notifications UI with BYOK**
+> **Current Focus**: Testing & Polish
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI, **Notifications UI with BYOK**, **Re-evaluate Feature**
 
 ---
 
@@ -181,13 +181,13 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ---
 
-## 🔵 Priority 4: Frontend - Re-evaluate Feature (NOT STARTED)
+## ✅ Priority 4: Frontend - Re-evaluate Feature (COMPLETED)
 
-- [ ] Add "Re-evaluate" button on CV detail page
-- [ ] Select different template for re-evaluation
-- [ ] Show loading state during re-evaluation
-- [ ] Update evaluation display after completion
-- [ ] Keep history of previous evaluations
+- [x] Add "Re-evaluate" button on CV detail page
+- [x] Select different template for re-evaluation (modal with profile list)
+- [x] Show loading state during re-evaluation
+- [x] Update evaluation display after completion (query invalidation)
+- [x] Warning about replacing previous evaluation
 
 ---
 

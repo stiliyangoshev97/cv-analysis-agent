@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.14.0 - BYOK Notifications)
+> Last Updated: February 2026 (v0.15.0 - Re-evaluate Feature)
 
 ---
 
@@ -44,9 +44,10 @@
 | **CV Ranking** | ✅ 100% | Percentile badges (Top X%) |
 | **Semantic Search** | ✅ 100% | AI-powered natural language search |
 | **CV Comparison** | ✅ 100% | Compare 2-10 CVs side-by-side |
+| **Re-evaluate** | ✅ 100% | Re-evaluate CV with different profile |
 | **Dashboard** | ⏳ 0% | Future feature |
 
-**Overall Progress: ~98%** (Core features complete)
+**Overall Progress: ~99%** (Core features complete)
 
 ---
 
