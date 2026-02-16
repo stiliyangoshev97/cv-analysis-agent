@@ -40,19 +40,19 @@ AVAILABLE_MODELS = {
                 description="Best balance of speed and intelligence"
             ),
             ModelOption(
-                id="claude-haiku-3-5-20241022",
-                name="Claude Haiku 3.5",
+                id="claude-haiku-4-20250514",
+                name="Claude Haiku 4",
                 description="Fastest with near-frontier intelligence"
             ),
             ModelOption(
                 id="claude-3-5-sonnet-20241022",
                 name="Claude 3.5 Sonnet",
-                description="Previous generation, still excellent"
+                description="Previous generation Sonnet"
             ),
             ModelOption(
-                id="claude-3-opus-20240229",
-                name="Claude 3 Opus",
-                description="Previous flagship model"
+                id="claude-3-5-haiku-20241022",
+                name="Claude 3.5 Haiku",
+                description="Previous generation Haiku"
             ),
         ]
     ),
