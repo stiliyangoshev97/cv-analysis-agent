@@ -156,6 +156,7 @@ class CV(Base):
         "CVEvaluation",
         back_populates="cv",
         cascade="all, delete-orphan",
+        order_by="CVEvaluation.evaluated_at.desc()",
     )
     
     embeddings: Mapped[List["CVEmbedding"]] = relationship(

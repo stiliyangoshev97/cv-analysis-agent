@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.1] - 2026-02-16 🐛 Re-Evaluate Bugfix
+
+### Fixed
+
+- **CV evaluations now ordered by `evaluated_at DESC`** - Re-evaluation results now display correctly
+  - Added `order_by` clause to `CV.evaluations` relationship in `db/models/cv.py`
+  - Ensures `cv.evaluations[0]` always returns the latest evaluation
+  - Fixes issue where re-evaluated CVs showed old evaluation results on the detail page
+
+---
+
 ## [0.15.0] - 2026-02-16 🔑 BYOK NOTIFICATIONS (Bring Your Own Keys)
 
 ### Added
