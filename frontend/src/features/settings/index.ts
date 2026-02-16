@@ -21,7 +21,7 @@
  */
 
 // Pages
-export { SettingsPage } from './pages';
+export { SettingsPage, LlmFaqPage } from './pages';
 
 // Components
 export { ApiKeysTab, LlmPreferencesTab, SetupBanner, SetupRequiredScreen } from './components';

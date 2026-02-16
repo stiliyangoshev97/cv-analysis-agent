@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Select, Text, Badge } from '@/shared/components';
 import { useAgentConfig, useUpdateAgentConfig, useAvailableModels, useApiKeys } from '../hooks';
 import type { LLMProvider } from '@/shared/types';
@@ -121,6 +122,23 @@ export const LlmPreferencesTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* FAQ Banner */}
+      <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div>
+          <Text weight="medium" className="text-blue-900 dark:text-blue-100">
+            Not sure which model to choose?
+          </Text>
+          <Text size="sm" color="muted">
+            Learn about the differences between AI models and find the best one for your needs.
+          </Text>
+        </div>
+        <Link to="/settings/models">
+          <Button variant="outline" size="sm">
+            View Models Guide →
+          </Button>
+        </Link>
+      </div>
+
       {/* Default LLM Provider */}
       <Card padding="md">
         <CardHeader>

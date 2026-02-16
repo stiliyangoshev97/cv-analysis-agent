@@ -2,7 +2,7 @@
 
 React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
-**Version:** 0.10.0 | **Last Updated:** February 14, 2026
+**Version:** 0.10.0 | **Last Updated:** February 16, 2026
 
 ## 🎯 Features
 
@@ -14,12 +14,39 @@ React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and 
 - **Compare Candidates**: Side-by-side comparison of multiple CVs
 - **Authentication**: Secure login, registration, and session management
 - **Settings Management**: Configure API keys and LLM preferences
+- **Multi-Provider LLM Support**: Choose from Anthropic, OpenAI, or Google Gemini
+- **FAQ Page**: Model comparison guide to help choose the right LLM
 - **Notification Settings**: Configure email/WhatsApp alerts with threshold
 - **Dark Mode**: Full dark theme support with system preference detection
 - **Toast Notifications**: Real-time feedback for all actions
 - **Error Boundaries**: Graceful error handling with recovery options
 - **React Router**: Client-side navigation with protected routes
 - **Responsive Design**: Works on desktop and mobile
+
+## 🤖 Supported AI Models
+
+The app supports multiple LLM providers. Users can choose their preferred model in Settings:
+
+### Anthropic Claude
+| Model | Best For |
+|-------|----------|
+| **Claude Opus 4.6** | Most intelligent - complex research, deep analysis |
+| **Claude Sonnet 4.5** | Best balance - daily coding, CV analysis |
+| **Claude Haiku 4.5** | Fastest - high-volume screening, quick responses |
+
+### OpenAI GPT
+| Model | Best For |
+|-------|----------|
+| **GPT-5.2 / Pro** | Best for coding and agentic tasks |
+| **GPT-5 / Mini / Nano** | Intelligent reasoning at various speeds |
+| **GPT-4.1** | Reliable non-reasoning model |
+
+### Google Gemini
+| Model | Best For |
+|-------|----------|
+| **Gemini 3 Pro** | Most intelligent, multimodal & agentic |
+| **Gemini 3 Flash** | Balanced speed and frontier intelligence |
+| **Gemini 2.5 Pro/Flash** | Advanced thinking, great price-performance |
 
 ## 🏗️ Architecture
 

@@ -29,30 +29,48 @@ AVAILABLE_MODELS = {
         provider="anthropic",
         provider_name="Anthropic (Claude)",
         models=[
+            # Latest Claude 4.x models (2025-2026)
+            ModelOption(
+                id="claude-opus-4-6",
+                name="Claude Opus 4.6",
+                description="Most intelligent model for complex tasks"
+            ),
+            ModelOption(
+                id="claude-sonnet-4-5-20250929",
+                name="Claude Sonnet 4.5",
+                description="Best balance of speed and intelligence"
+            ),
+            ModelOption(
+                id="claude-haiku-4-5-20251001",
+                name="Claude Haiku 4.5",
+                description="Fastest with excellent intelligence"
+            ),
+            # Previous Claude 4.x models
             ModelOption(
                 id="claude-opus-4-20250514",
                 name="Claude Opus 4",
-                description="Most intelligent for agents and coding"
+                description="Previous Opus generation"
             ),
             ModelOption(
                 id="claude-sonnet-4-20250514",
                 name="Claude Sonnet 4",
-                description="Best balance of speed and intelligence"
+                description="Previous Sonnet generation"
             ),
             ModelOption(
                 id="claude-haiku-4-20250514",
                 name="Claude Haiku 4",
-                description="Fastest with near-frontier intelligence"
+                description="Previous Haiku generation"
             ),
+            # Legacy Claude 3.5 models
             ModelOption(
                 id="claude-3-5-sonnet-20241022",
                 name="Claude 3.5 Sonnet",
-                description="Previous generation Sonnet"
+                description="Legacy Sonnet model"
             ),
             ModelOption(
                 id="claude-3-5-haiku-20241022",
                 name="Claude 3.5 Haiku",
-                description="Previous generation Haiku"
+                description="Legacy Haiku model"
             ),
         ]
     ),
@@ -60,10 +78,37 @@ AVAILABLE_MODELS = {
         provider="openai",
         provider_name="OpenAI (GPT)",
         models=[
+            # Frontier models (GPT-5.x) - Recommended
+            ModelOption(
+                id="gpt-5.2",
+                name="GPT-5.2",
+                description="Best model for coding and agentic tasks"
+            ),
+            ModelOption(
+                id="gpt-5.2-pro",
+                name="GPT-5.2 Pro",
+                description="Smarter and more precise responses"
+            ),
+            ModelOption(
+                id="gpt-5",
+                name="GPT-5",
+                description="Intelligent reasoning with configurable effort"
+            ),
+            ModelOption(
+                id="gpt-5-mini",
+                name="GPT-5 Mini",
+                description="Faster, cost-efficient for well-defined tasks"
+            ),
+            ModelOption(
+                id="gpt-5-nano",
+                name="GPT-5 Nano",
+                description="Fastest, most cost-efficient"
+            ),
+            # Previous generation
             ModelOption(
                 id="gpt-4.1",
                 name="GPT-4.1",
-                description="Latest flagship model, best quality"
+                description="Smartest non-reasoning model"
             ),
             ModelOption(
                 id="gpt-4.1-mini",
@@ -73,27 +118,13 @@ AVAILABLE_MODELS = {
             ModelOption(
                 id="gpt-4.1-nano",
                 name="GPT-4.1 Nano",
-                description="Fastest, most affordable"
+                description="Fastest GPT-4.1 variant"
             ),
-            ModelOption(
-                id="gpt-4o",
-                name="GPT-4o",
-                description="Multimodal with vision"
-            ),
-            ModelOption(
-                id="gpt-4o-mini",
-                name="GPT-4o Mini",
-                description="Fast multimodal model"
-            ),
+            # Reasoning models
             ModelOption(
                 id="o3",
                 name="o3",
                 description="Advanced reasoning model"
-            ),
-            ModelOption(
-                id="o3-mini",
-                name="o3-mini",
-                description="Fast reasoning model"
             ),
             ModelOption(
                 id="o4-mini",
@@ -106,35 +137,38 @@ AVAILABLE_MODELS = {
         provider="gemini",
         provider_name="Google (Gemini)",
         models=[
+            # Latest Gemini 3.x models
+            ModelOption(
+                id="gemini-3-pro",
+                name="Gemini 3 Pro",
+                description="Most intelligent, best for multimodal and agentic tasks"
+            ),
+            ModelOption(
+                id="gemini-3-flash",
+                name="Gemini 3 Flash",
+                description="Most balanced, built for speed and scale"
+            ),
+            # Gemini 2.5 models
             ModelOption(
                 id="gemini-2.5-pro",
                 name="Gemini 2.5 Pro",
-                description="Most capable, thinking model"
+                description="Advanced thinking model for complex reasoning"
             ),
             ModelOption(
                 id="gemini-2.5-flash",
                 name="Gemini 2.5 Flash",
-                description="Fast with thinking capabilities"
+                description="Best price-performance, great for large scale"
             ),
+            ModelOption(
+                id="gemini-2.5-flash-lite",
+                name="Gemini 2.5 Flash-Lite",
+                description="Fastest flash, optimized for cost-efficiency"
+            ),
+            # Deprecated (until March 31, 2026)
             ModelOption(
                 id="gemini-2.0-flash",
                 name="Gemini 2.0 Flash",
-                description="Very fast, multimodal"
-            ),
-            ModelOption(
-                id="gemini-2.0-flash-lite",
-                name="Gemini 2.0 Flash Lite",
-                description="Cost-effective, high volume"
-            ),
-            ModelOption(
-                id="gemini-1.5-pro",
-                name="Gemini 1.5 Pro",
-                description="1M context window"
-            ),
-            ModelOption(
-                id="gemini-1.5-flash",
-                name="Gemini 1.5 Flash",
-                description="Fast, cost-effective"
+                description="Deprecated - shutting down March 31, 2026"
             ),
         ]
     ),

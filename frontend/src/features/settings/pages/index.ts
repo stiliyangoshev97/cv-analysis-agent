@@ -4,3 +4,4 @@
  */
 
 export { SettingsPage } from './SettingsPage';
+export { LlmFaqPage } from './LlmFaqPage';

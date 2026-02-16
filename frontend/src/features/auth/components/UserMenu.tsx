@@ -62,7 +62,7 @@ export const UserMenu = () => {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
         {user.avatar_url ? (
           <img
@@ -75,7 +75,7 @@ export const UserMenu = () => {
             <span className="text-sm font-medium text-white">{initials}</span>
           </div>
         )}
-        <span className="text-sm font-medium text-gray-700 hidden sm:block">
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
           {user.full_name}
         </span>
         <svg

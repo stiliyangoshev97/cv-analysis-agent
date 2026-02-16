@@ -16,6 +16,7 @@
  * /profiles/:id/edit          [PROTECTED] Edit profile
  * /settings                   [PROTECTED] API Keys & LLM Preferences
  * /settings/notifications     [PROTECTED] Notification settings page
+ * /settings/models            [PROTECTED] LLM Models FAQ page
  * ```
  */
 
@@ -28,7 +29,7 @@ import {
   ProfileEditPage,
   ProfileCreatePage,
 } from '@/features/profile';
-import { SettingsPage } from '@/features/settings';
+import { SettingsPage, LlmFaqPage } from '@/features/settings';
 import { RouteErrorBoundary } from '@/shared/components/ui';
 import { ProtectedRoute } from './guards';
 import { RootLayout } from './RootLayout';
@@ -133,6 +134,17 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RootLayout>
           <NotificationSettingsPage />
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/settings/models',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          <LlmFaqPage />
         </RootLayout>
       </ProtectedRoute>
     ),

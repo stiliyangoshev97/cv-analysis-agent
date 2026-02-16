@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.6] - 2026-02-16 📚 LLM Models FAQ Page
+
+### Added
+
+- **LLM Models FAQ page** (`/settings/models`) with comprehensive guide:
+  - Quick recommendations for CV screening, best value, best intelligence
+  - Detailed model cards for all providers (Anthropic, OpenAI, Google)
+  - Use case guidance (best for, not ideal for)
+  - Pricing tier indicators
+  - FAQ section answering common questions
+
+### Changed
+
+- **Updated LLM Preferences tab** with link to Models Guide
+- **Updated README files** (backend, frontend, workspace) with new model info
+
+---
+
+## [0.15.5] - 2026-02-16 🤖 Updated OpenAI & Gemini Models
+
+### Changed
+
+- **Updated OpenAI models** to GPT-5.x frontier lineup:
+  - GPT-5.2 - Best for coding and agentic tasks
+  - GPT-5.2 Pro - Smarter and more precise
+  - GPT-5 - Intelligent reasoning with configurable effort
+  - GPT-5 Mini/Nano - Faster, cost-efficient variants
+  - GPT-4.1/Mini/Nano - Previous generation (non-reasoning)
+  - o3, o4-mini - Reasoning models
+
+- **Updated Google Gemini models** to latest:
+  - Gemini 3 Pro - Most intelligent, multimodal and agentic
+  - Gemini 3 Flash - Balanced speed and scale
+  - Gemini 2.5 Pro/Flash/Flash-Lite - Thinking models
+  - Removed deprecated 1.5 models, marked 2.0 Flash as deprecated
+
+---
+
+## [0.15.4] - 2026-02-16 🤖 Fixed Anthropic Model IDs
+
+### Changed
+
+- **Updated Anthropic Claude models** to latest versions:
+  - Claude Opus 4.6 - Most intelligent model for complex tasks
+  - Claude Sonnet 4.5 - Best balance of speed and intelligence
+  - Claude Haiku 4.5 - Fastest with excellent intelligence
+  - Claude Opus 4, Sonnet 4, Haiku 4 - Previous generation
+  - Claude 3.5 Sonnet/Haiku - Legacy models
+
+---
+
 ## [0.15.3] - 2026-02-16 🤖 Updated LLM Model List
 
 ### Changed

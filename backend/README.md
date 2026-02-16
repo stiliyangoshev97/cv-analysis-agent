@@ -107,12 +107,46 @@ Request → Routes → Controller → Service → Repository → Database
 - pgvector requires consistent embedding dimensions
 - Very cheap (~$0.0001 per 1K tokens)
 
-**LLM Provider Options:**
+**Supported LLM Providers:**
+
 | Provider | Models | Best For |
 |----------|--------|----------|
-| `anthropic` | claude-sonnet-4, claude-3-opus | Best quality reasoning |
-| `openai` | gpt-4o, gpt-4-turbo | Fast, reliable |
-| `gemini` | gemini-1.5-flash, gemini-1.5-pro | Cost-effective, fast |
+| **Anthropic** | Claude Opus 4.6, Sonnet 4.5, Haiku 4.5 | Best reasoning, coding, agents |
+| **OpenAI** | GPT-5.2, GPT-5, GPT-4.1 | Frontier intelligence, agentic tasks |
+| **Google** | Gemini 3 Pro, Gemini 3 Flash | Multimodal, balanced performance |
+
+### Available Models (February 2026)
+
+#### Anthropic Claude
+| Model ID | Name | Use Case |
+|----------|------|----------|
+| `claude-opus-4-6` | Claude Opus 4.6 | Most intelligent - complex reasoning, research |
+| `claude-sonnet-4-5-20250929` | Claude Sonnet 4.5 | Best balance - daily coding, analysis |
+| `claude-haiku-4-5-20251001` | Claude Haiku 4.5 | Fastest - high-volume tasks, quick responses |
+| `claude-opus-4-20250514` | Claude Opus 4 | Previous gen - still excellent |
+| `claude-sonnet-4-20250514` | Claude Sonnet 4 | Previous gen balanced |
+| `claude-haiku-4-20250514` | Claude Haiku 4 | Previous gen fast |
+
+#### OpenAI GPT
+| Model ID | Name | Use Case |
+|----------|------|----------|
+| `gpt-5.2` | GPT-5.2 | Best for coding and agentic tasks |
+| `gpt-5.2-pro` | GPT-5.2 Pro | Smarter, more precise responses |
+| `gpt-5` | GPT-5 | Intelligent reasoning with configurable effort |
+| `gpt-5-mini` | GPT-5 Mini | Faster, cost-efficient for defined tasks |
+| `gpt-5-nano` | GPT-5 Nano | Fastest, most cost-efficient |
+| `gpt-4.1` | GPT-4.1 | Smartest non-reasoning model |
+| `o3` | o3 | Advanced reasoning model |
+| `o4-mini` | o4-mini | Cost-effective reasoning |
+
+#### Google Gemini
+| Model ID | Name | Use Case |
+|----------|------|----------|
+| `gemini-3-pro` | Gemini 3 Pro | Most intelligent, multimodal & agentic |
+| `gemini-3-flash` | Gemini 3 Flash | Balanced speed and scale |
+| `gemini-2.5-pro` | Gemini 2.5 Pro | Advanced thinking, complex reasoning |
+| `gemini-2.5-flash` | Gemini 2.5 Flash | Best price-performance |
+| `gemini-2.5-flash-lite` | Gemini 2.5 Flash-Lite | Fastest, cost-efficient |
 
 ---
 

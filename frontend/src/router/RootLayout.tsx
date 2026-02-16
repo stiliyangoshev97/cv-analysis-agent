@@ -112,9 +112,18 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <Container className="py-4">
-          <Text variant="muted" size="sm" className="text-center dark:text-gray-400">
-            Powered by Claude AI
-          </Text>
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              to="/settings/models"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              AI Models Guide
+            </Link>
+            <span className="text-gray-300 dark:text-gray-600">•</span>
+            <Text variant="muted" size="sm" className="dark:text-gray-400">
+              © 2026 CV Screening Agent
+            </Text>
+          </div>
         </Container>
       </footer>
     </div>

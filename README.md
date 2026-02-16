@@ -1,6 +1,8 @@
 # CV Screening Agent 🤖📄
 
-An AI-powered CV screening platform that evaluates resumes against modern hiring criteria using Claude AI. Built for AI-first fintech companies looking for candidates who embrace modern development practices.
+An AI-powered CV screening platform that evaluates resumes against modern hiring criteria using frontier AI models. Built for AI-first fintech companies looking for candidates who embrace modern development practices.
+
+**Version:** 0.15.5 | **Last Updated:** February 16, 2026
 
 ## 🎯 What It Does
 
@@ -9,6 +11,34 @@ Upload a PDF resume and get an instant AI-powered evaluation with:
 - **5 evaluation criteria** tailored for modern tech roles
 - **Detailed reasoning** explaining the AI's decision
 - **Candidate name extraction** for quick reference
+- **Multi-LLM support** - choose Anthropic, OpenAI, or Google Gemini
+
+## 🤖 Supported AI Models (February 2026)
+
+Choose your preferred AI provider and model in Settings:
+
+### Anthropic Claude
+| Model | Description | Best For |
+|-------|-------------|----------|
+| **Claude Opus 4.6** | Most intelligent model | Complex reasoning, research, deep analysis |
+| **Claude Sonnet 4.5** | Balanced speed & intelligence | Daily coding, CV analysis, general tasks |
+| **Claude Haiku 4.5** | Fastest with excellent quality | High-volume screening, quick responses |
+
+### OpenAI GPT
+| Model | Description | Best For |
+|-------|-------------|----------|
+| **GPT-5.2** | Best for coding & agents | Complex agentic tasks, coding |
+| **GPT-5.2 Pro** | Smarter, more precise | When you need extra accuracy |
+| **GPT-5 / Mini / Nano** | Configurable reasoning | Various speed/cost tradeoffs |
+| **GPT-4.1** | Smartest non-reasoning | Reliable, fast responses |
+
+### Google Gemini
+| Model | Description | Best For |
+|-------|-------------|----------|
+| **Gemini 3 Pro** | Most intelligent, multimodal | Complex tasks, agentic use cases |
+| **Gemini 3 Flash** | Balanced speed & scale | Production workloads |
+| **Gemini 2.5 Pro** | Advanced thinking model | Complex reasoning, code, math |
+| **Gemini 2.5 Flash** | Best price-performance | Large scale processing |
 
 ## 📊 Evaluation Criteria
 
@@ -75,8 +105,11 @@ npm run dev
 |------------|---------|
 | **Python 3.13** | Runtime |
 | **FastAPI** | Async REST API framework |
-| **pdfplumber** | PDF text extraction |
-| **Anthropic SDK** | Claude AI integration |
+| **LangChain** | AI chains, prompts, RAG |
+| **Multi-LLM** | Claude, GPT-5, Gemini (user choice) |
+| **OpenAI Embeddings** | Semantic vectors for RAG |
+| **PostgreSQL + pgvector** | Database with vector search |
+| **SQLAlchemy 2.0** | Async ORM |
 | **Pydantic** | Data validation & schemas |
 | **python-jose** | JWT authentication |
 | **bcrypt** | Password hashing |
