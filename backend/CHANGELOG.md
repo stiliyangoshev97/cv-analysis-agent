@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.3] - 2026-02-16 🤖 Updated LLM Model List
+
+### Changed
+
+- **Expanded available LLM models** with latest offerings from all providers:
+
+**Anthropic Claude** (5 models):
+- Claude Opus 4 (NEW) - Most intelligent for agents and coding
+- Claude Sonnet 4 - Best balance of speed and intelligence
+- Claude Haiku 3.5 (NEW) - Fastest with near-frontier intelligence
+- Claude 3.5 Sonnet - Previous generation
+- Claude 3 Opus - Previous flagship
+
+**OpenAI GPT** (8 models):
+- GPT-4.1 (NEW) - Latest flagship model
+- GPT-4.1 Mini (NEW) - Fast and affordable
+- GPT-4.1 Nano (NEW) - Fastest, most affordable
+- GPT-4o - Multimodal with vision
+- GPT-4o Mini - Fast multimodal
+- o3 (NEW) - Advanced reasoning
+- o3-mini (NEW) - Fast reasoning
+- o4-mini (NEW) - Latest reasoning, cost-effective
+
+**Google Gemini** (6 models):
+- Gemini 2.5 Pro (NEW) - Most capable, thinking model
+- Gemini 2.5 Flash (NEW) - Fast with thinking capabilities
+- Gemini 2.0 Flash - Very fast, multimodal
+- Gemini 2.0 Flash Lite (NEW) - Cost-effective, high volume
+- Gemini 1.5 Pro - 1M context window
+- Gemini 1.5 Flash - Fast, cost-effective
+
+---
+
 ## [0.15.2] - 2026-02-16 🤖 Parser Agent Configuration
 
 ### Added

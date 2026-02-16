@@ -30,9 +30,19 @@ AVAILABLE_MODELS = {
         provider_name="Anthropic (Claude)",
         models=[
             ModelOption(
+                id="claude-opus-4-20250514",
+                name="Claude Opus 4",
+                description="Most intelligent for agents and coding"
+            ),
+            ModelOption(
                 id="claude-sonnet-4-20250514",
                 name="Claude Sonnet 4",
                 description="Best balance of speed and intelligence"
+            ),
+            ModelOption(
+                id="claude-haiku-3-5-20241022",
+                name="Claude Haiku 3.5",
+                description="Fastest with near-frontier intelligence"
             ),
             ModelOption(
                 id="claude-3-5-sonnet-20241022",
@@ -42,7 +52,7 @@ AVAILABLE_MODELS = {
             ModelOption(
                 id="claude-3-opus-20240229",
                 name="Claude 3 Opus",
-                description="Most capable, slower"
+                description="Previous flagship model"
             ),
         ]
     ),
@@ -51,19 +61,44 @@ AVAILABLE_MODELS = {
         provider_name="OpenAI (GPT)",
         models=[
             ModelOption(
+                id="gpt-4.1",
+                name="GPT-4.1",
+                description="Latest flagship model, best quality"
+            ),
+            ModelOption(
+                id="gpt-4.1-mini",
+                name="GPT-4.1 Mini",
+                description="Fast and affordable"
+            ),
+            ModelOption(
+                id="gpt-4.1-nano",
+                name="GPT-4.1 Nano",
+                description="Fastest, most affordable"
+            ),
+            ModelOption(
                 id="gpt-4o",
                 name="GPT-4o",
-                description="Latest multimodal model"
+                description="Multimodal with vision"
             ),
             ModelOption(
-                id="gpt-4-turbo",
-                name="GPT-4 Turbo",
-                description="Fast and capable"
+                id="gpt-4o-mini",
+                name="GPT-4o Mini",
+                description="Fast multimodal model"
             ),
             ModelOption(
-                id="gpt-4",
-                name="GPT-4",
-                description="Original GPT-4"
+                id="o3",
+                name="o3",
+                description="Advanced reasoning model"
+            ),
+            ModelOption(
+                id="o3-mini",
+                name="o3-mini",
+                description="Fast reasoning model"
+            ),
+            ModelOption(
+                id="o4-mini",
+                name="o4-mini",
+                description="Latest reasoning, cost-effective"
             ),
         ]
     ),
@@ -72,19 +107,34 @@ AVAILABLE_MODELS = {
         provider_name="Google (Gemini)",
         models=[
             ModelOption(
-                id="gemini-1.5-flash",
-                name="Gemini 1.5 Flash",
-                description="Fast and cost-effective"
+                id="gemini-2.5-pro",
+                name="Gemini 2.5 Pro",
+                description="Most capable, thinking model"
             ),
             ModelOption(
-                id="gemini-1.5-pro",
-                name="Gemini 1.5 Pro",
-                description="More capable, larger context"
+                id="gemini-2.5-flash",
+                name="Gemini 2.5 Flash",
+                description="Fast with thinking capabilities"
             ),
             ModelOption(
                 id="gemini-2.0-flash",
                 name="Gemini 2.0 Flash",
-                description="Next generation, very fast"
+                description="Very fast, multimodal"
+            ),
+            ModelOption(
+                id="gemini-2.0-flash-lite",
+                name="Gemini 2.0 Flash Lite",
+                description="Cost-effective, high volume"
+            ),
+            ModelOption(
+                id="gemini-1.5-pro",
+                name="Gemini 1.5 Pro",
+                description="1M context window"
+            ),
+            ModelOption(
+                id="gemini-1.5-flash",
+                name="Gemini 1.5 Flash",
+                description="Fast, cost-effective"
             ),
         ]
     ),
