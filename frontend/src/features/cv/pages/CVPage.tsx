@@ -7,7 +7,7 @@
  * @module features/cv/pages/CVPage
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { FileDropzone, CVFileList, Scorecard, TemplateSelector, type StagedFile } from '../components';
 import { useUploadCV } from '../hooks';
 import { SetupRequiredScreen, useSetupStatus } from '@/features/settings';
@@ -18,6 +18,21 @@ import type { ProfileSummary } from '@/shared/schemas';
 
 /** Maximum number of CVs that can be uploaded at once */
 const MAX_FILES = 10;
+
+/**
+ * Simulated progress animation configuration.
+ * Creates a realistic progress feel while waiting for AI evaluation.
+ */
+const PROGRESS_STAGES = [
+  { target: 15, duration: 300 },   // Quick start: "Uploading..."
+  { target: 30, duration: 800 },   // "Processing file..."
+  { target: 45, duration: 1500 },  // "Analyzing content..."
+  { target: 60, duration: 2000 },  // "Evaluating criteria..."
+  { target: 75, duration: 2500 },  // "Scoring..."
+  { target: 85, duration: 3000 },  // "Generating insights..."
+  { target: 92, duration: 4000 },  // "Finalizing..."
+  { target: 97, duration: 6000 },  // Slow crawl to build anticipation
+];
 
 /**
  * CV screening page component.
@@ -39,9 +54,68 @@ export const CVPage = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ProfileSummary | null>(null);
   const { upload } = useUploadCV();
+  const progressIntervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
   
   // Check if setup is complete
   const { data: setupStatus, isLoading: isLoadingSetup } = useSetupStatus();
+
+  // Cleanup intervals on unmount
+  useEffect(() => {
+    return () => {
+      progressIntervalsRef.current.forEach((interval) => clearInterval(interval));
+    };
+  }, []);
+
+  /**
+   * Start simulated progress animation for a file.
+   */
+  const startProgressAnimation = useCallback((fileId: string) => {
+    let stageIndex = 0;
+    let currentProgress = 0;
+
+    const animate = () => {
+      if (stageIndex >= PROGRESS_STAGES.length) return;
+
+      const stage = PROGRESS_STAGES[stageIndex];
+      const progressIncrement = (stage.target - currentProgress) / (stage.duration / 100);
+      
+      const interval = setInterval(() => {
+        currentProgress += progressIncrement;
+        
+        if (currentProgress >= stage.target) {
+          currentProgress = stage.target;
+          clearInterval(interval);
+          stageIndex++;
+          
+          // Move to next stage
+          if (stageIndex < PROGRESS_STAGES.length) {
+            animate();
+          }
+        }
+        
+        setStagedFiles(prev => prev.map(sf =>
+          sf.id === fileId && sf.status === 'uploading'
+            ? { ...sf, progress: Math.min(Math.round(currentProgress), 97) }
+            : sf
+        ));
+      }, 100);
+
+      progressIntervalsRef.current.set(fileId, interval);
+    };
+
+    animate();
+  }, []);
+
+  /**
+   * Stop progress animation for a file.
+   */
+  const stopProgressAnimation = useCallback((fileId: string) => {
+    const interval = progressIntervalsRef.current.get(fileId);
+    if (interval) {
+      clearInterval(interval);
+      progressIntervalsRef.current.delete(fileId);
+    }
+  }, []);
 
   /**
    * Handle multiple files selected (batch mode).
@@ -110,10 +184,11 @@ export const CVPage = () => {
     
     // Process files sequentially
     for (const stagedFile of stagedFiles) {
-      // Update status to uploading
+      // Update status to uploading and start progress animation
       setStagedFiles(prev => prev.map(sf => 
         sf.id === stagedFile.id ? { ...sf, status: 'uploading', progress: 0 } : sf
       ));
+      startProgressAnimation(stagedFile.id);
       
       try {
         // Upload and evaluate
@@ -126,6 +201,9 @@ export const CVPage = () => {
             }
           );
         });
+        
+        // Stop animation and set to 100%
+        stopProgressAnimation(stagedFile.id);
         
         if (data.success && data.evaluation && data.cv_id) {
           // Add to results
@@ -145,6 +223,9 @@ export const CVPage = () => {
           throw new Error('Evaluation failed');
         }
       } catch (error) {
+        // Stop animation on error
+        stopProgressAnimation(stagedFile.id);
+        
         // Update status to error
         const errorMessage = error instanceof Error ? error.message : 'Upload failed';
         setStagedFiles(prev => prev.map(sf => 
@@ -160,7 +241,7 @@ export const CVPage = () => {
       document.querySelector(`[data-file-id="${sf.id}"]`)?.getAttribute('data-status') === 'success'
     ).length || stagedFiles.length;
     toast.success(`Scanning complete`, `${successCount} CV(s) evaluated`);
-  }, [stagedFiles, upload, selectedTemplate]);
+  }, [stagedFiles, upload, selectedTemplate, startProgressAnimation, stopProgressAnimation]);
 
   /**
    * Dismiss a scorecard result.

@@ -199,7 +199,7 @@ export const ApiKeysTab = () => {
                 </div>
                 {keyInfo && (
                   <Text size="sm" color="muted" className="font-mono">
-                    ••••••••{keyInfo.key_hint}
+                    ••••••••{keyInfo.key_hint.slice(-4)}
                   </Text>
                 )}
               </div>

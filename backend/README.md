@@ -32,7 +32,123 @@ FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, sto
 
 ---
 
-## 📊 Evaluation Criteria
+## 📊 Evaluation System
+
+### How CV Evaluation Works
+
+The CV evaluation system uses **dynamic Evaluation Profiles** (templates) combined with a **master AI prompt** to score candidates objectively.
+
+#### The Evaluation Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        CV EVALUATION FLOW                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  1. USER SELECTS TEMPLATE          2. USER UPLOADS CV               │
+│  ┌─────────────────────────┐       ┌─────────────────────────┐      │
+│  │ "Senior Backend Dev"    │       │ candidate_resume.pdf    │      │
+│  │ - 5 criteria            │       │                         │      │
+│  │ - 70% pass threshold    │       │                         │      │
+│  └───────────┬─────────────┘       └───────────┬─────────────┘      │
+│              │                                 │                    │
+│              └────────────┬────────────────────┘                    │
+│                           ▼                                         │
+│  3. BACKEND PARSES CV                                               │
+│  ┌─────────────────────────────────────────────────────────┐        │
+│  │ PDF → Text extraction (LangChain document loaders)      │        │
+│  └───────────┬─────────────────────────────────────────────┘        │
+│              ▼                                                      │
+│  4. AI EVALUATION                                                   │
+│  ┌─────────────────────────────────────────────────────────┐        │
+│  │ MASTER PROMPT (hidden)                                  │        │
+│  │ ├─ Scoring philosophy (0-100% scale)                    │        │
+│  │ ├─ Evidence-based evaluation instructions               │        │
+│  │ └─ Output format (structured JSON)                      │        │
+│  │                                                         │        │
+│  │ TEMPLATE DATA (from selected profile)                   │        │
+│  │ ├─ Template name & description                          │        │
+│  │ ├─ Passing score threshold                              │        │
+│  │ └─ Criteria list (name, max_points, description)        │        │
+│  │                                                         │        │
+│  │ CV TEXT (parsed content)                                │        │
+│  │ └─ Full resume text                                     │        │
+│  └───────────┬─────────────────────────────────────────────┘        │
+│              ▼                                                      │
+│  5. STRUCTURED RESULT                                               │
+│  ┌─────────────────────────────────────────────────────────┐        │
+│  │ CVEvaluationResult                                      │        │
+│  │ ├─ criteria_scores[] (score, reasoning, evidence)       │        │
+│  │ ├─ total_score / percentage                             │        │
+│  │ ├─ passed (true/false)                                  │        │
+│  │ ├─ summary                                              │        │
+│  │ ├─ strengths[] / weaknesses[]                           │        │
+│  │ └─ recommendation (Strong Yes/Yes/Maybe/No/Strong No)   │        │
+│  └─────────────────────────────────────────────────────────┘        │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+#### The Master Prompt
+
+Located in `app/langchain/chains/evaluation_chain.py`, the system prompt instructs the AI:
+
+```
+You are an expert CV/resume evaluator for a hiring team.
+Your task is to objectively evaluate a candidate's CV against specific criteria.
+Be thorough, fair, and provide evidence-based scoring.
+
+**Scoring Philosophy:**
+- 0-20% of max: No evidence of this skill/experience
+- 21-40% of max: Minimal evidence, far below requirements
+- 41-60% of max: Some evidence, partially meets requirements
+- 61-80% of max: Good evidence, meets requirements
+- 81-100% of max: Strong evidence, exceeds requirements
+```
+
+The AI is then provided with:
+1. **Template details** - name, description, passing threshold
+2. **Criteria list** - each criterion with name, max points, description, and required flag
+3. **CV text** - the full parsed resume content
+
+#### Evaluation Profiles (Templates)
+
+Users can create custom templates or use system templates. Each template defines:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Name** | Template identifier | "Senior Backend Developer" |
+| **Description** | Role description | "For 5+ year backend engineers" |
+| **Passing Score** | Minimum % to pass | 70% |
+| **Criteria** | List of evaluation criteria | See below |
+
+Each **Criterion** contains:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Name** | Skill/experience area | "Python Expertise" |
+| **Description** | What to look for | "5+ years Python, Django/FastAPI experience" |
+| **Max Points** | Maximum score for this criterion | 30 |
+| **Is Required** | Must score >0 to pass | true |
+
+#### Example System Templates
+
+The system includes 20 pre-built templates for common roles:
+
+- Senior Backend Developer
+- Frontend React Developer
+- Full Stack Engineer
+- DevOps/SRE Engineer
+- Data Scientist
+- Machine Learning Engineer
+- Product Manager
+- And more...
+
+---
+
+## 📊 Default Evaluation Criteria (Legacy)
+
+> **Note:** These are the original hardcoded criteria. The system now uses dynamic templates (see above).
 
 | Criterion | Points | Description |
 |-----------|--------|-------------|
@@ -42,7 +158,7 @@ FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, sto
 | **Soft Skills** | 20 | Fast learner, stress handling, teamwork |
 | **AI-Native Development** | 20 | AI tools, RAG, MCP, agents |
 
-### Pass/Fail Logic
+### Legacy Pass/Fail Logic
 - **PASS**: Score ≥ 60 AND 3+ criteria met (must include Technical Skills)
 - **FAIL**: Score < 60 OR fewer than 3 criteria OR no Technical Skills
 
