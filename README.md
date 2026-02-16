@@ -1,17 +1,35 @@
-# CV Screening Agent 🤖📄
+# CV Analysis Agent 🤖📄
 
-An AI-powered CV screening platform that evaluates resumes against modern hiring criteria using frontier AI models. Built for AI-first fintech companies looking for candidates who embrace modern development practices.
+An AI-powered CV screening platform that evaluates resumes against customizable criteria using frontier AI models. Features a multi-agent architecture, RAG-powered chat, and semantic search capabilities.
 
-**Version:** 0.15.5 | **Last Updated:** February 16, 2026
+**Version:** 0.17.0 | **Last Updated:** February 16, 2026
 
-## 🎯 What It Does
+## ✨ Highlights
 
-Upload a PDF resume and get an instant AI-powered evaluation with:
-- **Pass/Fail status** with confidence score (0-100)
-- **5 evaluation criteria** tailored for modern tech roles
-- **Detailed reasoning** explaining the AI's decision
-- **Candidate name extraction** for quick reference
-- **Multi-LLM support** - choose Anthropic, OpenAI, or Google Gemini
+- **BYOK (Bring Your Own Keys)** - No API keys stored in code; users provide their own
+- **Multi-LLM Support** - Choose Anthropic Claude, OpenAI GPT, or Google Gemini
+- **Custom Evaluation Templates** - Create criteria tailored to any role
+- **Semantic Search** - Find similar candidates using AI embeddings
+- **RAG Chat** - Ask questions about CVs with context-aware responses
+- **Batch Upload** - Evaluate up to 10 CVs simultaneously
+- **Beautiful UI** - Modern React frontend with dark mode
+
+## 🔒 Security
+
+This project uses a **Bring Your Own Keys (BYOK)** model:
+
+- ✅ **No API keys in source code** - Users provide keys via Settings UI
+- ✅ **Encrypted storage** - API keys encrypted with AES-256 before database storage
+- ✅ **Environment variables** - All secrets loaded from `.env` (gitignored)
+- ✅ **JWT authentication** - Secure session management
+- ✅ **No hardcoded credentials** - All examples use placeholders (`sk-ant-...`)
+
+### Before Going Public
+Ensure your `.env` file is **not** committed (it's in `.gitignore`):
+```bash
+# Verify .env is ignored
+git status --ignored | grep .env
+```
 
 ## 🤖 Supported AI Models (February 2026)
 
@@ -196,13 +214,14 @@ CV Analysis Agent/
 ## 🛣️ Roadmap
 
 - [x] **Phase 1**: Authentication (JWT + Email/Password + Google OAuth)
-- [x] **Phase 1.5**: Project restructuring (Controller-Service-Model pattern)
-- [ ] **Phase 2**: Database layer (PostgreSQL + pgvector)
-- [ ] **Phase 3**: LangChain integration
-- [ ] **Phase 4**: Multi-agent architecture
-- [ ] **Phase 5**: Notifications (Email + WhatsApp)
-- [ ] **Phase 6**: Dashboard & semantic search
-- [ ] **Phase 7**: Candidate match-up & comparison
+- [x] **Phase 2**: Database layer (PostgreSQL + pgvector)
+- [x] **Phase 3**: LangChain integration
+- [x] **Phase 4**: Multi-agent architecture
+- [x] **Phase 5**: Notifications (Email + WhatsApp)
+- [x] **Phase 6**: Semantic search & CV comparison
+- [x] **Phase 7**: Custom evaluation templates
+- [x] **Phase 8**: Performance & SEO optimization
+- [ ] **Phase 9**: Dashboard & analytics
 
 ## 📝 License
 

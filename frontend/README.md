@@ -1,27 +1,30 @@
-# CV Screening Agent - Frontend ⚛️
+# CV Analysis Agent - Frontend ⚛️
 
 React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
-**Version:** 0.10.0 | **Last Updated:** February 16, 2026
+**Version:** 0.17.0 | **Last Updated:** February 16, 2026
 
 ## 🎯 Features
 
 - **Batch CV Upload**: Upload up to 10 CVs at once with review before scanning
-- **Drag & Drop Upload**: Intuitive PDF upload with progress tracking
+- **Drag & Drop Upload**: Intuitive PDF upload with simulated progress tracking
 - **Real-time Evaluation**: Instant AI-powered CV scoring
 - **Visual Scorecard**: Beautiful display of pass/fail status and criteria
 - **Chat with AI**: Ask questions about CVs and get AI explanations
 - **Compare Candidates**: Side-by-side comparison of multiple CVs
+- **Find Similar**: Semantic search to find similar candidates
+- **Re-evaluate CVs**: Re-evaluate with different templates
+- **Custom Templates**: Create and manage evaluation profiles
 - **Authentication**: Secure login, registration, and session management
 - **Settings Management**: Configure API keys and LLM preferences
 - **Multi-Provider LLM Support**: Choose from Anthropic, OpenAI, or Google Gemini
-- **FAQ Page**: Model comparison guide to help choose the right LLM
+- **BYOK (Bring Your Own Keys)**: Users provide their own API keys
 - **Notification Settings**: Configure email/WhatsApp alerts with threshold
 - **Dark Mode**: Full dark theme support with system preference detection
+- **Lazy Loading**: Code-split routes for faster initial load
+- **SEO Optimized**: Meta tags, favicons, PWA manifest
 - **Toast Notifications**: Real-time feedback for all actions
 - **Error Boundaries**: Graceful error handling with recovery options
-- **React Router**: Client-side navigation with protected routes
-- **Responsive Design**: Works on desktop and mobile
 
 ## 🤖 Supported AI Models
 
@@ -175,8 +178,34 @@ frontend/src/
 | Path | Component | Auth Required | Description |
 |------|-----------|---------------|-------------|
 | `/` | `CVPage` | ✅ | Upload & evaluate CVs |
+| `/history` | `HistoryPage` | ✅ | View evaluation history |
+| `/history/:id` | `CVDetailPage` | ✅ | CV evaluation details |
+| `/profiles` | `ProfilesPage` | ✅ | Evaluation templates |
+| `/profiles/new` | `ProfileCreatePage` | ✅ | Create new template |
+| `/profiles/:id` | `ProfileDetailPage` | ✅ | View template details |
+| `/profiles/:id/edit` | `ProfileEditPage` | ✅ | Edit template |
 | `/settings` | `SettingsPage` | ✅ | API keys & LLM preferences |
 | `/settings/notifications` | `NotificationSettingsPage` | ✅ | Notification preferences |
+| `/settings/models` | `LlmFaqPage` | ✅ | AI model comparison guide |
+
+## ⚡ Performance
+
+### Code Splitting
+All pages are lazy-loaded using `React.lazy()` for optimal bundle splitting:
+
+| Chunk | Size (gzip) | Contents |
+|-------|-------------|----------|
+| `vendor-react` | ~30 KB | React, React-DOM, React Router |
+| `vendor-query` | ~15 KB | TanStack Query |
+| `vendor-ui` | ~8 KB | CVA, clsx, tailwind-merge |
+| `feature-cv` | ~20 KB | CV pages (loaded on demand) |
+| `feature-profile` | ~8 KB | Profile pages (loaded on demand) |
+| `feature-settings` | ~37 KB | Settings pages (loaded on demand) |
+
+### PWA Support
+- Web App Manifest for installable app
+- Apple Touch Icon for iOS home screen
+- Theme color for mobile browsers
 
 ## 🚀 Quick Start
 
@@ -282,7 +311,7 @@ import { useAuth } from '@/features/auth/hooks';
 ### Completed ✅
 - [x] File upload with drag & drop
 - [x] Batch upload (up to 10 CVs with confirmation)
-- [x] Upload progress tracking
+- [x] Simulated progress animation
 - [x] Scorecard visualization
 - [x] Authentication UI (login, register, logout)
 - [x] Shared UI component library (Button, Card, Input, etc.)
@@ -295,8 +324,15 @@ import { useAuth } from '@/features/auth/hooks';
 - [x] Toast notifications (Sonner)
 - [x] Error boundaries
 - [x] Dark mode with system preference detection
+- [x] CV History page with filters and sorting
+- [x] CV Detail page with evaluation breakdown
+- [x] Find Similar candidates (semantic search)
+- [x] Re-evaluate CV with different template
+- [x] Custom evaluation templates/profiles
+- [x] Lazy loading with React.lazy() code splitting
+- [x] SEO optimization (meta tags, favicons, PWA)
+- [x] Query cache invalidation for real-time updates
 
 ### Planned 🔶
-- [ ] Dashboard with recent CVs and stats
-- [ ] CV history list with TanStack Table
+- [ ] Dashboard with analytics and charts
 - [ ] Responsive design improvements

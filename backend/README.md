@@ -1,6 +1,18 @@
-# CV Screening Agent - Backend 🐍
+# CV Analysis Agent - Backend 🐍
 
-FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores in PostgreSQL with vector embeddings, evaluates using Claude AI, and provides RAG-powered Q&A about candidates.
+FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores in PostgreSQL with vector embeddings, evaluates using AI (Claude/GPT/Gemini), and provides RAG-powered Q&A about candidates.
+
+**Version:** 0.17.0 | **Last Updated:** February 16, 2026
+
+## 🔒 Security
+
+This project uses a **Bring Your Own Keys (BYOK)** model - no API keys are stored in source code:
+
+- ✅ **Encrypted API keys** - User keys encrypted with AES-256 (Fernet) before database storage
+- ✅ **Environment variables** - All secrets loaded from `.env` (gitignored)
+- ✅ **JWT authentication** - Secure token-based sessions
+- ✅ **Password hashing** - bcrypt with salt
+- ✅ **Rate limiting** - Prevents abuse per user/endpoint
 
 ## 📖 Documentation
 
