@@ -178,6 +178,8 @@ class SettingsController:
             user_id=user_id,
             default_llm_provider=request.default_llm_provider,
             default_llm_model=request.default_llm_model,
+            parser_provider=request.parser_provider,
+            parser_model=request.parser_model,
             chat_provider=request.chat_provider,
             chat_model=request.chat_model,
             scorer_provider=request.scorer_provider,

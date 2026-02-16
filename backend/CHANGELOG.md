@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.2] - 2026-02-16 🤖 Parser Agent Configuration
+
+### Added
+
+- **Parser Agent configuration exposed in API** - Users can now configure which LLM provider/model to use for document parsing
+  - Added `parser_provider` and `parser_model` fields to `AgentConfigResponse` and `UpdateAgentConfigRequest` schemas
+  - Updated `SettingsService` to handle parser config in `get_agent_config()` and `update_agent_config()`
+  - Updated `SettingsController` to pass parser config to service
+  - Parser Agent default is Gemini (fast & cost-effective for text extraction)
+
+---
+
 ## [0.15.1] - 2026-02-16 🐛 Re-Evaluate Bugfix
 
 ### Fixed

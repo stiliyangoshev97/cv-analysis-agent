@@ -345,6 +345,8 @@ class SettingsService:
         return AgentConfigResponse(
             default_llm_provider=config.chat_provider or "anthropic",
             default_llm_model=config.chat_model,
+            parser_provider=config.parser_provider,
+            parser_model=config.parser_model,
             chat_provider=config.chat_provider,
             chat_model=config.chat_model,
             scorer_provider=config.scorer_provider,
@@ -359,6 +361,8 @@ class SettingsService:
         user_id: uuid.UUID,
         default_llm_provider: Optional[str] = None,
         default_llm_model: Optional[str] = None,
+        parser_provider: Optional[str] = None,
+        parser_model: Optional[str] = None,
         chat_provider: Optional[str] = None,
         chat_model: Optional[str] = None,
         scorer_provider: Optional[str] = None,
@@ -372,6 +376,8 @@ class SettingsService:
             user_id: User's UUID.
             default_llm_provider: Default provider for all agents.
             default_llm_model: Default model name.
+            parser_provider: Override for parser agent.
+            parser_model: Override model for parser.
             chat_provider: Override for chat agent.
             chat_model: Override model for chat.
             scorer_provider: Override for scorer agent.
@@ -381,13 +387,17 @@ class SettingsService:
             Updated AgentConfigResponse.
         """
         # Use default for unset per-agent configs
+        effective_parser = parser_provider or default_llm_provider
         effective_chat = chat_provider or default_llm_provider
         effective_scorer = scorer_provider or default_llm_provider
+        effective_parser_model = parser_model or default_llm_model
         effective_chat_model = chat_model or default_llm_model
         effective_scorer_model = scorer_model or default_llm_model
         
         await self.repository.update_agent_config(
             user_id=user_id,
+            parser_provider=effective_parser,
+            parser_model=effective_parser_model,
             chat_provider=effective_chat,
             chat_model=effective_chat_model,
             scorer_provider=effective_scorer,

@@ -104,6 +104,8 @@ class AgentConfigResponse(BaseModel):
     Attributes:
         default_llm_provider: User's preferred LLM provider.
         default_llm_model: User's preferred model for the provider.
+        parser_provider: Provider for document parsing (overrides default).
+        parser_model: Model for document parsing.
         chat_provider: Provider for chat/RAG (overrides default).
         chat_model: Model for chat/RAG.
         scorer_provider: Provider for CV evaluation (overrides default).
@@ -113,6 +115,8 @@ class AgentConfigResponse(BaseModel):
     default_llm_model: Optional[str] = None
     
     # Per-agent overrides (optional)
+    parser_provider: Optional[LLMProviderType] = None
+    parser_model: Optional[str] = None
     chat_provider: Optional[LLMProviderType] = None
     chat_model: Optional[str] = None
     scorer_provider: Optional[LLMProviderType] = None
@@ -131,6 +135,8 @@ class UpdateAgentConfigRequest(BaseModel):
     Attributes:
         default_llm_provider: Preferred LLM provider for all agents.
         default_llm_model: Preferred model name.
+        parser_provider: Override for parser agent.
+        parser_model: Override model for parser.
         chat_provider: Override for chat agent.
         chat_model: Override model for chat.
         scorer_provider: Override for scorer agent.
@@ -138,6 +144,8 @@ class UpdateAgentConfigRequest(BaseModel):
     """
     default_llm_provider: Optional[LLMProviderType] = None
     default_llm_model: Optional[str] = None
+    parser_provider: Optional[LLMProviderType] = None
+    parser_model: Optional[str] = None
     chat_provider: Optional[LLMProviderType] = None
     chat_model: Optional[str] = None
     scorer_provider: Optional[LLMProviderType] = None

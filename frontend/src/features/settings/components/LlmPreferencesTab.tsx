@@ -31,6 +31,8 @@ export const LlmPreferencesTab = () => {
   // Local state for form
   const [defaultProvider, setDefaultProvider] = useState<LLMProvider | null>(null);
   const [defaultModel, setDefaultModel] = useState<string | null>(null);
+  const [parserProvider, setParserProvider] = useState<LLMProvider | null>(null);
+  const [parserModel, setParserModel] = useState<string | null>(null);
   const [chatProvider, setChatProvider] = useState<LLMProvider | null>(null);
   const [chatModel, setChatModel] = useState<string | null>(null);
   const [scorerProvider, setScorerProvider] = useState<LLMProvider | null>(null);
@@ -41,6 +43,8 @@ export const LlmPreferencesTab = () => {
     if (config) {
       setDefaultProvider(config.default_llm_provider);
       setDefaultModel(config.default_llm_model);
+      setParserProvider(config.parser_provider);
+      setParserModel(config.parser_model);
       setChatProvider(config.chat_provider);
       setChatModel(config.chat_model);
       setScorerProvider(config.scorer_provider);
@@ -81,6 +85,8 @@ export const LlmPreferencesTab = () => {
     updateConfig({
       default_llm_provider: defaultProvider,
       default_llm_model: defaultModel,
+      parser_provider: parserProvider,
+      parser_model: parserModel,
       chat_provider: chatProvider,
       chat_model: chatModel,
       scorer_provider: scorerProvider,
@@ -92,6 +98,8 @@ export const LlmPreferencesTab = () => {
   const hasChanges = config && (
     defaultProvider !== config.default_llm_provider ||
     defaultModel !== config.default_llm_model ||
+    parserProvider !== config.parser_provider ||
+    parserModel !== config.parser_model ||
     chatProvider !== config.chat_provider ||
     chatModel !== config.chat_model ||
     scorerProvider !== config.scorer_provider ||
@@ -107,6 +115,7 @@ export const LlmPreferencesTab = () => {
   }
 
   // Get effective providers (what will actually be used)
+  const effectiveParserProvider = parserProvider || defaultProvider;
   const effectiveChatProvider = chatProvider || defaultProvider;
   const effectiveScorerProvider = scorerProvider || defaultProvider;
 
@@ -167,6 +176,56 @@ export const LlmPreferencesTab = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
+            {/* Parser Agent */}
+            <div className="pb-6 border-b border-gray-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Text weight="medium">Parser Agent</Text>
+                <Badge variant="warning" size="sm">Document Processing</Badge>
+              </div>
+              <Text size="sm" color="muted" className="mb-4">
+                Extracts text from uploaded PDFs and documents, chunks content for analysis.
+              </Text>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Select
+                    label="Provider"
+                    options={providerOptions}
+                    value={parserProvider || ''}
+                    onChange={(e) => {
+                      const provider = e.target.value as LLMProvider | '';
+                      setParserProvider(provider || null);
+                      setParserModel(null);
+                    }}
+                  />
+                  {parserProvider && !isProviderConfigured(parserProvider) && (
+                    <Text size="sm" className="text-amber-600 mt-1">
+                      ⚠️ API key not configured
+                    </Text>
+                  )}
+                </div>
+                <div>
+                  <Select
+                    label="Model"
+                    options={[
+                      { value: '', label: parserProvider ? 'Auto' : 'Use Default Model' },
+                      ...getModelsForProvider(parserProvider || defaultProvider).map((m) => ({
+                        value: m.id,
+                        label: m.name,
+                      })),
+                    ]}
+                    value={parserModel || ''}
+                    onChange={(e) => setParserModel(e.target.value || null)}
+                    disabled={!parserProvider}
+                  />
+                </div>
+              </div>
+              {effectiveParserProvider && (
+                <Text size="sm" color="muted" className="mt-2">
+                  Will use: <span className="font-medium">{effectiveParserProvider}</span>
+                </Text>
+              )}
+            </div>
+
             {/* Chat Agent */}
             <div className="pb-6 border-b border-gray-100">
               <div className="flex items-center gap-2 mb-3">

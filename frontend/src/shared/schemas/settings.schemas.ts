@@ -89,6 +89,8 @@ export type ValidateKeyResponse = z.infer<typeof validateKeyResponseSchema>;
 export const agentConfigResponseSchema = z.object({
   default_llm_provider: llmProviderSchema.nullable().default('anthropic'),
   default_llm_model: z.string().nullable().default(null),
+  parser_provider: llmProviderSchema.nullable().default(null),
+  parser_model: z.string().nullable().default(null),
   chat_provider: llmProviderSchema.nullable().default(null),
   chat_model: z.string().nullable().default(null),
   scorer_provider: llmProviderSchema.nullable().default(null),
@@ -105,6 +107,8 @@ export type AgentConfigResponse = z.infer<typeof agentConfigResponseSchema>;
 export const updateAgentConfigRequestSchema = z.object({
   default_llm_provider: llmProviderSchema.nullable().optional(),
   default_llm_model: z.string().nullable().optional(),
+  parser_provider: llmProviderSchema.nullable().optional(),
+  parser_model: z.string().nullable().optional(),
   chat_provider: llmProviderSchema.nullable().optional(),
   chat_model: z.string().nullable().optional(),
   scorer_provider: llmProviderSchema.nullable().optional(),
