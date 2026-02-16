@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.15.0 - Re-evaluate Feature)
+> Last Updated: February 2026 (v0.16.1 - Dark Mode Fixes)
 
 ---
 

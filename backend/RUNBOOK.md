@@ -219,6 +219,9 @@ dropdb cv_screening_agent
 ```bash
 # Run seed script (creates system templates)
 python -m app.db.seed
+
+# Seed 20 evaluation profile templates (from project root)
+cd backend && python ../seed_profiles.py
 ```
 
 ### Database Connection Test
@@ -338,5 +341,6 @@ docker-compose logs -f backend
 | Apply migrations | `alembic upgrade head` |
 | New migration | `alembic revision --autogenerate -m "msg"` |
 | Seed database | `python -m app.db.seed` |
+| Seed profiles | `cd backend && python ../seed_profiles.py` |
 | Install deps | `pip install -r requirements.txt` |
 | Install test deps | `pip install -r requirements-test.txt` |

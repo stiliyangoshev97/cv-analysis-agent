@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 16, 2026 (v0.15.0 - BYOK Notifications)
+> Last Updated: February 16, 2026 (v0.15.7 - Test CVs & Profile Seeds)
 
 ---
 

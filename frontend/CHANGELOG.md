@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.16.1] - 2026-02-16 🌙 Dark Mode Fixes
+
+### Fixed
+
+**UserMenu Dark Mode**
+- Fixed username visibility in dark mode by adding `dark:text-gray-300`
+
+---
+
 ## [0.16.0] - 2026-02-16 🤖 Parser Agent Configuration
 
 ### Added

@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.15.7] - 2026-02-16 🧪 Test CVs & Profile Seeding
+
+### Added
+
+- **21 Test CV PDFs** in `/CVs/` folder for system testing:
+  - 5 strong PASS candidates (senior level, comprehensive skills)
+  - 3 solid PASS candidates (good experience, some gaps)
+  - 2 borderline candidates (mixed qualifications)
+  - 3 FAIL weak tech (insufficient technical skills)
+  - 2 FAIL no fintech (no finance experience)
+  - 6 international candidates (diverse backgrounds, languages)
+
+- **Profile Seeding Script** (`seed_profiles.py`):
+  - Seeds 20 diverse evaluation profile templates
+  - Targets specific user by email (`stiliyan.goshev97@gmail.com`)
+  - Templates range from 1-5 criteria with various passing scores
+  - Covers roles: Python, React, TypeScript, FastAPI, Blockchain, DevOps, Backend, Data, Mobile, AI/ML, Fintech, Frontend, Security, QA, Startup, DBA, Embedded, Gaming
+  - All templates are user-editable (not system templates)
+
+### Changed
+
+- **Updated RUNBOOK.md** with seed profiles command
+- **Updated PROJECT_CONTEXT.md** to v0.15.7
+
+---
+
 ## [0.15.6] - 2026-02-16 📚 LLM Models FAQ Page
 
 ### Added
