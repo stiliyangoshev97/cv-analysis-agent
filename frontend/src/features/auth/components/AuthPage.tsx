@@ -22,6 +22,7 @@
 import { useState } from 'react';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
+import { ThemeToggle } from '@/shared/components/ui';
 
 /** Available authentication views */
 type AuthView = 'login' | 'register';
@@ -37,7 +38,12 @@ export const AuthPage = () => {
   const [view, setView] = useState<AuthView>('login');
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 relative">
+      {/* Theme Toggle - Top Right Corner */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -56,8 +62,8 @@ export const AuthPage = () => {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">CV Analysis Agent</h1>
-          <p className="text-gray-600 mt-1">AI-Powered Resume Screening</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CV Analysis Agent</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">AI-Powered Resume Screening</p>
         </div>
         
         {/* Auth Forms */}
