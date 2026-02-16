@@ -29,10 +29,11 @@
  * ```
  */
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { uploadCV } from '../api';
 import { toast } from '@/shared/components/ui';
+import { cvKeys } from './useCVList';
 import type { UploadProgress, UploadResponse } from '@/shared/types';
 
 /**
@@ -73,6 +74,7 @@ interface UseUploadCVReturn {
  */
 export const useUploadCV = (): UseUploadCVReturn => {
   const [progress, setProgress] = useState<UploadProgress | null>(null);
+  const queryClient = useQueryClient();
 
   const mutation = useMutation<UploadResponse, Error, UploadParams>({
     mutationFn: ({ file, templateId }: UploadParams) =>
@@ -84,6 +86,9 @@ export const useUploadCV = (): UseUploadCVReturn => {
       if (data.success && data.evaluation) {
         const status = data.evaluation.status === 'pass' ? 'passed' : 'failed';
         toast.success('CV Evaluated', `${data.evaluation.candidate_name || 'Candidate'} ${status} with ${data.evaluation.match_score}% match`);
+        
+        // Invalidate CV list cache so history page updates immediately
+        queryClient.invalidateQueries({ queryKey: cvKeys.all });
       }
     },
     onError: (error) => {

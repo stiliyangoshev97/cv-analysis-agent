@@ -2,12 +2,67 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>CV Analysis Agent - AI-Powered Resume Screening</title>
+    <meta name="description" content="Streamline your hiring process with AI-powered CV analysis. Evaluate resumes against customizable criteria, get instant match scores, and find the best candidates faster." />
+    <meta name="keywords" content="CV analysis, resume screening, AI hiring, candidate evaluation, HR technology, recruitment automation" />
+    <meta name="author" content="CV Analysis Agent" />
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CV Analysis Agent - AI-Powered Resume Screening" />
+    <meta property="og:description" content="Streamline your hiring process with AI-powered CV analysis. Evaluate resumes against customizable criteria and find the best candidates faster." />
+    <meta property="og:image" content="/logo.svg" />
+    <meta property="og:site_name" content="CV Analysis Agent" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CV Analysis Agent - AI-Powered Resume Screening" />
+    <meta name="twitter:description" content="Streamline your hiring process with AI-powered CV analysis." />
+    <meta name="twitter:image" content="/logo.svg" />
+    
+    <!-- Favicons - All Platforms -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CV Agent" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    
+    <!-- Performance: DNS Prefetch for API -->
+    <link rel="dns-prefetch" href="//api.openai.com" />
+    <link rel="dns-prefetch" href="//api.anthropic.com" />
+    
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1e3a8a" media="(prefers-color-scheme: dark)" />
+    
+    <!-- Prevent Flash of Unstyled Content -->
+    <script>
+      // Apply dark mode immediately to prevent flash
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Loading Spinner (shown before React hydrates) -->
+    <div id="root">
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f9fafb;">
+        <div style="text-align: center;">
+          <div style="width: 40px; height: 40px; border: 3px solid #e5e7eb; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+          <p style="margin-top: 16px; color: #6b7280; font-family: system-ui, sans-serif;">Loading...</p>
+        </div>
+      </div>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

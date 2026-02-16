@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.16.1 - Dark Mode Fixes)
+> Last Updated: February 2026 (v0.17.0 - Performance & SEO Optimization)
 
 ---
 
@@ -20,7 +20,7 @@
 | File Upload | ✅ 100% | Drag & drop + click to upload |
 | **Batch Upload** | ✅ 100% | Up to 10 CVs with confirmation |
 | **Template Selector** | ✅ 100% | Required before upload |
-| Upload Progress | ✅ 100% | Real-time progress tracking |
+| Upload Progress | ✅ 100% | Simulated progress animation |
 | Scorecard Display | ✅ 100% | Full evaluation visualization |
 | **UI Component Library** | ✅ 100% | Button, Card, Badge, Modal, etc. |
 | API Client | ✅ 100% | Axios with auth interceptors |
@@ -45,6 +45,8 @@
 | **Semantic Search** | ✅ 100% | AI-powered natural language search |
 | **CV Comparison** | ✅ 100% | Compare 2-10 CVs side-by-side |
 | **Re-evaluate** | ✅ 100% | Re-evaluate CV with different profile |
+| **Lazy Loading** | ✅ 100% | Code splitting with React.lazy |
+| **SEO** | ✅ 100% | Meta tags, favicons, PWA manifest |
 | **Dashboard** | ⏳ 0% | Future feature |
 
 **Overall Progress: ~99%** (Core features complete)

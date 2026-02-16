@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.17.0] - 2026-02-16 🚀 Performance & SEO Optimization
+
+### Added
+
+**Lazy Loading & Code Splitting**
+- All page components now use `React.lazy()` for dynamic imports
+- Created `withSuspense()` helper for consistent loading states
+- New `PageLoader` component for Suspense fallback
+- Each route loads its chunk on-demand, reducing initial bundle size
+
+**Vite Build Optimization**
+- Manual chunk splitting for vendor libraries:
+  - `vendor-react`: React, React-DOM, React Router (~89KB)
+  - `vendor-query`: TanStack Query (~48KB)
+  - `vendor-ui`: CVA, clsx, tailwind-merge (~26KB)
+- Feature-based code splitting (cv, profile, settings)
+- ES2020 target for smaller bundles
+- esbuild minification
+
+**SEO Improvements**
+- Complete favicon support: SVG, ICO, PNG (96x96), Apple Touch Icon
+- Web App Manifest with PWA support
+- Open Graph meta tags for social sharing
+- Twitter Card meta tags
+- Theme color for mobile browsers
+- Dark mode flash prevention script
+- Initial loading spinner before React hydrates
+
+**Query Cache Invalidation Fix**
+- CV list cache now invalidates after successful upload
+- History page updates immediately without manual refresh
+
+### Changed
+
+**Files Modified**
+- `routes.tsx` - Converted to lazy imports with Suspense
+- `vite.config.ts` - Added build optimization config
+- `index.html` - Full SEO and favicon setup
+- `site.webmanifest` - PWA manifest with app metadata
+- `useUploadCV.ts` - Added cache invalidation on success
+
+**New Files**
+- `PageLoader.tsx` - Loading spinner for route transitions
+- Favicon files: `favicon.svg`, `favicon.ico`, `favicon-96x96.png`, `apple-touch-icon.png`, `logo.svg`
+- `web-app-manifest-192x192.png`, `web-app-manifest-512x512.png`
+
+---
+
 ## [0.16.1] - 2026-02-16 🌙 Dark Mode Fixes
 
 ### Fixed

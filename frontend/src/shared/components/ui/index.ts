@@ -19,6 +19,7 @@ export { Button } from './Button';
 export { Badge } from './Badge';
 export { ProgressBar } from './ProgressBar';
 export { Spinner } from './Spinner';
+export { PageLoader } from './PageLoader';
 export { ToastProvider, toast } from './Toast';
 export { ErrorBoundary, PageErrorBoundary, RouteErrorBoundary } from './ErrorBoundary';
 export { ThemeToggle } from './ThemeToggle';
