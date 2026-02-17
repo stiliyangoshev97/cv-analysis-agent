@@ -275,14 +275,14 @@ export const ApiKeysTab = () => {
       })}
 
       {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <Text weight="medium" className="text-blue-800">Your Keys Are Secure</Text>
-            <Text size="sm" className="text-blue-700 mt-1">
+            <Text weight="medium" className="text-blue-800 dark:text-blue-200">Your Keys Are Secure</Text>
+            <Text size="sm" className="text-blue-700 dark:text-blue-300 mt-1">
               API keys are encrypted with AES-256 before storage and are never exposed in API responses.
               Only the last 4 characters are shown for identification.
             </Text>

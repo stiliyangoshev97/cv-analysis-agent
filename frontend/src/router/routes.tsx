@@ -46,6 +46,7 @@ const SettingsPage = lazy(() => import('@/features/settings/pages/SettingsPage')
 const LlmFaqPage = lazy(() => import('@/features/settings/pages/LlmFaqPage').then(m => ({ default: m.LlmFaqPage })));
 
 const NotificationSettingsPage = lazy(() => import('@/features/notification/pages/NotificationSettingsPage').then(m => ({ default: m.NotificationSettingsPage })));
+const NotificationHistoryPage = lazy(() => import('@/features/notification/pages/NotificationHistoryPage').then(m => ({ default: m.NotificationHistoryPage })));
 
 /**
  * Wraps a lazy-loaded component with Suspense for loading state.
@@ -157,6 +158,17 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <RootLayout>
           {withSuspense(NotificationSettingsPage)}
+        </RootLayout>
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/settings/notifications/history',
+    element: (
+      <ProtectedRoute>
+        <RootLayout>
+          {withSuspense(NotificationHistoryPage)}
         </RootLayout>
       </ProtectedRoute>
     ),

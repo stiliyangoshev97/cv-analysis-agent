@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from app.db.models.cv import CV
     from app.db.models.chat import ChatHistory
     from app.db.models.notification import NotificationSettings
+    from app.db.models.notification_history import NotificationHistory
 
 
 class AuthProvider(str):
@@ -169,6 +170,12 @@ class User(Base, TimestampMixin):
         "NotificationSettings",
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+    
+    notification_history: Mapped[List["NotificationHistory"]] = relationship(
+        "NotificationHistory",
+        back_populates="user",
         cascade="all, delete-orphan",
     )
     

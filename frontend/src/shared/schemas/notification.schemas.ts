@@ -156,3 +156,86 @@ export const notificationServiceStatusSchema = z.object({
 });
 
 export type NotificationServiceStatus = z.infer<typeof notificationServiceStatusSchema>;
+
+// =============================================================================
+// Notification History
+// =============================================================================
+
+/**
+ * Notification type enum.
+ */
+export const notificationTypeSchema = z.enum(['email', 'whatsapp']);
+export type NotificationType = z.infer<typeof notificationTypeSchema>;
+
+/**
+ * Notification status enum.
+ */
+export const notificationStatusSchema = z.enum(['pending', 'sent', 'failed']);
+export type NotificationStatus = z.infer<typeof notificationStatusSchema>;
+
+/**
+ * Schema for a single notification history item.
+ */
+export const notificationHistoryItemSchema = z.object({
+  id: z.string().uuid(),
+  cv_id: z.string().uuid().nullable().optional(),
+  type: notificationTypeSchema,
+  status: notificationStatusSchema,
+  recipient: z.string(),
+  subject: z.string().nullable().optional(),
+  message: z.string(),
+  error_message: z.string().nullable().optional(),
+  cv_score: z.number().nullable().optional(),
+  candidate_name: z.string().nullable().optional(),
+  sent_at: z.string().nullable().optional(),
+  created_at: z.string(),
+});
+
+export type NotificationHistoryItem = z.infer<typeof notificationHistoryItemSchema>;
+
+/**
+ * Schema for paginated notification history list.
+ */
+export const notificationHistoryListSchema = z.object({
+  items: z.array(notificationHistoryItemSchema),
+  total: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+  has_more: z.boolean(),
+});
+
+export type NotificationHistoryList = z.infer<typeof notificationHistoryListSchema>;
+
+/**
+ * Schema for notification statistics.
+ */
+export const notificationHistoryStatsSchema = z.object({
+  total: z.number(),
+  sent: z.number(),
+  failed: z.number(),
+  pending: z.number(),
+  by_type: z.record(z.string(), z.number()),
+});
+
+export type NotificationHistoryStats = z.infer<typeof notificationHistoryStatsSchema>;
+
+/**
+ * Schema for resend notification response.
+ */
+export const resendNotificationResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  new_status: notificationStatusSchema,
+});
+
+export type ResendNotificationResponse = z.infer<typeof resendNotificationResponseSchema>;
+
+/**
+ * Query params for notification history.
+ */
+export interface NotificationHistoryParams {
+  type?: NotificationType;
+  status?: NotificationStatus;
+  limit?: number;
+  offset?: number;
+}

@@ -31,62 +31,12 @@ Ensure your `.env` file is **not** committed (it's in `.gitignore`):
 git status --ignored | grep .env
 ```
 
-## 🤖 Supported AI Models (February 2026)
-
-Choose your preferred AI provider and model in Settings:
-
-### Anthropic Claude
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **Claude Opus 4.6** | Most intelligent model | Complex reasoning, research, deep analysis |
-| **Claude Sonnet 4.5** | Balanced speed & intelligence | Daily coding, CV analysis, general tasks |
-| **Claude Haiku 4.5** | Fastest with excellent quality | High-volume screening, quick responses |
-
-### OpenAI GPT
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **GPT-5.2** | Best for coding & agents | Complex agentic tasks, coding |
-| **GPT-5.2 Pro** | Smarter, more precise | When you need extra accuracy |
-| **GPT-5 / Mini / Nano** | Configurable reasoning | Various speed/cost tradeoffs |
-| **GPT-4.1** | Smartest non-reasoning | Reliable, fast responses |
-
-### Google Gemini
-| Model | Description | Best For |
-|-------|-------------|----------|
-| **Gemini 3 Pro** | Most intelligent, multimodal | Complex tasks, agentic use cases |
-| **Gemini 3 Flash** | Balanced speed & scale | Production workloads |
-| **Gemini 2.5 Pro** | Advanced thinking model | Complex reasoning, code, math |
-| **Gemini 2.5 Flash** | Best price-performance | Large scale processing |
-
-## 📊 Evaluation Criteria
-
-| Criterion | Points | What We Look For |
-|-----------|--------|------------------|
-| **Education** | 15 | High School+, bootcamps, self-taught with portfolio |
-| **Fintech Experience** | 20 | Finance, banking, crypto, DeFi, fintech startups |
-| **Technical Skills** | 25 | TypeScript, Python, React, Node.js, FastAPI |
-| **Soft Skills & Adaptability** | 20 | Fast learner, work under pressure, team player |
-| **AI-Native Development** | 20 | AI coding tools, RAG, MCP, AI agents |
-
-### AI-Native Development Criteria (What Sets This Apart)
-We specifically look for candidates who:
-- Use **AI coding tools**: Claude Code, GitHub Copilot, Cursor, Windsurf
-- Practice **vibe coding**: AI pair programming, prompt engineering
-- Understand **RAG systems**: Vector databases, embeddings, retrieval
-- Know **MCP**: Model Context Protocol, tool-use, function calling
-- Can build **AI agents**: LangChain, LlamaIndex, autonomous systems
-- Have **LLM integration** experience: OpenAI, Anthropic APIs in production
-
-### Pass/Fail Logic
-- ✅ **PASS**: Score ≥ 60 AND 3+ criteria met (must include Technical Skills)
-- ❌ **FAIL**: Score < 60 OR fewer than 3 criteria OR no Technical Skills
-
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.11+ with pip
 - Node.js 18+ with npm
-- Anthropic API key ([get one here](https://console.anthropic.com/))
+
 
 ### 1. Backend Setup
 ```bash
@@ -95,8 +45,6 @@ python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Create .env file with your API key
-echo "ANTHROPIC_API_KEY=sk-ant-your-key-here" > .env
 
 # Start the server
 uvicorn app.main:app --reload --port 8000

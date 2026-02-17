@@ -53,6 +53,14 @@ export type {
   SendTestNotificationRequest,
   NotificationResult,
   NotificationServiceStatus,
+  // Notification History Types
+  NotificationType,
+  NotificationStatus,
+  NotificationHistoryItem,
+  NotificationHistoryList,
+  NotificationHistoryStats,
+  NotificationHistoryParams,
+  ResendNotificationResponse,
   // SMTP/Twilio BYOK Types
   SmtpConfigUpdate,
   SmtpConfigResponse,

@@ -31,6 +31,11 @@ from app.db.models.template import EvaluationTemplate, TemplateCriterion
 from app.db.models.cv import CV, CVEvaluation, CVEmbedding
 from app.db.models.chat import ChatHistory
 from app.db.models.notification import NotificationSettings
+from app.db.models.notification_history import (
+    NotificationHistory,
+    NotificationType,
+    NotificationStatus,
+)
 
 __all__ = [
     # User & Auth
@@ -50,4 +55,7 @@ __all__ = [
     # Chat & Notifications
     "ChatHistory",
     "NotificationSettings",
+    "NotificationHistory",
+    "NotificationType",
+    "NotificationStatus",
 ]

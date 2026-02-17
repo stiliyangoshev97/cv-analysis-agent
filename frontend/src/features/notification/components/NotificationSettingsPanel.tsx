@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardContent, Button, Input, Spinner, Text, Heading, Badge } from '@/shared/components';
 import { Toggle } from './Toggle';
 import { ThresholdSlider } from './ThresholdSlider';
@@ -246,27 +247,34 @@ export const NotificationSettingsPanel = () => {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-          <BellIcon />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+            <BellIcon />
+          </div>
+          <div>
+            <Heading level={2}>Notification Settings</Heading>
+            <Text color="muted" size="sm">
+              Configure how you want to be notified about CV evaluations
+            </Text>
+          </div>
         </div>
-        <div>
-          <Heading level={2}>Notification Settings</Heading>
-          <Text color="muted" size="sm">
-            Configure how you want to be notified about CV evaluations
-          </Text>
-        </div>
+        <Link to="/settings/notifications/history">
+          <Button variant="outline" size="sm">
+            View History
+          </Button>
+        </Link>
       </div>
 
       {/* Service Status Banner */}
       {status && (!status.email_configured || !status.whatsapp_configured) && (
-        <Card variant="outlined" className="border-yellow-200 bg-yellow-50">
+        <Card variant="outlined" className="border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950/30">
           <CardContent className="py-3">
             <div className="flex items-start gap-3">
-              <span className="text-yellow-600 mt-0.5">⚠️</span>
+              <span className="text-yellow-600 dark:text-yellow-500 mt-0.5">⚠️</span>
               <div>
-                <Text className="font-medium text-yellow-800">Service Configuration</Text>
-                <Text size="sm" className="text-yellow-700">
+                <Text className="font-medium text-yellow-800 dark:text-yellow-200">Service Configuration</Text>
+                <Text size="sm" className="text-yellow-700 dark:text-yellow-300">
                   {!status.email_configured && 'Email service is not configured. '}
                   {!status.whatsapp_configured && 'WhatsApp service is not configured. '}
                   You can configure your own credentials below.
@@ -281,7 +289,6 @@ export const NotificationSettingsPanel = () => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
             <Heading level={3}>Score Threshold</Heading>
           </div>
         </CardHeader>
@@ -335,7 +342,7 @@ export const NotificationSettingsPanel = () => {
             <button
               type="button"
               onClick={() => setShowSmtpConfig(!showSmtpConfig)}
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
             >
               <SettingsIcon />
               <span>Configure SMTP (Bring Your Own)</span>
@@ -343,12 +350,12 @@ export const NotificationSettingsPanel = () => {
             </button>
             
             {showSmtpConfig && (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+              <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 {smtpConfigured && (
-                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg mb-3">
                     <div>
-                      <Text size="sm" className="font-medium text-green-800">SMTP Configured</Text>
-                      <Text size="sm" className="text-green-700">
+                      <Text size="sm" className="font-medium text-green-800 dark:text-green-200">SMTP Configured</Text>
+                      <Text size="sm" className="text-green-700 dark:text-green-300">
                         Host: {settings?.smtp_config?.host} • From: {settings?.smtp_config?.from_email_hint}
                       </Text>
                     </div>
@@ -357,14 +364,14 @@ export const NotificationSettingsPanel = () => {
                       size="sm"
                       onClick={handleClearSmtp}
                       disabled={isClearingSmtp}
-                      className="text-red-600 border-red-300 hover:bg-red-50"
+                      className="text-red-600 dark:text-red-400 border-red-300 dark:border-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                     >
                       {isClearingSmtp ? <Spinner size="sm" /> : 'Clear'}
                     </Button>
                   </div>
                 )}
                 
-                <Text size="sm" className="text-gray-600">
+                <Text size="sm" className="text-gray-600 dark:text-gray-300">
                   {smtpConfigured 
                     ? 'Enter new credentials to update your SMTP configuration:'
                     : 'Enter your SMTP server credentials to send emails from your own account:'}
@@ -492,7 +499,7 @@ export const NotificationSettingsPanel = () => {
             <button
               type="button"
               onClick={() => setShowTwilioConfig(!showTwilioConfig)}
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
             >
               <SettingsIcon />
               <span>Configure Twilio (Bring Your Own)</span>
@@ -500,12 +507,12 @@ export const NotificationSettingsPanel = () => {
             </button>
             
             {showTwilioConfig && (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+              <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 {twilioConfigured && (
-                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg mb-3">
                     <div>
-                      <Text size="sm" className="font-medium text-green-800">Twilio Configured</Text>
-                      <Text size="sm" className="text-green-700">
+                      <Text size="sm" className="font-medium text-green-800 dark:text-green-200">Twilio Configured</Text>
+                      <Text size="sm" className="text-green-700 dark:text-green-300">
                         Account: ...{settings?.twilio_config?.account_sid_hint} • From: {settings?.twilio_config?.whatsapp_from_hint}
                       </Text>
                     </div>
@@ -514,14 +521,14 @@ export const NotificationSettingsPanel = () => {
                       size="sm"
                       onClick={handleClearTwilio}
                       disabled={isClearingTwilio}
-                      className="text-red-600 border-red-300 hover:bg-red-50"
+                      className="text-red-600 dark:text-red-400 border-red-300 dark:border-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                     >
                       {isClearingTwilio ? <Spinner size="sm" /> : 'Clear'}
                     </Button>
                   </div>
                 )}
                 
-                <Text size="sm" className="text-gray-600">
+                <Text size="sm" className="text-gray-600 dark:text-gray-300">
                   {twilioConfigured 
                     ? 'Enter new credentials to update your Twilio configuration:'
                     : 'Enter your Twilio credentials to send WhatsApp messages from your own account:'}
@@ -585,20 +592,20 @@ export const NotificationSettingsPanel = () => {
 
       {/* Test Result */}
       {testResult && (
-        <Card variant="outlined" className={testResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+        <Card variant="outlined" className={testResult.success ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30'}>
           <CardContent className="py-3">
             <div className="flex items-center gap-2">
               {testResult.success ? (
-                <span className="text-green-600"><CheckIcon /></span>
+                <span className="text-green-600 dark:text-green-400"><CheckIcon /></span>
               ) : (
-                <span className="text-red-600"><XIcon /></span>
+                <span className="text-red-600 dark:text-red-400"><XIcon /></span>
               )}
-              <Text className={testResult.success ? 'text-green-800' : 'text-red-800'}>
+              <Text className={testResult.success ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}>
                 {testResult.message}
               </Text>
             </div>
             {testResult.error && (
-              <Text size="sm" className="text-red-600 mt-1 ml-6">
+              <Text size="sm" className="text-red-600 dark:text-red-400 mt-1 ml-6">
                 {testResult.error}
               </Text>
             )}

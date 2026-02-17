@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.16.0] - 2026-02-17 📜 Notification History
+
+### Added
+
+- **NotificationHistory Model** (`app/db/models/notification_history.py`):
+  - Tracks all sent notifications (email & WhatsApp)
+  - Fields: id, user_id, cv_id, type, status, recipient, subject, message, error_message, cv_score, candidate_name, sent_at
+  - Enums: NotificationType (email/whatsapp), NotificationStatus (pending/sent/failed)
+  - Relationships to User and CV models
+
+- **NotificationHistoryRepository** (`app/features/notification/notification_history_repository.py`):
+  - CRUD operations for notification history
+  - Filtering by type and status
+  - Pagination support
+  - Statistics aggregation (total, sent, failed, by_type)
+
+- **Notification History API Endpoints**:
+  - `GET /api/notifications/history` - Paginated list with filtering
+  - `GET /api/notifications/history/stats` - Aggregate statistics
+  - `GET /api/notifications/history/{id}` - Single notification details
+  - `POST /api/notifications/history/{id}/resend` - Resend failed notification
+  - `DELETE /api/notifications/history/{id}` - Delete notification entry
+
+- **Alembic Migration** for `notification_history` table
+
+### Changed
+
+- **NotificationService**: Now logs all sent notifications to history
+- **NotificationController**: Added history-related endpoint handlers
+- **notification_schemas.py**: Added history-related Pydantic schemas
+
+---
+
 ## [0.15.7] - 2026-02-16 🧪 Test CVs & Profile Seeding
 
 ### Added

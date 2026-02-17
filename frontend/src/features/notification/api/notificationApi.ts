@@ -18,6 +18,11 @@ import type {
   NotificationChannel,
   NotificationResult,
   NotificationServiceStatus,
+  NotificationHistoryList,
+  NotificationHistoryItem,
+  NotificationHistoryStats,
+  NotificationHistoryParams,
+  ResendNotificationResponse,
 } from '@/shared/types';
 
 /**
@@ -131,6 +136,116 @@ export const clearSmtpConfig = async (): Promise<{ success: boolean; message: st
 export const clearTwilioConfig = async (): Promise<{ success: boolean; message: string }> => {
   const response = await apiClient.delete<{ success: boolean; message: string }>(
     '/api/notifications/twilio-config'
+  );
+  return response.data;
+};
+
+// =============================================================================
+// Notification History API
+// =============================================================================
+
+/**
+ * Get notification history with optional filtering.
+ *
+ * @param params - Filter and pagination options
+ * @returns Promise resolving to paginated notification list
+ *
+ * @example
+ * ```typescript
+ * const history = await getNotificationHistory({ status: 'failed', limit: 10 });
+ * console.log(`Found ${history.total} notifications`);
+ * ```
+ */
+export const getNotificationHistory = async (
+  params?: NotificationHistoryParams
+): Promise<NotificationHistoryList> => {
+  const queryParams = new URLSearchParams();
+  if (params?.type) queryParams.append('type', params.type);
+  if (params?.status) queryParams.append('status', params.status);
+  if (params?.limit) queryParams.append('limit', params.limit.toString());
+  if (params?.offset) queryParams.append('offset', params.offset.toString());
+
+  const query = queryParams.toString();
+  const url = `/api/notifications/history${query ? `?${query}` : ''}`;
+  const response = await apiClient.get<NotificationHistoryList>(url);
+  return response.data;
+};
+
+/**
+ * Get notification statistics.
+ *
+ * @returns Promise resolving to notification stats
+ *
+ * @example
+ * ```typescript
+ * const stats = await getNotificationStats();
+ * console.log(`Sent: ${stats.sent}, Failed: ${stats.failed}`);
+ * ```
+ */
+export const getNotificationStats = async (): Promise<NotificationHistoryStats> => {
+  const response = await apiClient.get<NotificationHistoryStats>('/api/notifications/history/stats');
+  return response.data;
+};
+
+/**
+ * Get a single notification by ID.
+ *
+ * @param notificationId - UUID of the notification
+ * @returns Promise resolving to notification item
+ *
+ * @example
+ * ```typescript
+ * const notification = await getNotificationById('123e4567-...');
+ * ```
+ */
+export const getNotificationById = async (
+  notificationId: string
+): Promise<NotificationHistoryItem> => {
+  const response = await apiClient.get<NotificationHistoryItem>(
+    `/api/notifications/history/${notificationId}`
+  );
+  return response.data;
+};
+
+/**
+ * Resend a failed notification.
+ *
+ * @param notificationId - UUID of the notification to resend
+ * @returns Promise resolving to resend result
+ *
+ * @example
+ * ```typescript
+ * const result = await resendNotification('123e4567-...');
+ * if (result.success) {
+ *   console.log('Notification resent!');
+ * }
+ * ```
+ */
+export const resendNotification = async (
+  notificationId: string
+): Promise<ResendNotificationResponse> => {
+  const response = await apiClient.post<ResendNotificationResponse>(
+    `/api/notifications/history/${notificationId}/resend`
+  );
+  return response.data;
+};
+
+/**
+ * Delete a notification from history.
+ *
+ * @param notificationId - UUID of the notification to delete
+ * @returns Promise resolving to success message
+ *
+ * @example
+ * ```typescript
+ * await deleteNotification('123e4567-...');
+ * ```
+ */
+export const deleteNotification = async (
+  notificationId: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.delete<{ success: boolean; message: string }>(
+    `/api/notifications/history/${notificationId}`
   );
   return response.data;
 };

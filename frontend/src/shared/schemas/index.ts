@@ -91,6 +91,13 @@ export {
   smtpConfigResponseSchema,
   twilioConfigUpdateSchema,
   twilioConfigResponseSchema,
+  // Notification History Schemas
+  notificationTypeSchema,
+  notificationStatusSchema,
+  notificationHistoryItemSchema,
+  notificationHistoryListSchema,
+  notificationHistoryStatsSchema,
+  resendNotificationResponseSchema,
   // Types
   type NotificationSettings,
   type NotificationSettingsUpdate,
@@ -103,6 +110,14 @@ export {
   type SmtpConfigResponse,
   type TwilioConfigUpdate,
   type TwilioConfigResponse,
+  // Notification History Types
+  type NotificationType,
+  type NotificationStatus,
+  type NotificationHistoryItem,
+  type NotificationHistoryList,
+  type NotificationHistoryStats,
+  type NotificationHistoryParams,
+  type ResendNotificationResponse,
 } from './notification.schemas';
 
 // Settings Schemas

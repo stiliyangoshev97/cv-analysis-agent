@@ -348,7 +348,7 @@ export const LlmPreferencesTab = () => {
       </Card>
 
       {/* Embeddings (Read-only) */}
-      <Card padding="md" className="bg-gray-50">
+      <Card padding="md" className="bg-gray-50 dark:bg-gray-800/50">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CardTitle className="text-lg">Embeddings</CardTitle>
@@ -362,13 +362,13 @@ export const LlmPreferencesTab = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Text size="sm" weight="medium" className="mb-1">Provider</Text>
-              <div className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600">
+              <div className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300">
                 OpenAI
               </div>
             </div>
             <div>
               <Text size="sm" weight="medium" className="mb-1">Model</Text>
-              <div className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-600">
+              <div className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300">
                 text-embedding-3-small
               </div>
             </div>

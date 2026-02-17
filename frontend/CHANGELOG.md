@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.18.0] - 2026-02-17 📜 Notification History
+
+### Added
+
+**Notification History Page** (`/settings/notifications/history`)
+- View all sent notifications with paginated list
+- Filter by type (Email/WhatsApp) and status (Sent/Failed/Pending)
+- Statistics cards showing total, sent, failed, and pending counts
+- Resend failed notifications with one click
+- Delete notification entries
+- Relative time display (e.g., "5m ago", "2d ago")
+- Status badges with color coding
+
+**New Files**
+- `NotificationHistoryPage.tsx` - Full history page component
+- `useNotificationHistory.ts` - React Query hooks for history API
+- History-related Zod schemas in `notification.schemas.ts`
+- API functions in `notificationApi.ts`
+
+**UI Improvements**
+- "View History" button added to Notification Settings page
+- Link from history back to settings
+
+---
+
 ## [0.17.0] - 2026-02-16 🚀 Performance & SEO Optimization
 
 ### Added

@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from app.db.models.user import User
     from app.db.models.template import EvaluationTemplate
     from app.db.models.chat import ChatHistory
+    from app.db.models.notification_history import NotificationHistory
 
 
 class CVStatus(str, Enum):
@@ -167,6 +168,12 @@ class CV(Base):
     
     chat_history: Mapped[List["ChatHistory"]] = relationship(
         "ChatHistory",
+        back_populates="cv",
+        cascade="all, delete-orphan",
+    )
+    
+    notification_history: Mapped[List["NotificationHistory"]] = relationship(
+        "NotificationHistory",
         back_populates="cv",
         cascade="all, delete-orphan",
     )

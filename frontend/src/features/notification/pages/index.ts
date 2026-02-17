@@ -4,3 +4,4 @@
  */
 
 export { NotificationSettingsPage } from './NotificationSettingsPage';
+export { NotificationHistoryPage } from './NotificationHistoryPage';

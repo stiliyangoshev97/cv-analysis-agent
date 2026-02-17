@@ -27,6 +27,10 @@ from .notification_schemas import (
     NotificationResultResponse,
     SmtpConfigResponse,
     TwilioConfigResponse,
+    NotificationHistoryItem,
+    NotificationHistoryListResponse,
+    NotificationHistoryStatsResponse,
+    ResendNotificationResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -224,3 +228,197 @@ class NotificationController:
             Dict with success status.
         """
         return await self.service.clear_twilio_config(self.current_user.id)
+    
+    # =========================================================================
+    # Notification History Endpoints
+    # =========================================================================
+    
+    def _mask_recipient(self, recipient: str, notification_type: str) -> str:
+        """Mask recipient for privacy.
+        
+        Args:
+            recipient: Email or phone number.
+            notification_type: 'email' or 'whatsapp'.
+        
+        Returns:
+            Masked recipient string.
+        """
+        if notification_type == "email" and "@" in recipient:
+            local, domain = recipient.rsplit("@", 1)
+            if len(local) <= 2:
+                masked = local[0] + "***"
+            else:
+                masked = local[0] + "***" + local[-1]
+            return f"{masked}@{domain}"
+        elif notification_type == "whatsapp" and len(recipient) > 7:
+            return recipient[:3] + "***" + recipient[-4:]
+        return "***"
+    
+    def _build_history_item(self, notification) -> NotificationHistoryItem:
+        """Build NotificationHistoryItem from model.
+        
+        Args:
+            notification: NotificationHistory model.
+        
+        Returns:
+            NotificationHistoryItem for API response.
+        """
+        return NotificationHistoryItem(
+            id=str(notification.id),
+            cv_id=str(notification.cv_id) if notification.cv_id else None,
+            type=notification.type.value,
+            status=notification.status.value,
+            recipient=self._mask_recipient(notification.recipient, notification.type.value),
+            subject=notification.subject,
+            message=notification.message[:200] + "..." if len(notification.message) > 200 else notification.message,
+            error_message=notification.error_message,
+            cv_score=notification.cv_score,
+            candidate_name=notification.candidate_name,
+            sent_at=notification.sent_at.isoformat() if notification.sent_at else None,
+            created_at=notification.created_at.isoformat(),
+        )
+    
+    async def get_history(
+        self,
+        notification_type: str | None = None,
+        status: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> NotificationHistoryListResponse:
+        """Get notification history for current user.
+        
+        Args:
+            notification_type: Optional filter by type ('email'/'whatsapp').
+            status: Optional filter by status ('pending'/'sent'/'failed').
+            limit: Maximum results per page.
+            offset: Number to skip.
+        
+        Returns:
+            NotificationHistoryListResponse with paginated results.
+        """
+        notifications, total = await self.service.get_notification_history(
+            user_id=self.current_user.id,
+            notification_type=notification_type,
+            status=status,
+            limit=limit,
+            offset=offset,
+        )
+        
+        items = [self._build_history_item(n) for n in notifications]
+        
+        return NotificationHistoryListResponse(
+            items=items,
+            total=total,
+            limit=limit,
+            offset=offset,
+            has_more=(offset + len(items)) < total,
+        )
+    
+    async def get_history_item(
+        self,
+        notification_id: uuid.UUID,
+    ) -> NotificationHistoryItem:
+        """Get a single notification by ID.
+        
+        Args:
+            notification_id: UUID of the notification.
+        
+        Returns:
+            NotificationHistoryItem.
+        
+        Raises:
+            HTTPException: If notification not found.
+        """
+        notification = await self.service.get_notification_by_id(
+            user_id=self.current_user.id,
+            notification_id=notification_id,
+        )
+        
+        if not notification:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Notification not found",
+            )
+        
+        return self._build_history_item(notification)
+    
+    async def get_history_stats(self) -> NotificationHistoryStatsResponse:
+        """Get notification statistics.
+        
+        Returns:
+            NotificationHistoryStatsResponse with stats.
+        """
+        stats = await self.service.get_notification_stats(self.current_user.id)
+        
+        return NotificationHistoryStatsResponse(
+            total=stats["total"],
+            sent=stats["sent"],
+            failed=stats["failed"],
+            pending=stats["pending"],
+            by_type=stats["by_type"],
+        )
+    
+    async def resend_notification(
+        self,
+        notification_id: uuid.UUID,
+    ) -> ResendNotificationResponse:
+        """Resend a failed notification.
+        
+        Args:
+            notification_id: UUID of the notification to resend.
+        
+        Returns:
+            ResendNotificationResponse with result.
+        
+        Raises:
+            HTTPException: If notification not found.
+        """
+        result = await self.service.resend_notification(
+            user_id=self.current_user.id,
+            notification_id=notification_id,
+            user_email=self.current_user.email,
+        )
+        
+        if not result["success"] and result["message"] == "Notification not found":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Notification not found",
+            )
+        
+        await self.session.commit()
+        
+        return ResendNotificationResponse(
+            success=result["success"],
+            message=result["message"],
+            new_status=result["new_status"],
+        )
+    
+    async def delete_history_item(
+        self,
+        notification_id: uuid.UUID,
+    ) -> dict:
+        """Delete a notification from history.
+        
+        Args:
+            notification_id: UUID of the notification.
+        
+        Returns:
+            Dict with success status.
+        
+        Raises:
+            HTTPException: If notification not found.
+        """
+        deleted = await self.service.delete_notification(
+            user_id=self.current_user.id,
+            notification_id=notification_id,
+        )
+        
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Notification not found",
+            )
+        
+        await self.session.commit()
+        
+        return {"success": True, "message": "Notification deleted"}

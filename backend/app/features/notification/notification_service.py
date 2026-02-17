@@ -26,7 +26,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.user import User
 from app.db.models.notification import NotificationSettings
+from app.db.models.notification_history import (
+    NotificationHistory,
+    NotificationType,
+    NotificationStatus,
+)
 from .notification_repository import NotificationRepository
+from .notification_history_repository import NotificationHistoryRepository
 from .notification_schemas import CVNotificationData
 from .email_service import EmailService, EmailResult
 from .whatsapp_service import WhatsAppService, WhatsAppResult
@@ -109,6 +115,7 @@ class NotificationService:
         """
         self.session = session
         self.repo = NotificationRepository(session)
+        self.history_repo = NotificationHistoryRepository(session)
     
     def _get_email_service(
         self,
@@ -317,6 +324,18 @@ class NotificationService:
                 )
                 result.email_result = email_result
                 result.email_sent = email_result.success
+                
+                # Log to history
+                await self._log_notification_to_history(
+                    user_id=user_id,
+                    cv_data=cv_data,
+                    notification_type=NotificationType.EMAIL,
+                    recipient=user_email,
+                    subject=f"High-Scoring Candidate: {cv_data.candidate_name or cv_data.filename}",
+                    success=email_result.success,
+                    error_message=email_result.error if not email_result.success else None,
+                )
+                
                 if not email_result.success:
                     result.errors.append(f"Email: {email_result.error}")
         
@@ -336,6 +355,18 @@ class NotificationService:
                 )
                 result.whatsapp_result = whatsapp_result
                 result.whatsapp_sent = whatsapp_result.success
+                
+                # Log to history
+                await self._log_notification_to_history(
+                    user_id=user_id,
+                    cv_data=cv_data,
+                    notification_type=NotificationType.WHATSAPP,
+                    recipient=settings.whatsapp_number,
+                    subject=None,
+                    success=whatsapp_result.success,
+                    error_message=whatsapp_result.error if not whatsapp_result.success else None,
+                )
+                
                 if not whatsapp_result.success:
                     result.errors.append(f"WhatsApp: {whatsapp_result.error}")
         
@@ -469,3 +500,267 @@ class NotificationService:
         settings = await self.repo.get_or_create(user_id)
         await self.repo.clear_twilio_config(settings)
         return {"success": True, "message": "Twilio configuration cleared"}
+    
+    # =========================================================================
+    # Notification History Methods
+    # =========================================================================
+    
+    async def _log_notification_to_history(
+        self,
+        user_id: uuid.UUID,
+        cv_data: CVNotificationData,
+        notification_type: NotificationType,
+        recipient: str,
+        subject: Optional[str],
+        success: bool,
+        error_message: Optional[str] = None,
+    ) -> NotificationHistory:
+        """Log a notification to history.
+        
+        Internal helper method called after sending notifications.
+        
+        Args:
+            user_id: UUID of the user.
+            cv_data: CV notification data.
+            notification_type: Type of notification (email/whatsapp).
+            recipient: Email or phone number.
+            subject: Email subject (None for WhatsApp).
+            success: Whether notification was sent successfully.
+            error_message: Error message if failed.
+        
+        Returns:
+            Created NotificationHistory entry.
+        """
+        # Build notification message
+        message = (
+            f"Candidate: {cv_data.candidate_name or 'Unknown'}\n"
+            f"Score: {cv_data.score}%\n"
+            f"Status: {'PASS' if cv_data.passed else 'FAIL'}\n"
+            f"File: {cv_data.filename}\n\n"
+            f"{cv_data.summary}"
+        )
+        
+        # Parse CV ID
+        cv_id = None
+        try:
+            cv_id = uuid.UUID(cv_data.cv_id)
+        except (ValueError, AttributeError):
+            pass
+        
+        status = NotificationStatus.SENT if success else NotificationStatus.FAILED
+        
+        return await self.history_repo.create(
+            user_id=user_id,
+            cv_id=cv_id,
+            notification_type=notification_type,
+            recipient=recipient,
+            message=message,
+            subject=subject,
+            cv_score=cv_data.score,
+            candidate_name=cv_data.candidate_name,
+            status=status,
+        )
+    
+    async def get_notification_history(
+        self,
+        user_id: uuid.UUID,
+        notification_type: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> tuple[List[NotificationHistory], int]:
+        """Get notification history for a user.
+        
+        Args:
+            user_id: UUID of the user.
+            notification_type: Optional filter by type ('email'/'whatsapp').
+            status: Optional filter by status ('pending'/'sent'/'failed').
+            limit: Maximum number of results.
+            offset: Number of results to skip.
+        
+        Returns:
+            Tuple of (list of notifications, total count).
+        """
+        # Convert string filters to enums
+        type_enum = None
+        if notification_type:
+            type_enum = NotificationType(notification_type)
+        
+        status_enum = None
+        if status:
+            status_enum = NotificationStatus(status)
+        
+        return await self.history_repo.get_by_user(
+            user_id=user_id,
+            notification_type=type_enum,
+            status=status_enum,
+            limit=limit,
+            offset=offset,
+        )
+    
+    async def get_notification_by_id(
+        self,
+        user_id: uuid.UUID,
+        notification_id: uuid.UUID,
+    ) -> Optional[NotificationHistory]:
+        """Get a single notification by ID.
+        
+        Args:
+            user_id: UUID of the user.
+            notification_id: UUID of the notification.
+        
+        Returns:
+            NotificationHistory if found, None otherwise.
+        """
+        return await self.history_repo.get_by_id(
+            history_id=notification_id,
+            user_id=user_id,
+        )
+    
+    async def get_notification_stats(
+        self,
+        user_id: uuid.UUID,
+    ) -> dict:
+        """Get notification statistics for a user.
+        
+        Args:
+            user_id: UUID of the user.
+        
+        Returns:
+            Dictionary with stats.
+        """
+        return await self.history_repo.get_stats(user_id)
+    
+    async def resend_notification(
+        self,
+        user_id: uuid.UUID,
+        notification_id: uuid.UUID,
+        user_email: Optional[str] = None,
+    ) -> dict:
+        """Resend a failed notification.
+        
+        Args:
+            user_id: UUID of the user.
+            notification_id: UUID of the notification to resend.
+            user_email: User's email (for email notifications).
+        
+        Returns:
+            Dict with success status and message.
+        """
+        # Get the notification
+        notification = await self.history_repo.get_by_id(
+            history_id=notification_id,
+            user_id=user_id,
+        )
+        
+        if not notification:
+            return {
+                "success": False,
+                "message": "Notification not found",
+                "new_status": "failed",
+            }
+        
+        # Get settings for credentials
+        settings = await self.repo.get_or_create(user_id)
+        
+        # Resend based on type
+        if notification.type == NotificationType.EMAIL:
+            # Get user email if not provided
+            if not user_email:
+                from sqlalchemy import select
+                user_result = await self.session.execute(
+                    select(User).where(User.id == user_id)
+                )
+                user = user_result.scalar_one_or_none()
+                if user:
+                    user_email = user.email
+            
+            if not user_email:
+                return {
+                    "success": False,
+                    "message": "User email not found",
+                    "new_status": "failed",
+                }
+            
+            email_service = self._get_email_service(settings)
+            if not email_service.is_configured:
+                return {
+                    "success": False,
+                    "message": "Email service not configured",
+                    "new_status": "failed",
+                }
+            
+            # Send the email
+            result = await email_service.send_email(
+                to_email=user_email,
+                subject=notification.subject or "CV Screening Alert",
+                body=notification.message,
+            )
+            
+            # Update status
+            new_status = NotificationStatus.SENT if result.success else NotificationStatus.FAILED
+            await self.history_repo.update_status(
+                history_id=notification_id,
+                status=new_status,
+                error_message=result.error if not result.success else None,
+            )
+            
+            return {
+                "success": result.success,
+                "message": "Notification resent" if result.success else result.error,
+                "new_status": new_status.value,
+            }
+        
+        elif notification.type == NotificationType.WHATSAPP:
+            whatsapp_service = self._get_whatsapp_service(settings)
+            if not whatsapp_service.is_configured:
+                return {
+                    "success": False,
+                    "message": "WhatsApp service not configured",
+                    "new_status": "failed",
+                }
+            
+            # Send WhatsApp
+            result = await whatsapp_service.send_message(
+                to_number=notification.recipient,
+                message=notification.message,
+            )
+            
+            # Update status
+            new_status = NotificationStatus.SENT if result.success else NotificationStatus.FAILED
+            await self.history_repo.update_status(
+                history_id=notification_id,
+                status=new_status,
+                error_message=result.error if not result.success else None,
+            )
+            
+            return {
+                "success": result.success,
+                "message": "Notification resent" if result.success else result.error,
+                "new_status": new_status.value,
+            }
+        
+        return {
+            "success": False,
+            "message": f"Unknown notification type: {notification.type}",
+            "new_status": "failed",
+        }
+    
+    async def delete_notification(
+        self,
+        user_id: uuid.UUID,
+        notification_id: uuid.UUID,
+    ) -> bool:
+        """Delete a notification from history.
+        
+        Args:
+            user_id: UUID of the user.
+            notification_id: UUID of the notification.
+        
+        Returns:
+            True if deleted, False if not found.
+        """
+        return await self.history_repo.delete(
+            history_id=notification_id,
+            user_id=user_id,
+        )

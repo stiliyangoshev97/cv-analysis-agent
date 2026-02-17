@@ -174,10 +174,15 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] Credentials encrypted with AES-256 (backend)
 - [x] Masked credentials display (security)
 
-### 3.3 Notification History (Future)
-- [ ] List of sent notifications
-- [ ] Filter by type (email/WhatsApp)
-- [ ] Resend failed notifications
+### 3.3 Notification History ✅ COMPLETED
+- [x] List of sent notifications
+- [x] Filter by type (email/WhatsApp)
+- [x] Filter by status (sent/failed/pending)
+- [x] Paginated history with statistics
+- [x] Resend failed notifications
+- [x] Delete notification entries
+- [x] Backend: NotificationHistory model, repository, service, routes
+- [x] Frontend: NotificationHistoryPage, hooks, API integration
 
 ---
 

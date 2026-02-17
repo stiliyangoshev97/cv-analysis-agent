@@ -223,3 +223,88 @@ class CVNotificationData(BaseModel):
     score: int
     passed: bool
     summary: str
+
+
+# =============================================================================
+# Notification History
+# =============================================================================
+
+class NotificationHistoryItem(BaseModel):
+    """Single notification history entry.
+    
+    Attributes:
+        id: Unique notification identifier.
+        cv_id: Related CV identifier (if available).
+        type: Notification channel (email/whatsapp).
+        status: Delivery status (pending/sent/failed).
+        recipient: Email or phone number (masked).
+        subject: Email subject (if email).
+        message: Notification content preview.
+        error_message: Error details if failed.
+        cv_score: Score that triggered notification.
+        candidate_name: Name of candidate.
+        sent_at: When notification was sent.
+        created_at: When notification was created.
+    """
+    id: str
+    cv_id: Optional[str] = None
+    type: str  # 'email' or 'whatsapp'
+    status: str  # 'pending', 'sent', 'failed'
+    recipient: str  # Masked for security
+    subject: Optional[str] = None
+    message: str
+    error_message: Optional[str] = None
+    cv_score: Optional[int] = None
+    candidate_name: Optional[str] = None
+    sent_at: Optional[str] = None  # ISO format
+    created_at: str  # ISO format
+    
+    class Config:
+        from_attributes = True
+
+
+class NotificationHistoryListResponse(BaseModel):
+    """Paginated list of notification history.
+    
+    Attributes:
+        items: List of notification entries.
+        total: Total number of notifications.
+        limit: Page size.
+        offset: Current offset.
+        has_more: Whether more pages exist.
+    """
+    items: list[NotificationHistoryItem]
+    total: int
+    limit: int
+    offset: int
+    has_more: bool
+
+
+class NotificationHistoryStatsResponse(BaseModel):
+    """Statistics about notification history.
+    
+    Attributes:
+        total: Total notifications sent.
+        sent: Successfully sent count.
+        failed: Failed notification count.
+        pending: Pending notification count.
+        by_type: Count by notification type.
+    """
+    total: int
+    sent: int
+    failed: int
+    pending: int
+    by_type: dict[str, int]
+
+
+class ResendNotificationResponse(BaseModel):
+    """Response from resending a notification.
+    
+    Attributes:
+        success: Whether resend was successful.
+        message: Status message.
+        new_status: Updated status of the notification.
+    """
+    success: bool
+    message: str
+    new_status: str
