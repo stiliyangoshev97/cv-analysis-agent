@@ -8,8 +8,52 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 
 ## 🎯 NEXT STEPS (Immediate)
 
-> **Current Focus**: Testing & Polish
-> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI, **Notifications UI with BYOK**, **Re-evaluate Feature**
+> **Current Focus**: Deployment 🚀
+> **Completed**: All backend features (Phases 1-6), Rate Limiting, Gemini Support, User Settings API, Chat UI, Profile UI, CV Evaluation History, CV Similarity & Search UI, **Notifications UI with BYOK**, **Re-evaluate Feature**, **Test Suite (329 tests)**, **CI/CD Pipeline**, **Security Headers**, **Mobile Optimization**
+
+---
+
+## 🚀 Deployment Checklist (Feb 2026)
+
+### ✅ Pre-Deployment Completed
+- [x] All 329 tests passing (unit + integration)
+- [x] CI/CD pipeline created (`.github/workflows/ci.yml`)
+- [x] Security headers configured (`frontend/vercel.json`)
+- [x] Mobile-responsive layouts
+- [x] Notification history bug fixed
+
+### 🔲 Render Deployment (Backend + PostgreSQL)
+- [ ] Create Render account/project
+- [ ] Provision PostgreSQL 17 database with pgvector extension
+- [ ] Configure environment variables:
+  - `DATABASE_URL` (Render provides this)
+  - `JWT_SECRET_KEY` (generate secure key)
+  - `ENCRYPTION_KEY` (32-byte base64 key)
+  - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+  - `ENVIRONMENT=production`
+- [ ] Create `render.yaml` blueprint (optional)
+- [ ] Deploy backend as Web Service
+- [ ] Run Alembic migrations on first deploy
+- [ ] Seed system templates (optional)
+- [ ] Verify health endpoint (`/health`)
+
+### 🔲 Vercel Deployment (Frontend)
+- [x] `vercel.json` with security headers configured
+- [ ] Create Vercel project
+- [ ] Configure environment variables:
+  - `VITE_API_URL` → Render backend URL
+  - `VITE_GOOGLE_CLIENT_ID`
+- [ ] Deploy frontend
+- [ ] Update Google OAuth redirect URIs
+- [ ] Update backend CORS origins
+
+### 🔲 Post-Deployment
+- [ ] Test Google OAuth flow end-to-end
+- [ ] Test CV upload and evaluation
+- [ ] Test notification system (BYOK SMTP/Twilio)
+- [ ] Test semantic search and similarity
+- [ ] Monitor error rates and performance
+- [ ] Set up uptime monitoring (optional)
 
 ---
 
@@ -1070,7 +1114,7 @@ interface Criterion {
 - [x] Fix chat_routes.py: move /compare before /{cv_id} for proper route matching
 - [x] Add Notification API integration tests (29 tests)
 
-**Test Results**: 283 tests passing (169 unit + 114 integration), 0 skipped
+**Test Results**: 329 tests passing (215 unit + 114 integration), 0 skipped
 
 ### 8.2 Frontend Testing
 - [ ] Set up Vitest
@@ -1079,10 +1123,17 @@ interface Criterion {
 - [ ] Write integration tests
 
 ### 8.3 Documentation
-- [ ] Update main README.md with new architecture
-- [ ] Document API endpoints (OpenAPI/Swagger)
-- [ ] Document environment variables
-- [ ] Create deployment guide
+- [x] Update main README.md with new architecture
+- [x] Document API endpoints (OpenAPI/Swagger) - Auto-generated at `/docs`
+- [x] Document environment variables (README.md + .env.example)
+- [ ] Create deployment guide (DEPLOYMENT.md)
+
+### 8.4 CI/CD ✅ COMPLETED
+- [x] Create GitHub Actions workflow (`.github/workflows/ci.yml`)
+- [x] Backend job: Python 3.13 + pytest with PostgreSQL
+- [x] Frontend job: TypeScript check + ESLint + Vite build
+- [x] Concurrency control (cancel in-progress runs)
+- [x] Summary job for branch protection
 
 ---
 
@@ -1102,7 +1153,7 @@ interface Criterion {
    - 6.4 Semantic Search ✅ Backend Complete
    - Frontend implementation ⏳ Next
 9. **Phase 7**: Frontend Enhancements
-10. **Phase 8**: Testing & Documentation 🔄 IN PROGRESS (283 tests passing: 169 unit + 114 integration)
+10. **Phase 8**: Testing & Documentation ✅ COMPLETE (329 tests passing, CI/CD configured)
 
 > **Note**: Phase 1.7 (User Configuration) will be implemented as part of Phase 2 (Database Layer) since it requires database persistence.
 
