@@ -580,6 +580,9 @@ class CVService:
                         f"Notification attempted but failed for CV {cv.id}: "
                         f"{result.errors}"
                     )
+                
+                # Commit notification history entries
+                await self.session.commit()
             else:
                 logger.debug(
                     f"Score {evaluation.percentage}% below threshold "

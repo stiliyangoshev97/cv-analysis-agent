@@ -322,6 +322,10 @@ class NotificationAgent(BaseAgent):
                 cv_data=cv_data,
             )
             
+            # Commit notification history entries if any were created
+            if result.should_notify:
+                await self.context.session.commit()
+            
             return AgentResult.ok(
                 data={
                     "should_notify": result.should_notify,
