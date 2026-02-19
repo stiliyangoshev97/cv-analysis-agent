@@ -68,16 +68,16 @@ export const CriteriaItem = ({ criteria, cvId }: CriteriaItemProps) => {
 
   return (
     <>
-      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+      <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-          criteria.passed ? 'bg-green-100' : 'bg-red-100'
+          criteria.passed ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'
         }`}>
           {criteria.passed ? (
-            <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           ) : (
-            <svg className="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
             </svg>
           )}
@@ -85,7 +85,7 @@ export const CriteriaItem = ({ criteria, cvId }: CriteriaItemProps) => {
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <Text as="span" weight="semibold" size="sm">{criteria.name}</Text>
+            <Text as="span" weight="semibold" size="sm" className="text-gray-900 dark:text-white">{criteria.name}</Text>
             <Badge variant={criteria.passed ? 'success' : 'error'} size="sm">
               {criteria.passed ? 'Passed' : 'Failed'}
             </Badge>
@@ -94,7 +94,7 @@ export const CriteriaItem = ({ criteria, cvId }: CriteriaItemProps) => {
                 variant="ghost"
                 size="sm"
                 onClick={handleWhyClick}
-                className="ml-auto text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 h-auto text-xs"
+                className="ml-auto text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-2 py-1 h-auto text-xs"
               >
                 Why?
               </Button>

@@ -62,20 +62,20 @@ export const ExplainModal = ({
       >
         {/* Modal */}
         <div
-          className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col"
+          className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div>
               <Heading level={5} className="text-lg">Why this score?</Heading>
               <Text size="sm" color="muted">{criterionName}</Text>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -91,8 +91,8 @@ export const ExplainModal = ({
                 </Text>
               </div>
             ) : error ? (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <Text size="sm" className="text-red-600">
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <Text size="sm" className="text-red-600 dark:text-red-400">
                   Failed to load explanation. Please try again.
                 </Text>
               </div>
@@ -109,7 +109,7 @@ export const ExplainModal = ({
                       {data.score} / {data.max_score}
                     </Badge>
                   </div>
-                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
                         scorePercent >= 60
@@ -126,7 +126,7 @@ export const ExplainModal = ({
                 {/* Explanation */}
                 <div>
                   <Text weight="medium" className="mb-2">Explanation</Text>
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <Text size="sm" className="whitespace-pre-wrap leading-relaxed">
                       {data.explanation}
                     </Text>
@@ -141,9 +141,9 @@ export const ExplainModal = ({
                       {data.evidence.map((excerpt, i) => (
                         <div
                           key={i}
-                          className="bg-blue-50 border-l-4 border-blue-400 rounded-r-lg p-3"
+                          className="bg-blue-50 dark:bg-blue-950/30 border-l-4 border-blue-400 dark:border-blue-500 rounded-r-lg p-3"
                         >
-                          <Text size="sm" className="text-blue-800 italic">
+                          <Text size="sm" className="text-blue-800 dark:text-blue-200 italic">
                             "{excerpt}"
                           </Text>
                         </div>
@@ -156,7 +156,7 @@ export const ExplainModal = ({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <Button variant="outline" onClick={onClose} className="w-full">
               Close
             </Button>

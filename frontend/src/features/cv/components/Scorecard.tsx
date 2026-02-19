@@ -62,22 +62,22 @@ export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
   return (
     <Card padding="none" className="overflow-hidden">
       {/* Header */}
-      <div className={`px-6 py-4 ${isPassed ? 'bg-green-50 border-b border-green-100' : 'bg-red-50 border-b border-red-100'}`}>
+      <div className={`px-6 py-4 ${isPassed ? 'bg-green-50 dark:bg-green-950/30 border-b border-green-100 dark:border-green-800' : 'bg-red-50 dark:bg-red-950/30 border-b border-red-100 dark:border-red-800'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isPassed ? 'bg-green-100' : 'bg-red-100'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isPassed ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
               {isPassed ? (
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               )}
             </div>
             <div>
-              <Heading level={5} className="font-semibold">
+              <Heading level={5} className="font-semibold text-gray-900 dark:text-white">
                 {evaluation.candidate_name || 'Unknown Candidate'}
               </Heading>
               <Text variant="muted" size="sm">{filename}</Text>
@@ -99,7 +99,7 @@ export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
 
           {/* Reasoning */}
           <div className="flex-1">
-            <Text weight="semibold" size="sm" className="mb-2">AI Assessment</Text>
+            <Text weight="semibold" size="sm" className="mb-2 text-gray-900 dark:text-white">AI Assessment</Text>
             <Text variant="muted" size="sm" className="leading-relaxed">
               {evaluation.reasoning}
             </Text>
@@ -108,7 +108,7 @@ export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
 
         {/* Criteria */}
         <div className="mt-6">
-          <Text weight="semibold" size="sm" className="mb-3">Evaluation Criteria</Text>
+          <Text weight="semibold" size="sm" className="mb-3 text-gray-900 dark:text-white">Evaluation Criteria</Text>
           <div className="space-y-2">
             {evaluation.criteria.map((criterion, index) => (
               <CriteriaItem key={index} criteria={criterion} cvId={result.id} />
@@ -118,7 +118,7 @@ export const Scorecard = ({ result, onDismiss }: ScorecardProps) => {
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between mt-0">
+      <CardFooter className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-between mt-0">
         <Button
           variant="outline"
           size="sm"
