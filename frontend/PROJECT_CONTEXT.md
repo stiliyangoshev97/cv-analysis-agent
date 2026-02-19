@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 2026 (v0.17.0 - Performance & SEO Optimization)
+> Last Updated: February 19, 2026 (v0.19.0 - Manual Notifications & Dark Mode Fixes)
 
 ---
 
@@ -47,6 +47,8 @@
 | **Re-evaluate** | ✅ 100% | Re-evaluate CV with different profile |
 | **Lazy Loading** | ✅ 100% | Code splitting with React.lazy |
 | **SEO** | ✅ 100% | Meta tags, favicons, PWA manifest |
+| **Notification History** | ✅ 100% | View/filter/resend notifications |
+| **Manual Notifications** | ✅ 100% | Email/WhatsApp buttons on Scorecard |
 
 **Overall Progress: 100%** (All features complete)
 

@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 16, 2026 (v0.15.7 - Test CVs & Profile Seeds)
+> Last Updated: February 19, 2026 (v0.17.0 - Notification Integration)
 
 ---
 
@@ -42,6 +42,9 @@
 | **Chat Endpoints (RAG Q&A)** | ✅ 100% | Ask questions, explain scores, compare CVs |
 | **Multi-Agent System** | ✅ 100% | Phase 4 - 4 specialized agents + orchestrator |
 | **Notification System** | ✅ 100% | Phase 5 - Email + WhatsApp via Twilio |
+| **Notification Integration** | ✅ 100% | Auto-dispatch after CV evaluation |
+| **Manual Notifications** | ✅ 100% | On-demand email/WhatsApp from CV detail |
+| **Notification History** | ✅ 100% | Track all sent notifications |
 | **Hiring Profiles CRUD** | ✅ 100% | Phase 6.3 - Profile management API |
 | **Vector Similarity Search** | ✅ 100% | Phase 6.1 - Similar CVs, ranking, compare |
 | **Testing Infrastructure** | ✅ 100% | 312 tests (198 unit + 114 integration) |

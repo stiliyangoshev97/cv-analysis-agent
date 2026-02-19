@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.19.0] - 2026-02-19 🔔 Manual Notification Buttons & Dark Mode Fixes
+
+### Added
+
+**Manual Notification Buttons on Scorecard**
+- **Email button**: Send CV evaluation notification via email on-demand
+- **WhatsApp button**: Send CV evaluation notification via WhatsApp on-demand
+- Buttons disabled while sending, with toast feedback on success/failure
+
+**New Files**
+- `useSendNotification.ts` - React Query mutation hook for manual notifications
+- `sendManualNotification()` API function in `cv.api.ts`
+- `ManualNotifyResponse` TypeScript interface
+
+### Fixed
+
+**Dark Mode Improvements**
+- `NotificationSettingsPanel`: Service Configuration banner, SMTP/Twilio dropdowns, View History button styling
+- `LlmPreferencesTab`: Embeddings section textbox backgrounds
+- `ApiKeysTab`: "Your Keys Are Secure" info box styling
+- `ChatPanel`: Panel background, header, close button, empty state, input area
+- `ChatMessage`: Assistant message bubble colors
+- `ExplainModal`: Modal background, header, error state, explanation box, evidence quotes
+- Removed emojis from section headings (Score Threshold, View History button)
+
+### Changed
+
+- `Scorecard.tsx`: Footer now has flex-wrap layout with notification buttons grouped on left
+- `hooks/index.ts`: Added export for `useSendNotification`
+- `api/index.ts`: Added export for `sendManualNotification`
+
+---
+
 ## [0.18.0] - 2026-02-17 📜 Notification History
 
 ### Added

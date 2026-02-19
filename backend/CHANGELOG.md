@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.17.0] - 2026-02-19 🔔 Notification Integration
+
+### Added
+
+- **Automatic CV Notification Dispatch**:
+  - `CVService._trigger_notifications_if_applicable()` - Automatically sends notifications after CV evaluation
+  - Checks user's notification settings and score threshold
+  - Dispatches to enabled channels (email/WhatsApp) when score meets threshold
+  - Non-blocking - notification failures don't affect CV upload
+
+- **Manual Notification Endpoint** (`POST /api/cv/{cv_id}/notify`):
+  - Send email or WhatsApp notifications on-demand
+  - Works regardless of automatic notification settings
+  - Validates channel configuration before sending
+  - Returns detailed success/error response
+
+- **New Schemas**:
+  - `ManualNotifyRequest` - Channel selection (email/whatsapp)
+  - `ManualNotifyResponse` - Success status, channel, message, optional error
+
+- **New Dependency**:
+  - `get_notification_service` in notification_dependencies.py
+
+### Fixed
+
+- **SSL Certificate Error on macOS**:
+  - Added `ssl.create_default_context()` to EmailService
+  - Fixes STARTTLS certificate verification issues on macOS
+
+### Changed
+
+- **CVService.process_and_evaluate()**: Now includes Step 9 for notification dispatch
+- **cv_routes.py**: Added imports for notification service and schemas
+
+---
+
 ## [0.16.0] - 2026-02-17 📜 Notification History
 
 ### Added
