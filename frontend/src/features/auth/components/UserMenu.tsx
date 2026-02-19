@@ -51,12 +51,16 @@ export const UserMenu = () => {
   
   if (!user) return null;
   
-  const initials = user.full_name
+  // Get display name - fallback to email prefix if name not set
+  const displayName = user.full_name || user.email.split('@')[0];
+  
+  // Get initials from name or email
+  const initials = displayName
     .split(' ')
     .map((n: string) => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2) || '?';
   
   return (
     <div className="relative" ref={menuRef}>
@@ -67,7 +71,7 @@ export const UserMenu = () => {
         {user.avatar_url ? (
           <img
             src={user.avatar_url}
-            alt={user.full_name}
+            alt={displayName}
             className="w-8 h-8 rounded-full"
           />
         ) : (
@@ -76,7 +80,7 @@ export const UserMenu = () => {
           </div>
         )}
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
-          {user.full_name}
+          {displayName}
         </span>
         <svg
           className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -89,17 +93,17 @@ export const UserMenu = () => {
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <p className="text-sm font-medium text-gray-900">{user.full_name}</p>
-            <p className="text-sm text-gray-500 truncate">{user.email}</p>
+        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">{displayName}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
           </div>
           
           <div className="py-1">
             <Link
               to="/settings"
               onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -121,7 +125,7 @@ export const UserMenu = () => {
             <Link
               to="/settings/notifications"
               onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -140,7 +144,7 @@ export const UserMenu = () => {
                 logout();
               }}
               disabled={isLoggingOut}
-              className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
