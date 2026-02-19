@@ -25,6 +25,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated `test_settings_service.py`: Updated model assertions (`gpt-4.1`, `gemini-2.0-flash`)
   - Updated `test_notification_api.py`: Updated service status assertions for flat response format
 
+### Added
+
+- **Vercel Security Headers & Mobile Optimization**:
+  - Created `frontend/vercel.json` with comprehensive security headers
+  - X-Content-Type-Options, X-Frame-Options, X-XSS-Protection
+  - Strict Content-Security-Policy for Google OAuth and AI API domains
+  - HSTS, CORS policies, Permissions-Policy
+  - Cache headers for static assets (1 year for immutable assets)
+  - Mobile-responsive layouts across all main pages
+  - Safe area insets for notched devices
+  - Minimum touch targets (44px) for accessibility
+
+- **CI/CD Pipeline**:
+  - Created `.github/workflows/ci.yml` with GitHub Actions
+  - Backend job: Python 3.13 + pytest with PostgreSQL service container
+  - Frontend job: TypeScript check + ESLint + Vite build
+  - Concurrency control to cancel in-progress runs
+  - Summary job (`ci-success`) for branch protection rules
+  - Runs on push and pull requests to main branch
+
 ---
 
 ## [0.17.1] - 2026-02-19 🔧 SSL Certificate Fix
