@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.19.1] - 2026-02-19 📧 CV Detail Page Notification Buttons
+
+### Added
+
+**Notification Buttons on CV Detail Page**
+- **Email button**: Send CV evaluation via email from the CV Detail page
+- **WhatsApp button**: Send CV evaluation via WhatsApp from the CV Detail page
+- Buttons appear in the action bar alongside Find Similar, Ask AI, Re-evaluate
+- Visual separator between action buttons and notification buttons
+- Buttons disabled while sending notification
+- Uses existing `useSendNotification` hook with toast feedback
+
+### Changed
+
+- `CVDetailPage.tsx`: Added Email and WhatsApp notification buttons to action bar
+- Action bar now uses `flex-wrap` for better responsive layout
+
+---
+
 ## [0.19.0] - 2026-02-19 🔔 Manual Notification Buttons & Dark Mode Fixes
 
 ### Added

@@ -28,6 +28,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
+# Try to import certifi for proper certificate handling on macOS
+try:
+    import certifi
+    CERTIFI_AVAILABLE = True
+except ImportError:
+    CERTIFI_AVAILABLE = False
+
 from .notification_schemas import CVNotificationData
 
 logger = logging.getLogger(__name__)
@@ -307,8 +314,13 @@ Sent by CV Screening Agent
             # Send email
             logger.info(f"Sending email to {to_email}: {subject}")
             
-            # Create SSL context for STARTTLS (fixes certificate issues on macOS)
-            tls_context = ssl.create_default_context() if self.use_tls else None
+            # Create SSL context for STARTTLS
+            # Use certifi for proper certificate handling on macOS
+            tls_context = None
+            if self.use_tls:
+                tls_context = ssl.create_default_context()
+                if CERTIFI_AVAILABLE:
+                    tls_context.load_verify_locations(certifi.where())
             
             async with aiosmtplib.SMTP(
                 hostname=self.host,

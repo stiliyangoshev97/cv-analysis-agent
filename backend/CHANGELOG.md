@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.17.1] - 2026-02-19 🔧 SSL Certificate Fix
+
+### Fixed
+
+- **SSL Certificate Error on macOS (Improved)**:
+  - Now uses `certifi` package for proper root certificate handling
+  - `ssl.create_default_context()` now loads certificates from `certifi.where()`
+  - Fixes `[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate` error
+  - Added `certifi>=2024.0.0` to requirements.txt
+
+---
+
 ## [0.17.0] - 2026-02-19 🔔 Notification Integration
 
 ### Added
