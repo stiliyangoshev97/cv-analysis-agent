@@ -437,8 +437,10 @@ class AuthService:
         user = await self.repository.get_by_google_id(google_id)
         
         if user:
-            # Existing Google user - update and login
+            # Existing Google user - update avatar and name if needed
             user.avatar_url = picture
+            if not user.name and name:
+                user.name = name
             await self.repository.update(user)
         else:
             # Check if email exists with different provider
@@ -449,6 +451,8 @@ class AuthService:
                 # Link Google ID to existing account
                 existing_user.google_id = google_id
                 existing_user.avatar_url = picture
+                if not existing_user.name and name:
+                    existing_user.name = name
                 await self.repository.update(existing_user)
                 user = existing_user
             else:
