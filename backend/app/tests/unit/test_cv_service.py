@@ -141,6 +141,7 @@ def sample_cv(sample_cv_id, sample_user_id):
     cv.user_id = sample_user_id
     cv.filename = "test_cv.pdf"
     cv.original_text = "John Doe\nSoftware Engineer\n5 years experience..."
+    cv.candidate_name = "John Doe"  # Required for CVEvaluationResponse
     cv.status = CVStatus.EVALUATED.value
     cv.uploaded_at = datetime.now(timezone.utc)
     cv.evaluations = []
@@ -198,6 +199,7 @@ def sample_langchain_evaluation():
     result.percentage = 75
     result.passed = True
     result.summary = "Strong candidate with good technical skills"
+    result.candidate_name = "John Doe"  # Required for CVEvaluationResponse
     
     # Create criteria scores
     criteria_scores = []

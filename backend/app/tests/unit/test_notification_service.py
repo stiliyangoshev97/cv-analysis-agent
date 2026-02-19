@@ -80,8 +80,10 @@ def notification_service(mock_session):
         service = NotificationService(mock_session)
         service.session = mock_session
         service.repo = AsyncMock()
-        service.email_service = MagicMock()
-        service.whatsapp_service = MagicMock()
+        service.history_repo = AsyncMock()
+        # Mock the methods that create services dynamically (BYOK pattern)
+        service._get_email_service = MagicMock()
+        service._get_whatsapp_service = MagicMock()
         return service
 
 
@@ -427,11 +429,13 @@ class TestDispatchCVNotification:
         sample_settings.threshold_score = 70
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
         
-        # Mock email service
-        notification_service.email_service.is_configured = True
-        notification_service.email_service.send_cv_notification = AsyncMock(
+        # Mock email service via _get_email_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_cv_notification = AsyncMock(
             return_value=EmailResult(success=True, message_id="msg123")
         )
+        notification_service._get_email_service.return_value = mock_email_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id,
@@ -457,8 +461,10 @@ class TestDispatchCVNotification:
         sample_settings.threshold_score = 70
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
         
-        # Email service not configured
-        notification_service.email_service.is_configured = False
+        # Email service not configured via _get_email_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = False
+        notification_service._get_email_service.return_value = mock_email_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id,
@@ -467,7 +473,7 @@ class TestDispatchCVNotification:
         )
         
         assert result.email_sent is False
-        assert "Email service not configured" in result.errors
+        assert "Email service not configured" in str(result.errors)
     
     @pytest.mark.asyncio
     async def test_dispatch_email_no_user_email(
@@ -513,18 +519,20 @@ class TestDispatchCVNotification:
         mock_result.scalar_one_or_none.return_value = mock_user
         notification_service.session.execute = AsyncMock(return_value=mock_result)
         
-        # Mock email service
-        notification_service.email_service.is_configured = True
-        notification_service.email_service.send_cv_notification = AsyncMock(
+        # Mock email service via _get_email_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_cv_notification = AsyncMock(
             return_value=EmailResult(success=True, message_id="msg123")
         )
+        notification_service._get_email_service.return_value = mock_email_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id, sample_cv_data
         )
         
         assert result.email_sent is True
-        notification_service.email_service.send_cv_notification.assert_called_once()
+        mock_email_service.send_cv_notification.assert_called_once()
     
     @pytest.mark.asyncio
     async def test_dispatch_whatsapp_success(
@@ -541,11 +549,13 @@ class TestDispatchCVNotification:
         sample_settings.threshold_score = 70
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
         
-        # Mock WhatsApp service
-        notification_service.whatsapp_service.is_configured = True
-        notification_service.whatsapp_service.send_cv_notification = AsyncMock(
+        # Mock WhatsApp service via _get_whatsapp_service (BYOK pattern)
+        mock_whatsapp_service = MagicMock()
+        mock_whatsapp_service.is_configured = True
+        mock_whatsapp_service.send_cv_notification = AsyncMock(
             return_value=WhatsAppResult(success=True, message_sid="sid123")
         )
+        notification_service._get_whatsapp_service.return_value = mock_whatsapp_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id, sample_cv_data
@@ -592,14 +602,17 @@ class TestDispatchCVNotification:
         sample_settings.threshold_score = 70
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
         
-        notification_service.whatsapp_service.is_configured = False
+        # Mock WhatsApp service not configured via _get_whatsapp_service (BYOK pattern)
+        mock_whatsapp_service = MagicMock()
+        mock_whatsapp_service.is_configured = False
+        notification_service._get_whatsapp_service.return_value = mock_whatsapp_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id, sample_cv_data
         )
         
         assert result.whatsapp_sent is False
-        assert "WhatsApp service not configured" in result.errors
+        assert "WhatsApp service not configured" in str(result.errors)
     
     @pytest.mark.asyncio
     async def test_dispatch_both_channels_success(
@@ -616,15 +629,20 @@ class TestDispatchCVNotification:
         sample_settings.threshold_score = 70
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
         
-        # Mock both services
-        notification_service.email_service.is_configured = True
-        notification_service.email_service.send_cv_notification = AsyncMock(
+        # Mock both services via _get_*_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_cv_notification = AsyncMock(
             return_value=EmailResult(success=True, message_id="email123")
         )
-        notification_service.whatsapp_service.is_configured = True
-        notification_service.whatsapp_service.send_cv_notification = AsyncMock(
+        notification_service._get_email_service.return_value = mock_email_service
+        
+        mock_whatsapp_service = MagicMock()
+        mock_whatsapp_service.is_configured = True
+        mock_whatsapp_service.send_cv_notification = AsyncMock(
             return_value=WhatsAppResult(success=True, message_sid="wa123")
         )
+        notification_service._get_whatsapp_service.return_value = mock_whatsapp_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id,
@@ -653,15 +671,20 @@ class TestDispatchCVNotification:
         sample_settings.threshold_score = 70
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
         
-        # Email succeeds, WhatsApp fails
-        notification_service.email_service.is_configured = True
-        notification_service.email_service.send_cv_notification = AsyncMock(
+        # Email succeeds, WhatsApp fails via _get_*_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_cv_notification = AsyncMock(
             return_value=EmailResult(success=True, message_id="email123")
         )
-        notification_service.whatsapp_service.is_configured = True
-        notification_service.whatsapp_service.send_cv_notification = AsyncMock(
+        notification_service._get_email_service.return_value = mock_email_service
+        
+        mock_whatsapp_service = MagicMock()
+        mock_whatsapp_service.is_configured = True
+        mock_whatsapp_service.send_cv_notification = AsyncMock(
             return_value=WhatsAppResult(success=False, error="Network error")
         )
+        notification_service._get_whatsapp_service.return_value = mock_whatsapp_service
         
         result = await notification_service.dispatch_cv_notification(
             sample_user_id,
@@ -692,9 +715,14 @@ class TestSendTestNotification:
     ):
         """Should send test email successfully."""
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
-        notification_service.email_service.send_test_email = AsyncMock(
+        
+        # Mock email service via _get_email_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_test_email = AsyncMock(
             return_value=EmailResult(success=True, message_id="test123")
         )
+        notification_service._get_email_service.return_value = mock_email_service
         
         result = await notification_service.send_test_notification(
             sample_user_id,
@@ -721,16 +749,20 @@ class TestSendTestNotification:
         mock_result.scalar_one_or_none.return_value = mock_user
         notification_service.session.execute = AsyncMock(return_value=mock_result)
         
-        notification_service.email_service.send_test_email = AsyncMock(
+        # Mock email service via _get_email_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_test_email = AsyncMock(
             return_value=EmailResult(success=True, message_id="test123")
         )
+        notification_service._get_email_service.return_value = mock_email_service
         
         result = await notification_service.send_test_notification(
             sample_user_id, channel="email"
         )
         
         assert result["success"] is True
-        notification_service.email_service.send_test_email.assert_called_once_with(
+        mock_email_service.send_test_email.assert_called_once_with(
             "db@example.com"
         )
     
@@ -765,9 +797,14 @@ class TestSendTestNotification:
     ):
         """Should return error if email sending fails."""
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
-        notification_service.email_service.send_test_email = AsyncMock(
+        
+        # Mock email service via _get_email_service (BYOK pattern)
+        mock_email_service = MagicMock()
+        mock_email_service.is_configured = True
+        mock_email_service.send_test_email = AsyncMock(
             return_value=EmailResult(success=False, error="SMTP error")
         )
+        notification_service._get_email_service.return_value = mock_email_service
         
         result = await notification_service.send_test_notification(
             sample_user_id,
@@ -788,9 +825,14 @@ class TestSendTestNotification:
         """Should send test WhatsApp successfully."""
         sample_settings.whatsapp_number = "+1234567890"
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
-        notification_service.whatsapp_service.send_test_message = AsyncMock(
+        
+        # Mock WhatsApp service via _get_whatsapp_service (BYOK pattern)
+        mock_whatsapp_service = MagicMock()
+        mock_whatsapp_service.is_configured = True
+        mock_whatsapp_service.send_test_message = AsyncMock(
             return_value=WhatsAppResult(success=True, message_sid="wa123")
         )
+        notification_service._get_whatsapp_service.return_value = mock_whatsapp_service
         
         result = await notification_service.send_test_notification(
             sample_user_id, channel="whatsapp"
@@ -827,9 +869,14 @@ class TestSendTestNotification:
         """Should return error if WhatsApp sending fails."""
         sample_settings.whatsapp_number = "+1234567890"
         notification_service.repo.get_or_create = AsyncMock(return_value=sample_settings)
-        notification_service.whatsapp_service.send_test_message = AsyncMock(
+        
+        # Mock WhatsApp service via _get_whatsapp_service (BYOK pattern)
+        mock_whatsapp_service = MagicMock()
+        mock_whatsapp_service.is_configured = True
+        mock_whatsapp_service.send_test_message = AsyncMock(
             return_value=WhatsAppResult(success=False, error="Twilio error")
         )
+        notification_service._get_whatsapp_service.return_value = mock_whatsapp_service
         
         result = await notification_service.send_test_notification(
             sample_user_id, channel="whatsapp"

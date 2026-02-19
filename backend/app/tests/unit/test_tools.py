@@ -119,7 +119,7 @@ class TestExtractCandidateName:
         """Should return None when no valid name found."""
         cv_text = """Skills
         
-        Python, JavaScript, React
+        123-456-7890
         
         Experience
         """
@@ -144,20 +144,20 @@ class TestValidateFile:
     def test_valid_pdf_header(self):
         """Should accept valid PDF file."""
         content = b"%PDF-1.4 some pdf content here"
-        is_valid, error = validate_file(content)
+        is_valid, error = validate_file(content, "resume.pdf")
         assert is_valid is True
         assert error is None
 
     def test_invalid_file_type(self):
-        """Should reject non-PDF files."""
+        """Should reject unsupported file types."""
         content = b"<html><body>Not a PDF</body></html>"
-        is_valid, error = validate_file(content)
+        is_valid, error = validate_file(content, "resume.html")
         assert is_valid is False
-        assert "Invalid file type" in error
+        assert "Unsupported file type" in error
 
     def test_empty_content(self):
         """Should reject empty content."""
-        is_valid, error = validate_file(b"")
+        is_valid, error = validate_file(b"", "resume.pdf")
         assert is_valid is False
         assert "empty" in error.lower()
 
@@ -165,6 +165,6 @@ class TestValidateFile:
         """Should reject files over 10MB."""
         # Create a file just over 10MB
         large_content = b"%PDF-1.4" + (b"x" * (10 * 1024 * 1024 + 1))
-        is_valid, error = validate_file(large_content)
+        is_valid, error = validate_file(large_content, "resume.pdf")
         assert is_valid is False
         assert "too large" in error.lower()

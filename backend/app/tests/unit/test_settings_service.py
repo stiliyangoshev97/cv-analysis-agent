@@ -541,7 +541,7 @@ class TestGetAvailableModels:
         openai = next(p for p in result.providers if p.provider == "openai")
         assert openai.provider_name == "OpenAI (GPT)"
         model_ids = [m.id for m in openai.models]
-        assert "gpt-4o" in model_ids
+        assert "gpt-4.1" in model_ids
     
     def test_get_available_models_has_gemini_models(self, settings_service):
         """Should include Gemini models."""
@@ -550,7 +550,7 @@ class TestGetAvailableModels:
         gemini = next(p for p in result.providers if p.provider == "gemini")
         assert gemini.provider_name == "Google (Gemini)"
         model_ids = [m.id for m in gemini.models]
-        assert "gemini-1.5-flash" in model_ids
+        assert "gemini-2.0-flash" in model_ids
 
 
 # =============================================================================
