@@ -58,7 +58,7 @@ export const SetupBanner = () => {
         </div>
         <Link
           to="/settings"
-          className="flex-shrink-0 bg-white text-amber-600 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-50 transition-colors"
+          className="flex-shrink-0 inline-flex items-center justify-center bg-white text-amber-600 px-4 py-2 rounded-lg text-sm font-medium leading-none hover:bg-amber-50 transition-colors"
         >
           Go to Settings
         </Link>
