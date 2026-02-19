@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 19, 2026 (v0.17.0 - Notification Integration)
+> Last Updated: February 20, 2026 (v0.17.2 - Test Suite Fix & Notification History Fix)
 
 ---
 
@@ -51,6 +51,7 @@
 | **Rate Limiting** | ✅ 100% | Tiered limits per endpoint type |
 | **Multi-LLM Support** | ✅ 100% | Claude, GPT, Gemini (user choice) |
 | **User Settings API** | ✅ 100% | API keys + LLM preferences |
+| **Test Suite** | ✅ 100% | 329 tests (unit + integration) passing |
 
 **Overall Progress: ~98%** (All backend features complete, frontend settings pending)
 

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.17.2] - 2026-02-20 🧪 Test Suite Fix & Notification History Fix
+
+### Fixed
+
+- **Notification History Not Persisting**:
+  - Fixed issue where notification history entries were created but never committed
+  - Added `session.commit()` after dispatching notifications in `CVService._trigger_notifications_if_applicable()`
+  - Added `session.commit()` after dispatching notifications in `NotificationAgent._dispatch_notification()`
+  - Notification history now properly appears in the Settings UI
+
+- **Test Suite Compatibility (329 tests passing)**:
+  - Updated `conftest.py`: Removed `smtp_host` and `twilio_account_sid` from Settings fixture (BYOK model)
+  - Updated `test_notification_service.py`: Changed mocks to use `_get_email_service`/`_get_whatsapp_service` methods
+  - Updated `test_cv_service.py`: Added `candidate_name` to `sample_cv` and `sample_langchain_evaluation` fixtures
+  - Updated `test_tools.py`: Added `filename` argument to `validate_file` tests, fixed test assertions
+  - Updated `test_settings_service.py`: Updated model assertions (`gpt-4.1`, `gemini-2.0-flash`)
+  - Updated `test_notification_api.py`: Updated service status assertions for flat response format
+
+---
+
 ## [0.17.1] - 2026-02-19 🔧 SSL Certificate Fix
 
 ### Fixed
