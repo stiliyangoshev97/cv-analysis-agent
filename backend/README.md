@@ -2,7 +2,7 @@
 
 FastAPI backend for AI-powered CV screening. Extracts text from PDF resumes, stores in PostgreSQL with vector embeddings, evaluates using AI (Claude/GPT/Gemini), and provides RAG-powered Q&A about candidates.
 
-**Version:** 0.17.0 | **Last Updated:** February 16, 2026
+**Version:** 0.17.2 | **Last Updated:** February 20, 2026
 
 ## 🔒 Security
 
@@ -41,6 +41,87 @@ This project uses a **Bring Your Own Keys (BYOK)** model - no API keys are store
 | **Google OAuth** | Optional Google sign-in support |
 | **PostgreSQL** | Full persistence with SQLAlchemy 2.0 async + Alembic migrations |
 | **BYOK Support** | Users can bring their own API keys (encrypted storage) |
+
+---
+
+## 🔗 Why LangChain?
+
+This project uses **LangChain** as the AI orchestration layer. Here's exactly what LangChain provides:
+
+### What LangChain Does in This App
+
+| Component | LangChain Feature | How We Use It |
+|-----------|-------------------|---------------|
+| **Document Loading** | `PyPDFLoader`, `Docx2txtLoader` | Extract text from uploaded PDF/DOCX resumes |
+| **Text Chunking** | `RecursiveCharacterTextSplitter` | Split CVs into semantic chunks for embedding |
+| **Embeddings** | `OpenAIEmbeddings` | Generate 1536-dim vectors for semantic search |
+| **LLM Integration** | `ChatAnthropic`, `ChatOpenAI`, `ChatGoogleGenerativeAI` | Unified interface to Claude/GPT/Gemini |
+| **Structured Output** | `with_structured_output()` | Force LLMs to return typed Pydantic models |
+| **Prompt Templates** | `ChatPromptTemplate` | Reusable prompts for evaluation & chat |
+| **RAG Retrieval** | Vector similarity search | Find relevant CV chunks for Q&A context |
+| **Conversation Memory** | `ChatHistory` model | Persist chat history for follow-up questions |
+
+### LangChain Architecture
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│                    LANGCHAIN INTEGRATION                           │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  PDF/DOCX Upload                                                   │
+│       │                                                            │
+│       ▼                                                            │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ DocumentProcessor (app/langchain/document_processor.py)     │   │
+│  │ ├─ PyPDFLoader / Docx2txtLoader (load documents)           │   │
+│  │ └─ RecursiveCharacterTextSplitter (chunk text)             │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│       │                                                            │
+│       ▼                                                            │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ EmbeddingService (app/langchain/embeddings.py)              │   │
+│  │ ├─ OpenAIEmbeddings (text-embedding-3-small)               │   │
+│  │ └─ Store in pgvector (cv_embeddings table)                 │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│       │                                                            │
+│       ├──────────────────┬──────────────────┐                      │
+│       ▼                  ▼                  ▼                      │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────────────┐       │
+│  │ Evaluation  │   │ RAG Chat    │   │ Score Explanation   │       │
+│  │ Chain       │   │ Chain       │   │ Chain               │       │
+│  └─────────────┘   └─────────────┘   └─────────────────────┘       │
+│       │                  │                  │                      │
+│       ▼                  ▼                  ▼                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ LLM Provider (app/langchain/config.py)                      │   │
+│  │ ├─ ChatAnthropic (Claude)                                   │   │
+│  │ ├─ ChatOpenAI (GPT)                                         │   │
+│  │ └─ ChatGoogleGenerativeAI (Gemini)                          │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+### Key LangChain Files
+
+| File | Purpose |
+|------|---------|
+| `app/langchain/config.py` | Factory functions `get_llm()` and `get_embeddings()` |
+| `app/langchain/document_processor.py` | PDF/DOCX loading and text chunking |
+| `app/langchain/embeddings.py` | Generate and store embeddings in pgvector |
+| `app/langchain/chains/evaluation_chain.py` | CV scoring with structured Pydantic output |
+| `app/langchain/chains/conversation_chain.py` | RAG Q&A with chat history |
+
+### Without LangChain?
+
+You could build this with raw API calls, but you'd need to:
+- Write custom PDF/DOCX parsers (LangChain has 100+ loaders)
+- Implement text chunking algorithms manually
+- Handle different LLM APIs separately (Claude, GPT, Gemini all have different formats)
+- Build your own structured output parsing
+- Implement RAG retrieval from scratch
+
+LangChain provides these as tested, composable components.
 
 ---
 
@@ -708,9 +789,9 @@ After installation, users must configure their API keys via the Settings UI:
 
 | Category | Tests | Coverage |
 |----------|-------|----------|
-| **Unit Tests** | 198 | Services, business logic |
+| **Unit Tests** | 215 | Services, business logic |
 | **Integration Tests** | 114 | API endpoints, HTTP flows |
-| **Total** | **312** | ~80-90s runtime |
+| **Total** | **329** | ~80-90s runtime |
 
 ### Unit Tests (198)
 
@@ -775,6 +856,37 @@ app/tests/
 ```
 
 > 📋 See [RUNBOOK.md](RUNBOOK.md) for all testing commands and options.
+
+---
+
+## 🚀 CI/CD Pipeline
+
+The project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs on every push and pull request to `main`.
+
+### Pipeline Jobs
+
+| Job | Description |
+|-----|-------------|
+| **Backend** | Python 3.13 + pytest with PostgreSQL service container |
+| **Frontend** | TypeScript check + ESLint + Vite build |
+| **CI Success** | Summary job for branch protection rules |
+
+### What Gets Checked
+
+```
+✓ Install Python dependencies
+✓ Run pytest (329 tests)
+✓ TypeScript compilation check
+✓ ESLint linting
+✓ Production build
+```
+
+### Using Branch Protection
+
+1. Go to GitHub repo → Settings → Branches
+2. Add rule for `main` branch
+3. Enable "Require status checks to pass"
+4. Select `ci-success` as required
 
 ---
 

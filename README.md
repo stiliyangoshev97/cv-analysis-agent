@@ -2,7 +2,7 @@
 
 An AI-powered CV screening platform that evaluates resumes against customizable criteria using frontier AI models. Features a multi-agent architecture, RAG-powered chat, and semantic search capabilities.
 
-**Version:** 0.17.0 | **Last Updated:** February 16, 2026
+**Version:** 0.17.2 | **Last Updated:** February 20, 2026
 
 ## ✨ Highlights
 
@@ -83,7 +83,7 @@ npm run dev
 ### Frontend
 | Technology | Purpose |
 |------------|---------|
-| **React 18** | UI library |
+| **React 19** | UI library |
 | **TypeScript** | Type safety |
 | **Vite** | Build tool & dev server |
 | **Tailwind CSS** | Utility-first styling |
@@ -168,9 +168,9 @@ CV Analysis Agent/
 - [x] **Phase 5**: Notifications (Email + WhatsApp)
 - [x] **Phase 6**: Semantic search & CV comparison
 - [x] **Phase 7**: Custom evaluation templates
-- [x] **Phase 8**: Performance & SEO optimization
+- [x] **Phase 8**: Testing & CI/CD (329 tests, GitHub Actions)
 
-✅ **All planned features complete!**
+✅ **All planned features complete! Ready for deployment.**
 
 ## 📝 License
 

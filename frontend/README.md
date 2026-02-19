@@ -2,7 +2,7 @@
 
 React + TypeScript frontend for AI-powered CV screening. Upload PDF resumes and view detailed AI evaluation scorecards.
 
-**Version:** 0.17.0 | **Last Updated:** February 16, 2026
+**Version:** 0.17.2 | **Last Updated:** February 20, 2026
 
 ## 🎯 Features
 
@@ -334,4 +334,53 @@ import { useAuth } from '@/features/auth/hooks';
 - [x] Query cache invalidation for real-time updates
 
 ✅ **All planned features complete!**
-- [ ] Responsive design improvements
+- [x] Responsive design improvements
+- [x] Security headers (CSP, HSTS, etc.)
+- [x] Mobile-optimized layouts
+
+---
+
+## 🚀 Deployment (Vercel)
+
+The frontend is configured for deployment on Vercel with `vercel.json`.
+
+### Security Headers
+
+The `vercel.json` includes comprehensive security headers:
+
+| Header | Purpose |
+|--------|---------|
+| `Content-Security-Policy` | Strict CSP allowing only trusted domains |
+| `Strict-Transport-Security` | HSTS with 1-year max-age |
+| `X-Frame-Options` | Prevent clickjacking (DENY) |
+| `X-Content-Type-Options` | Prevent MIME sniffing |
+| `X-XSS-Protection` | XSS filter (legacy browsers) |
+| `Referrer-Policy` | Strict origin policy |
+| `Permissions-Policy` | Disable unused browser features |
+
+### Environment Variables
+
+Set these in Vercel dashboard:
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend API URL (e.g., `https://your-app.onrender.com`) |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID |
+
+### Deploy Steps
+
+1. Connect GitHub repo to Vercel
+2. Set framework to "Vite"
+3. Set root directory to `frontend`
+4. Add environment variables
+5. Deploy!
+
+---
+
+## 📱 Mobile Optimization
+
+- **Safe area insets** for notched devices (iPhone X+)
+- **Minimum touch targets** (44px) for accessibility
+- **Responsive headers** with hamburger menu on mobile
+- **Compact layouts** on smaller screens
+- **Prevent zoom on input focus** for better UX
