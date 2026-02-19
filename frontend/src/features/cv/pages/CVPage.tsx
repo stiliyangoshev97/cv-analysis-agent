@@ -279,15 +279,15 @@ export const CVPage = () => {
   return (
     <>
       {/* Page Header with Compare Button */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <Heading level={1} className="text-2xl">CV Screening</Heading>
-          <Text variant="muted">Upload and evaluate candidate CVs with AI</Text>
+          <Heading level={1} className="text-xl sm:text-2xl">CV Screening</Heading>
+          <Text variant="muted" size="sm" className="hidden sm:block">Upload and evaluate candidate CVs with AI</Text>
         </div>
         <Button
           variant="outline"
           onClick={() => setShowCompareModal(true)}
-          className="gap-2"
+          className="gap-2 w-full sm:w-auto"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -297,12 +297,12 @@ export const CVPage = () => {
       </div>
 
       {/* Upload Section */}
-      <section className="mb-8">
-        <Card>
+      <section className="mb-6 sm:mb-8">
+        <Card className="p-4 sm:p-6">
           <div className="mb-4">
-            <Heading level={2} className="text-lg">Upload CVs</Heading>
+            <Heading level={2} className="text-base sm:text-lg">Upload CVs</Heading>
             <Text variant="muted" size="sm">
-              Select an evaluation template, add up to {MAX_FILES} CVs, then click "Scan CVs"
+              Select a template, add up to {MAX_FILES} CVs, then scan
             </Text>
           </div>
 

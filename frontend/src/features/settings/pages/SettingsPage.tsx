@@ -52,32 +52,32 @@ export const SettingsPage = () => {
   ];
 
   return (
-    <Container size="lg" className="py-8">
+    <Container size="lg" className="py-4 sm:py-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Heading level={1}>Settings</Heading>
+          <Heading level={1} className="text-xl sm:text-2xl">Settings</Heading>
           {setupStatus && !setupStatus.is_complete && (
             <Badge variant="warning">Setup Required</Badge>
           )}
         </div>
-        <Text color="muted">
+        <Text color="muted" size="sm" className="sm:text-base">
           Configure your AI providers and preferences. OpenAI API key is required for CV analysis.
         </Text>
       </div>
 
       {/* Setup Status Warning */}
       {setupStatus && !setupStatus.is_complete && (
-        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="mb-4 sm:mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 sm:p-4">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <div>
-              <Text weight="medium" className="text-amber-800">
+              <Text weight="medium" className="text-amber-800 dark:text-amber-200">
                 Complete Setup to Upload CVs
               </Text>
-              <Text size="sm" className="text-amber-700 mt-1">
+              <Text size="sm" className="text-amber-700 dark:text-amber-300 mt-1">
                 Missing: {setupStatus.missing?.join(', ') || 'Required configuration'}
               </Text>
             </div>
@@ -88,29 +88,30 @@ export const SettingsPage = () => {
       {/* Tabs */}
       <Card padding="none">
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
+        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+          <nav className="flex -mb-px min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors
+                  flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                   ${activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
               >
                 {tab.icon}
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
               </button>
             ))}
           </nav>
         </div>
 
         {/* Tab Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {activeTab === 'api-keys' && <ApiKeysTab />}
           {activeTab === 'llm-preferences' && <LlmPreferencesTab />}
         </div>

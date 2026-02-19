@@ -111,10 +111,10 @@ interface CVHistoryItemProps {
 
 const CVHistoryItem = ({ cv, onDelete }: CVHistoryItemProps) => {
   return (
-    <Card className="p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-4">
-        {/* Icon */}
-        <div className="flex-shrink-0">
+    <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-start gap-3 sm:gap-4">
+        {/* Icon - Hidden on smallest screens */}
+        <div className="flex-shrink-0 hidden sm:block">
           <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <svg
               className="w-5 h-5 text-blue-600 dark:text-blue-400"
@@ -134,16 +134,16 @@ const CVHistoryItem = ({ cv, onDelete }: CVHistoryItemProps) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <Text weight="medium" className="truncate text-gray-900 dark:text-white">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <Text weight="medium" className="truncate text-gray-900 dark:text-white text-sm sm:text-base">
                 {cv.candidate_name || 'Unknown Candidate'}
               </Text>
-              <Text size="sm" color="muted" className="truncate">
+              <Text size="sm" color="muted" className="truncate text-xs sm:text-sm">
                 {cv.filename}
               </Text>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <ScoreBadge score={cv.score} />
               <StatusBadge status={cv.evaluation_status} />
               {cv.evaluation_status && <RankingInline cvId={cv.id} />}
@@ -395,18 +395,18 @@ export const HistoryPage = () => {
   return (
     <Container>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <Heading level={1}>Evaluation History</Heading>
-          <Text color="muted" className="mt-1">
+          <Heading level={1} className="text-xl sm:text-2xl">Evaluation History</Heading>
+          <Text color="muted" className="mt-1 text-sm sm:text-base">
             View and manage your CV evaluations
           </Text>
         </div>
         <div className="flex items-center gap-2">
           {cvs.length >= 2 && (
-            <Button variant="outline" onClick={() => setShowComparison(true)}>
+            <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => setShowComparison(true)}>
               <svg
-                className="w-4 h-4 mr-2"
+                className="w-4 h-4 mr-1 sm:mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -418,13 +418,14 @@ export const HistoryPage = () => {
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                 />
               </svg>
-              Compare CVs
+              <span className="hidden sm:inline">Compare</span>
+              <span className="sm:hidden">Compare</span>
             </Button>
           )}
-          <Link to="/">
-            <Button>
+          <Link to="/" className="flex-1 sm:flex-none">
+            <Button className="w-full" size="sm">
               <svg
-                className="w-4 h-4 mr-2"
+                className="w-4 h-4 mr-1 sm:mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -436,7 +437,8 @@ export const HistoryPage = () => {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Upload CV
+              <span className="hidden sm:inline">Upload CV</span>
+              <span className="sm:hidden">Upload</span>
             </Button>
           </Link>
         </div>
