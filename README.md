@@ -2,7 +2,7 @@
 
 An AI-powered CV screening platform that evaluates resumes against customizable criteria using frontier AI models. Features a multi-agent architecture, RAG-powered chat, and semantic search capabilities.
 
-**Version:** 0.17.2 | **Last Updated:** February 20, 2026
+**Version:** 0.17.3 | **Last Updated:** February 20, 2026
 
 ## ✨ Highlights
 

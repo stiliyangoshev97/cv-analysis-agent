@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.17.3] - 2026-02-20 🔐 Google OAuth Fixes & UI Polish
+
+### Fixed
+
+- **Google OAuth Profile Picture & Name Not Saving**:
+  - Fixed `AuthRepository.update()` missing `session.add(user)` before commit
+  - SQLAlchemy wasn't tracking modified user entity as "dirty"
+  - Google avatar_url and name now properly saved to database on login
+
+- **Google OAuth Name Update**:
+  - Backend now updates user's name from Google profile if name field is empty
+  - Applies to both existing Google users and linked accounts
+
+- **UI Dark Mode Issues**:
+  - Fixed API Keys warning banner not styled for dark mode
+  - Fixed UserMenu dropdown not styled for dark mode
+  - Fixed SetupRequiredScreen info boxes not styled for dark mode
+
+- **Button Text Centering**:
+  - Fixed "Go to Settings" button text not vertically centered in SetupBanner
+  - Added `inline-flex items-center justify-center leading-none` for proper centering
+
+- **Profile Display**:
+  - UserMenu now falls back to email prefix when name is empty
+  - Shows initials from email (e.g., "SG" for stiliyangoshev@gmail.com)
+
+### Changed
+
+- **Registration Page**:
+  - Removed redundant Google OAuth button from registration page
+  - Google OAuth on login page auto-registers new users, making signup button unnecessary
+
+---
+
 ## [0.17.2] - 2026-02-20 🧪 Test Suite Fix & Notification History Fix
 
 ### Fixed

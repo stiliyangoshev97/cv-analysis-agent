@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.19.2] - 2026-02-20 🎨 Google OAuth & Dark Mode Polish
+
+### Fixed
+
+**Dark Mode Styling**
+- `ApiKeysTab`: OpenAI API Key Required warning banner now properly styled for dark mode
+- `UserMenu`: Dropdown menu fully styled for dark mode (background, borders, text, hover states)
+- `SetupRequiredScreen`: Icon, info boxes, and text styled for dark mode
+- `SetupBanner`: "Go to Settings" button text now properly vertically centered
+
+**User Profile Display**
+- `UserMenu`: Falls back to email prefix when user name is empty
+- Shows initials from email username (e.g., "SG" from stiliyangoshev@gmail.com)
+- Prevents "?" showing as avatar when name is not set
+
+### Changed
+
+**Registration Page**
+- Removed redundant Google OAuth button from registration form
+- Google OAuth on login page auto-handles both login and signup
+- Simplified registration form with only email/password fields
+
+---
+
 ## [0.19.1] - 2026-02-19 📧 CV Detail Page Notification Buttons
 
 ### Added

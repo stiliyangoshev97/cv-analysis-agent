@@ -1,7 +1,7 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 20, 2026 (v0.17.2 - Test Suite Fix & Notification History Fix)
+> Last Updated: February 20, 2026 (v0.17.3 - Google OAuth Fixes & UI Polish)
 
 ---
 
