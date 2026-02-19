@@ -13,5 +13,6 @@ export {
   getCVRanking,
   compareCVs,
   searchCVs,
+  sendManualNotification,
 } from './cv.api';
-export type { CVDetailResponse } from './cv.api';
+export type { CVDetailResponse, ManualNotifyResponse } from './cv.api';

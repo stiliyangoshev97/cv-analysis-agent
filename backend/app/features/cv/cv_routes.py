@@ -53,8 +53,8 @@ from .cv_schemas import (
 from .cv_dependencies import get_cv_service, get_similarity_service
 from .cv_service import CVService
 from .similarity_service import SimilarityService
-from app.features.notification.notification_service import NotificationService
 from app.features.notification.notification_dependencies import get_notification_service
+from app.features.notification.notification_service import NotificationService
 
 # Router instance with prefix and OpenAPI tags
 router = APIRouter(
@@ -356,5 +356,48 @@ async def search_cvs(
     return await controller.search_cvs(
         request=data,
         similarity_service=similarity_service,
+        current_user=current_user,
+    )
+
+
+# =============================================================================
+# Manual Notification Routes
+# =============================================================================
+
+@router.post(
+    "/{cv_id}/notify",
+    response_model=ManualNotifyResponse,
+    summary="Send Manual Notification",
+    description="""
+    Manually send a notification for a specific CV evaluation.
+    
+    Allows sending email or WhatsApp notifications on-demand,
+    regardless of automatic notification settings.
+    
+    **Channels:**
+    - `email`: Send via configured SMTP
+    - `whatsapp`: Send via configured Twilio WhatsApp
+    """,
+    responses={
+        400: {"model": ErrorResponse, "description": "Channel not configured or CV not evaluated"},
+        401: {"description": "Not authenticated"},
+        404: {"description": "CV not found"},
+    },
+)
+@limiter.limit(RATE_LIMIT_DEFAULT)
+async def send_manual_notification(
+    request: Request,
+    cv_id: uuid.UUID,
+    data: ManualNotifyRequest,
+    cv_service: CVService = Depends(get_cv_service),
+    notification_service: NotificationService = Depends(get_notification_service),
+    current_user: User = Depends(get_current_user),
+) -> ManualNotifyResponse:
+    """Route handler for sending manual CV notification."""
+    return await controller.send_manual_notification(
+        cv_id=cv_id,
+        request=data,
+        cv_service=cv_service,
+        notification_service=notification_service,
         current_user=current_user,
     )

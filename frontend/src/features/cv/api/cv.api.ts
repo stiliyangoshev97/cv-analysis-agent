@@ -313,3 +313,50 @@ export const reEvaluateCV = async (
   );
   return response.data;
 };
+
+// =============================================================================
+// Manual Notification API Function
+// =============================================================================
+
+/**
+ * Response from manual notification request.
+ */
+export interface ManualNotifyResponse {
+  /** Whether the notification was sent successfully */
+  success: boolean;
+  /** The channel used (email or whatsapp) */
+  channel: 'email' | 'whatsapp';
+  /** Success or error message */
+  message: string;
+}
+
+/**
+ * Send a manual notification for a CV evaluation.
+ *
+ * Allows sending email or WhatsApp notifications on-demand,
+ * regardless of automatic notification settings.
+ *
+ * @param cvId - The UUID of the CV to send notification for
+ * @param channel - The notification channel ('email' or 'whatsapp')
+ * @returns Promise resolving to the notification response
+ *
+ * @example
+ * ```typescript
+ * const result = await sendManualNotification('cv-uuid', 'email');
+ * if (result.success) {
+ *   console.log('Notification sent!');
+ * }
+ * ```
+ *
+ * @throws {AxiosError} On network errors or if channel not configured
+ */
+export const sendManualNotification = async (
+  cvId: string,
+  channel: 'email' | 'whatsapp'
+): Promise<ManualNotifyResponse> => {
+  const response = await apiClient.post<ManualNotifyResponse>(
+    `/api/cv/${cvId}/notify`,
+    { channel }
+  );
+  return response.data;
+};
