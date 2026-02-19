@@ -50,9 +50,13 @@ from .cv_schemas import (
     CVComparisonItemResponse,
     CVSearchRequest,
     CVSearchResponse,
+    ManualNotifyRequest,
+    ManualNotifyResponse,
 )
 from .cv_service import CVService
 from .similarity_service import SimilarityService
+from app.features.notification.notification_service import NotificationService
+from app.features.notification.notification_schemas import CVNotificationData
 
 logger = logging.getLogger(__name__)
 
@@ -698,3 +702,130 @@ class CVController:
             ],
             total=len(results),
         )
+    
+    async def send_manual_notification(
+        self,
+        cv_id: uuid.UUID,
+        request: ManualNotifyRequest,
+        cv_service: CVService,
+        notification_service: NotificationService,
+        current_user: User,
+    ) -> ManualNotifyResponse:
+        """Handle manual notification request for a CV.
+        
+        Allows users to manually send notifications for a CV
+        to a specific channel (email or WhatsApp).
+        
+        Args:
+            cv_id: UUID of the CV.
+            request: Channel to send notification to.
+            cv_service: Injected CV service.
+            notification_service: Injected notification service.
+            current_user: Authenticated user.
+            
+        Returns:
+            ManualNotifyResponse with send status.
+            
+        Raises:
+            HTTPException: If CV not found or notification fails.
+        """
+        # Get CV with evaluation
+        cv = await cv_service.get_cv(cv_id, current_user.id, include_evaluation=True)
+        if not cv:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"CV {cv_id} not found",
+            )
+        
+        # Get the latest evaluation
+        if not cv.evaluations:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="CV has not been evaluated yet",
+            )
+        
+        evaluation = cv.evaluations[0]  # Most recent evaluation
+        
+        # Build notification data
+        cv_data = CVNotificationData(
+            cv_id=str(cv.id),
+            filename=cv.filename,
+            candidate_name=cv.candidate_name,
+            score=evaluation.score,
+            passed=evaluation.status == "pass",
+            summary=evaluation.reasoning or "No summary available",
+        )
+        
+        try:
+            settings = await notification_service.get_settings(current_user.id)
+            
+            if request.channel == "email":
+                # Send email
+                email_service = notification_service._get_email_service(settings)
+                if not email_service.is_configured:
+                    return ManualNotifyResponse(
+                        success=False,
+                        channel="email",
+                        message="Email not configured",
+                        error="Configure SMTP settings in Settings > Notifications",
+                    )
+                
+                result = await email_service.send_cv_notification(
+                    to_email=current_user.email,
+                    cv_data=cv_data,
+                )
+                
+                return ManualNotifyResponse(
+                    success=result.success,
+                    channel="email",
+                    message=f"Email sent to {current_user.email}" if result.success else "Failed to send email",
+                    error=result.error if not result.success else None,
+                )
+            
+            elif request.channel == "whatsapp":
+                # Send WhatsApp
+                whatsapp_service = notification_service._get_whatsapp_service(settings)
+                if not whatsapp_service.is_configured:
+                    return ManualNotifyResponse(
+                        success=False,
+                        channel="whatsapp",
+                        message="WhatsApp not configured",
+                        error="Configure Twilio settings in Settings > Notifications",
+                    )
+                
+                if not settings.whatsapp_number:
+                    return ManualNotifyResponse(
+                        success=False,
+                        channel="whatsapp",
+                        message="WhatsApp number not set",
+                        error="Configure your WhatsApp number in Settings > Notifications",
+                    )
+                
+                result = await whatsapp_service.send_cv_notification(
+                    to_number=settings.whatsapp_number,
+                    cv_data=cv_data,
+                )
+                
+                return ManualNotifyResponse(
+                    success=result.success,
+                    channel="whatsapp",
+                    message=f"WhatsApp sent to {settings.whatsapp_number}" if result.success else "Failed to send WhatsApp",
+                    error=result.error if not result.success else None,
+                )
+            
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid channel: {request.channel}. Must be 'email' or 'whatsapp'",
+                )
+                
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Manual notification failed: {e}")
+            return ManualNotifyResponse(
+                success=False,
+                channel=request.channel,
+                message="Notification failed",
+                error=str(e),
+            )

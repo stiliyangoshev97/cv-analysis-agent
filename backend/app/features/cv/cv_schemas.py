@@ -436,3 +436,38 @@ class CVSearchResponse(BaseModel):
     query: str = Field(..., description="Search query")
     results: list[SimilarCVResponse] = Field(..., description="Matching CVs")
     total: int = Field(..., description="Number of results")
+
+
+# =============================================================================
+# Manual Notification
+# =============================================================================
+
+class ManualNotifyRequest(BaseModel):
+    """Request to manually send notification for a CV.
+    
+    Attributes:
+        channel: Notification channel ('email' or 'whatsapp').
+    
+    Example:
+        >>> request = ManualNotifyRequest(channel="email")
+    """
+    channel: str = Field(
+        ...,
+        pattern="^(email|whatsapp)$",
+        description="Notification channel: 'email' or 'whatsapp'",
+    )
+
+
+class ManualNotifyResponse(BaseModel):
+    """Response for manual notification request.
+    
+    Attributes:
+        success: Whether notification was sent successfully.
+        channel: Channel that was used.
+        message: Status message.
+        error: Error message if failed.
+    """
+    success: bool = Field(..., description="Whether notification was sent")
+    channel: str = Field(..., description="Channel used")
+    message: str = Field(..., description="Status message")
+    error: Optional[str] = Field(None, description="Error message if failed")

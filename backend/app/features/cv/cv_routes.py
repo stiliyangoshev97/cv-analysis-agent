@@ -47,10 +47,14 @@ from .cv_schemas import (
     CVCompareResponse,
     CVSearchRequest,
     CVSearchResponse,
+    ManualNotifyRequest,
+    ManualNotifyResponse,
 )
 from .cv_dependencies import get_cv_service, get_similarity_service
 from .cv_service import CVService
 from .similarity_service import SimilarityService
+from app.features.notification.notification_service import NotificationService
+from app.features.notification.notification_dependencies import get_notification_service
 
 # Router instance with prefix and OpenAPI tags
 router = APIRouter(

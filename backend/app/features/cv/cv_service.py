@@ -61,6 +61,9 @@ from .embedding_repository import EmbeddingRepository
 from .cv_schemas import UploadResponse, CVEvaluationResponse, EvaluationCriteria, PassFailStatus
 from .services.pdf_service import PDFService
 
+from app.features.notification.notification_service import NotificationService
+from app.features.notification.notification_schemas import CVNotificationData
+
 logger = logging.getLogger(__name__)
 
 
@@ -289,14 +292,23 @@ class CVService:
             logger.debug(f"Stored evaluation: {db_evaluation.id}")
             
             # Step 8: Update CV status and extract candidate name
-            cv.status = CVStatus.EVALUATED.value
-            
-            # Try to extract candidate name from evaluation
             # (Could enhance this with a dedicated name extraction step)
+            cv.status = CVStatus.EVALUATED.value
             cv = await self.cv_repo.update(cv)
             
             await self.session.commit()
             logger.info(f"CV processing complete: {cv.id}")
+            
+            # Step 9: Trigger notifications if threshold met (non-blocking)
+            try:
+                await self._trigger_notifications_if_applicable(
+                    user_id=user_id,
+                    cv=cv,
+                    evaluation=evaluation,
+                )
+            except Exception as notif_error:
+                # Don't fail the upload if notification fails
+                logger.warning(f"Notification failed (non-blocking): {notif_error}")
             
             return ProcessingResult(
                 cv=cv,
@@ -521,3 +533,59 @@ class CVService:
             return chain is not None
         except Exception:
             return False
+    
+    async def _trigger_notifications_if_applicable(
+        self,
+        user_id: uuid.UUID,
+        cv: CV,
+        evaluation: CVEvaluationResult,
+    ) -> None:
+        """Trigger notifications if CV score meets user's threshold.
+        
+        This method is called after CV evaluation to automatically
+        dispatch notifications to enabled channels (email, WhatsApp).
+        
+        Args:
+            user_id: UUID of the user who uploaded the CV.
+            cv: The processed CV entity.
+            evaluation: The evaluation result from LangChain.
+        """
+        try:
+            notification_service = NotificationService(self.session)
+            
+            # Build notification data from CV and evaluation
+            cv_notification_data = CVNotificationData(
+                cv_id=str(cv.id),
+                filename=cv.filename,
+                candidate_name=cv.candidate_name,
+                score=int(evaluation.percentage),
+                passed=evaluation.passed,
+                summary=evaluation.summary,
+            )
+            
+            # Dispatch notification (checks threshold internally)
+            result = await notification_service.dispatch_cv_notification(
+                user_id=user_id,
+                cv_data=cv_notification_data,
+            )
+            
+            if result.should_notify:
+                if result.success:
+                    logger.info(
+                        f"Notification dispatched for CV {cv.id}: "
+                        f"email={result.email_sent}, whatsapp={result.whatsapp_sent}"
+                    )
+                elif result.channels_attempted:
+                    logger.warning(
+                        f"Notification attempted but failed for CV {cv.id}: "
+                        f"{result.errors}"
+                    )
+            else:
+                logger.debug(
+                    f"Score {evaluation.percentage}% below threshold "
+                    f"{result.threshold}%, no notification sent"
+                )
+                
+        except Exception as e:
+            # Log but don't fail - notifications are non-critical
+            logger.error(f"Error triggering notification for CV {cv.id}: {e}")

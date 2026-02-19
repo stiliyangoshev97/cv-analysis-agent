@@ -22,6 +22,7 @@ Example:
 """
 
 import logging
+import ssl
 from dataclasses import dataclass
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -306,11 +307,15 @@ Sent by CV Screening Agent
             # Send email
             logger.info(f"Sending email to {to_email}: {subject}")
             
+            # Create SSL context for STARTTLS (fixes certificate issues on macOS)
+            tls_context = ssl.create_default_context() if self.use_tls else None
+            
             async with aiosmtplib.SMTP(
                 hostname=self.host,
                 port=self.port,
                 use_tls=False,
                 start_tls=self.use_tls,
+                tls_context=tls_context,
             ) as smtp:
                 await smtp.login(self.username, self.password)
                 result = await smtp.send_message(msg)
