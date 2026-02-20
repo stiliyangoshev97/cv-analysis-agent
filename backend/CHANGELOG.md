@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.18.0] - 2026-02-20 🚀 Production Deployment
+
+### Added
+
+- **Production Deployment Complete**:
+  - Backend deployed to **Render** (Web Service)
+  - Database deployed to **Neon** (PostgreSQL 17 + pgvector, Frankfurt region)
+  - Frontend deployed to **Vercel**
+  - All environment variables configured
+  - Alembic migrations run successfully
+  - System templates seeded
+  - Health endpoint verified (`/health`)
+
+- **Verified Features in Production**:
+  - Google OAuth authentication flow
+  - CV upload and AI evaluation (Claude/GPT/Gemini)
+  - Semantic search and CV similarity
+  - RAG chat and CV comparison
+  - BYOK API key management
+
+### Known Issues
+
+- Email notification system requires investigation (SMTP configuration)
+
+---
+
 ## [0.17.3] - 2026-02-20 🔐 Google OAuth Fixes & UI Polish
 
 ### Fixed

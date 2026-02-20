@@ -1,7 +1,17 @@
 # 📋 CV Analysis Agent Backend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 20, 2026 (v0.17.3 - Google OAuth Fixes & UI Polish)
+> Last Updated: February 20, 2026 (v0.17.3 - 🚀 Deployed to Production)
+
+---
+
+## 🚀 Production Deployment
+
+| Service | Provider | URL |
+|---------|----------|-----|
+| **Backend API** | Render | `https://cv-analysis-agent.onrender.com` |
+| **Database** | Neon | PostgreSQL 17 + pgvector (Frankfurt) |
+| **Frontend** | Vercel | `https://cv-analysis-agent.vercel.app` |
 
 ---
 
@@ -52,8 +62,9 @@
 | **Multi-LLM Support** | ✅ 100% | Claude, GPT, Gemini (user choice) |
 | **User Settings API** | ✅ 100% | API keys + LLM preferences |
 | **Test Suite** | ✅ 100% | 329 tests (unit + integration) passing |
+| **Production Deployment** | ✅ 100% | Render + Neon + Vercel |
 
-**Overall Progress: ~98%** (All backend features complete, frontend settings pending)
+**Overall Progress: 100%** (All features complete, deployed to production)
 
 ---
 

@@ -1,7 +1,16 @@
 # 📋 CV Analysis Agent Frontend - Project Context
 
 > Quick reference for AI assistants and developers.  
-> Last Updated: February 19, 2026 (v0.19.0 - Manual Notifications & Dark Mode Fixes)
+> Last Updated: February 20, 2026 (v0.19.2 - 🚀 Deployed to Production)
+
+---
+
+## 🚀 Production Deployment
+
+| Service | Provider | URL |
+|---------|----------|-----|
+| **Frontend** | Vercel | `https://cv-analysis-agent.vercel.app` |
+| **Backend API** | Render | `https://cv-analysis-agent.onrender.com` |
 
 ---
 
@@ -49,8 +58,9 @@
 | **SEO** | ✅ 100% | Meta tags, favicons, PWA manifest |
 | **Notification History** | ✅ 100% | View/filter/resend notifications |
 | **Manual Notifications** | ✅ 100% | Email/WhatsApp buttons on Scorecard |
+| **Production Deployment** | ✅ 100% | Vercel with security headers |
 
-**Overall Progress: 100%** (All features complete)
+**Overall Progress: 100%** (All features complete, deployed to production)
 
 ---
 

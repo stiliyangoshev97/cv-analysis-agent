@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.20.0] - 2026-02-20 🚀 Production Deployment
+
+### Added
+
+- **Production Deployment Complete**:
+  - Frontend deployed to **Vercel** with security headers
+  - Connected to Render backend API
+  - Google OAuth redirect URIs updated
+  - CORS origins configured
+
+- **Verified Features in Production**:
+  - Google OAuth login/signup flow
+  - CV upload with template selection
+  - AI evaluation with customizable profiles
+  - Chat, comparison, and similarity features
+  - Settings management (API keys, LLM preferences)
+  - Dark mode and responsive design
+
+### Known Issues
+
+- Email notification configuration requires investigation
+
+---
+
 ## [0.19.2] - 2026-02-20 🎨 Google OAuth & Dark Mode Polish
 
 ### Fixed

@@ -2,7 +2,15 @@
 
 An AI-powered CV screening platform that evaluates resumes against customizable criteria using frontier AI models. Features a multi-agent architecture, RAG-powered chat, and semantic search capabilities.
 
-**Version:** 0.17.3 | **Last Updated:** February 20, 2026
+**Version:** 0.18.0 | **Last Updated:** February 20, 2026 | **Status:** 🚀 **Live in Production**
+
+## 🌐 Live Demo
+
+| Environment | URL |
+|-------------|-----|
+| **Frontend** | [cv-analysis-agent.vercel.app](https://cv-analysis-agent.vercel.app) |
+| **Backend API** | [cv-analysis-agent.onrender.com](https://cv-analysis-agent.onrender.com) |
+| **API Docs** | [cv-analysis-agent.onrender.com/docs](https://cv-analysis-agent.onrender.com/docs) |
 
 ## ✨ Highlights
 
