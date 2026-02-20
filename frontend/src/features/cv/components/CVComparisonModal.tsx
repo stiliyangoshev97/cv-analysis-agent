@@ -323,9 +323,9 @@ export const CVComparisonModal = ({
                   </Text>
                 </div>
                 <Text size="sm" className="text-blue-800 dark:text-blue-200">
-                  {data.cvs.find((c) => c.cv_id === data.most_similar_pair?.cv1_id)?.candidate_name || 'Unknown'}{' '}
+                  {data.cvs.find((c) => c.cv_id === data.most_similar_pair?.cv_id_1)?.candidate_name || 'Unknown'}{' '}
                   and{' '}
-                  {data.cvs.find((c) => c.cv_id === data.most_similar_pair?.cv2_id)?.candidate_name || 'Unknown'}{' '}
+                  {data.cvs.find((c) => c.cv_id === data.most_similar_pair?.cv_id_2)?.candidate_name || 'Unknown'}{' '}
                   are {Math.round((data.most_similar_pair.similarity || 0) * 100)}% similar
                 </Text>
               </Card>

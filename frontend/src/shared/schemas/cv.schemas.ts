@@ -272,8 +272,8 @@ export const cvCompareResponseSchema = z.object({
   similarity_matrix: z.array(z.array(z.number())),
   best_match_id: z.string().nullable(),
   most_similar_pair: z.object({
-    cv1_id: z.string(),
-    cv2_id: z.string(),
+    cv_id_1: z.string(),
+    cv_id_2: z.string(),
     similarity: z.number(),
   }).nullable(),
 });
