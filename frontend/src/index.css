@@ -55,17 +55,19 @@
   }
 
   /* Minimum touch target size for accessibility (44x44px) */
-  button, 
-  a, 
+  /* Only apply to primary interactive elements, not small UI components */
+  button:not([role="switch"]):not(.toggle-btn):not(.icon-btn), 
+  a:not(.inline-link), 
   input[type="checkbox"], 
-  input[type="radio"],
-  [role="button"] {
+  input[type="radio"] {
     min-height: 44px;
-    min-width: 44px;
   }
 
-  /* Exception for inline links */
-  p a, span a, li a {
+  /* Exception for inline links and small buttons */
+  p a, span a, li a,
+  [role="switch"],
+  .toggle-btn,
+  .icon-btn {
     min-height: auto;
     min-width: auto;
   }
