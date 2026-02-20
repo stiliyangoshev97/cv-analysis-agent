@@ -22,6 +22,16 @@ An AI-powered CV screening platform that evaluates resumes against customizable 
 - **Batch Upload** - Evaluate up to 10 CVs simultaneously
 - **Beautiful UI** - Modern React frontend with dark mode
 
+## ℹ️ Production Notes
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **CV Upload & Evaluation** | ✅ Works | Full AI evaluation with Claude/GPT/Gemini |
+| **WhatsApp Notifications** | ✅ Works | Via Twilio API (BYOK) |
+| **Email Notifications** | ⚠️ Local only | Render free tier blocks SMTP ports (25/465/587). Works locally. Production apps typically use email APIs (SendGrid, Resend, etc.) |
+| **Google OAuth** | ✅ Works | Full authentication flow |
+| **Semantic Search** | ✅ Works | pgvector-powered similarity |
+
 ## 🔒 Security
 
 This project uses a **Bring Your Own Keys (BYOK)** model:

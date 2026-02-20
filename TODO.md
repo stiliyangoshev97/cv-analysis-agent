@@ -54,10 +54,10 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 - [x] Test Google OAuth flow end-to-end
 - [x] Test CV upload and evaluation
 - [x] Test semantic search and similarity
-- [ ] Test notification system (BYOK SMTP/Twilio) - Email issue pending
+- [x] Test notification system (BYOK SMTP/Twilio) - WhatsApp ✅, Email ⚠️ see note below
 
-### 🔲 Known Issues
-- [ ] SMTP timeout on Render: `Timed out connecting to smtp.gmail.com on port 587` (works locally, WhatsApp works in production)
+### ℹ️ Known Limitations
+- **Email notifications**: Work locally but not on Render free tier (SMTP ports 25/465/587 blocked). This is a platform limitation, not a code issue. WhatsApp notifications work perfectly in production. Production apps typically use email APIs (SendGrid, Resend) instead of direct SMTP.
 
 ---
 
