@@ -95,18 +95,6 @@ export const LlmPreferencesTab = () => {
     });
   };
 
-  /** Check if form has changes */
-  const hasChanges = config && (
-    defaultProvider !== config.default_llm_provider ||
-    defaultModel !== config.default_llm_model ||
-    parserProvider !== config.parser_provider ||
-    parserModel !== config.parser_model ||
-    chatProvider !== config.chat_provider ||
-    chatModel !== config.chat_model ||
-    scorerProvider !== config.scorer_provider ||
-    scorerModel !== config.scorer_model
-  );
-
   if (isLoadingConfig || isLoadingModels) {
     return (
       <div className="flex items-center justify-center py-12">
