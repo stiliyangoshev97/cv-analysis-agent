@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.20.1] - 2026-02-20 📱 Mobile Responsiveness Fixes
+
+### Fixed
+
+**Settings Page - API Keys Tab**
+- Input row now stacks vertically on mobile (input on top, buttons below)
+- Test/Save buttons share width evenly on mobile
+- Provider card header wraps badges and key hints properly on small screens
+- Added `truncate` to key hint display to prevent overflow
+
+**CV Detail Page**
+- Hero header card now stacks candidate info and score vertically on mobile
+- Avatar size reduced on mobile (48px vs 64px on desktop)
+- Candidate name and filename properly truncate on small screens
+- Action buttons now use 2-column grid layout on mobile
+- Button text shortened on mobile (e.g., "Similar" instead of "Find Similar")
+- Email/WhatsApp buttons show only icons on mobile
+
+**Notification History Page**
+- Notification items now stack vertically on mobile
+- Status badge and time wrap properly with `flex-wrap`
+- Resend/Delete buttons move below content on mobile instead of overlapping
+- Error messages use `break-words` to prevent overflow
+
+---
+
 ## [0.20.0] - 2026-02-20 🚀 Production Deployment
 
 ### Added

@@ -227,47 +227,51 @@ export const NotificationHistoryPage = () => {
               {history.items.map((notification) => (
                 <div
                   key={notification.id}
-                  className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700"
+                  className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700"
                 >
-                  {/* Type Icon */}
-                  <div className="text-2xl">{getTypeIcon(notification.type)}</div>
+                  {/* Top row on mobile: Icon + Status + Time */}
+                  <div className="flex items-start gap-3 sm:contents">
+                    {/* Type Icon */}
+                    <div className="text-2xl flex-shrink-0">{getTypeIcon(notification.type)}</div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {getStatusBadge(notification.status)}
-                      <Text size="sm" color="muted">
-                        {formatRelativeTime(notification.created_at)}
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        {getStatusBadge(notification.status)}
+                        <Text size="sm" color="muted" className="whitespace-nowrap">
+                          {formatRelativeTime(notification.created_at)}
+                        </Text>
+                      </div>
+                      <Text weight="medium" className="truncate mb-1">
+                        {notification.candidate_name || 'Unknown Candidate'}
+                        {notification.cv_score !== null && notification.cv_score !== undefined && (
+                          <span className="text-gray-500 dark:text-gray-400 ml-2">
+                            Score: {notification.cv_score}%
+                          </span>
+                        )}
                       </Text>
-                    </div>
-                    <Text weight="medium" className="truncate mb-1">
-                      {notification.candidate_name || 'Unknown Candidate'}
-                      {notification.cv_score !== null && notification.cv_score !== undefined && (
-                        <span className="text-gray-500 dark:text-gray-400 ml-2">
-                          Score: {notification.cv_score}%
-                        </span>
+                      <Text size="sm" color="muted" className="truncate">
+                        To: {notification.recipient}
+                      </Text>
+                      {notification.error_message && (
+                        <Text size="sm" className="text-red-600 dark:text-red-400 mt-1 break-words">
+                          Error: {notification.error_message}
+                        </Text>
                       )}
-                    </Text>
-                    <Text size="sm" color="muted" className="truncate">
-                      To: {notification.recipient}
-                    </Text>
-                    {notification.error_message && (
-                      <Text size="sm" className="text-red-600 dark:text-red-400 mt-1">
-                        Error: {notification.error_message}
-                      </Text>
-                    )}
+                    </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  {/* Actions - full width on mobile */}
+                  <div className="flex items-center gap-2 sm:flex-shrink-0 ml-auto sm:ml-0">
                     {notification.status === 'failed' && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => resend(notification.id)}
                         disabled={isResending}
+                        className="text-xs sm:text-sm"
                       >
-                        {isResending ? 'Resending...' : 'Resend'}
+                        {isResending ? '...' : 'Resend'}
                       </Button>
                     )}
                     <Button

@@ -185,8 +185,8 @@ export const ApiKeysTab = () => {
         return (
           <Card key={provider.id} padding="md">
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <CardTitle className="text-lg">{provider.name}</CardTitle>
                   {provider.required && (
                     <Badge variant="warning" size="sm">Required</Badge>
@@ -198,43 +198,48 @@ export const ApiKeysTab = () => {
                   )}
                 </div>
                 {keyInfo && (
-                  <Text size="sm" color="muted" className="font-mono">
+                  <Text size="sm" color="muted" className="font-mono truncate">
                     ••••••••{keyInfo.key_hint.slice(-4)}
                   </Text>
                 )}
               </div>
-              <CardDescription>{provider.description}</CardDescription>
+              <CardDescription className="mt-2">{provider.description}</CardDescription>
             </CardHeader>
 
             <CardContent>
               <div className="space-y-4">
-                {/* Input Row */}
-                <div className="flex gap-3">
-                  <div className="flex-1">
+                {/* Input Row - stack on mobile, row on larger screens */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1 min-w-0">
                     <Input
                       type="password"
                       placeholder={keyInfo ? 'Enter new key to replace...' : provider.placeholder}
                       value={inputValue}
                       onChange={(e) => handleInputChange(provider.id, e.target.value)}
                       disabled={isActive || isSaving || isDeleting}
+                      className="w-full"
                     />
                   </div>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleValidate(provider.id)}
-                    disabled={!inputValue || inputValue.length < 10 || isActive || isValidating}
-                    isLoading={isActive && isValidating}
-                  >
-                    Test
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={() => handleSave(provider.id)}
-                    disabled={!inputValue || inputValue.length < 10 || isActive || isSaving}
-                    isLoading={isActive && isSaving}
-                  >
-                    Save
-                  </Button>
+                  <div className="flex gap-2 sm:flex-shrink-0">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleValidate(provider.id)}
+                      disabled={!inputValue || inputValue.length < 10 || isActive || isValidating}
+                      isLoading={isActive && isValidating}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      Test
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => handleSave(provider.id)}
+                      disabled={!inputValue || inputValue.length < 10 || isActive || isSaving}
+                      isLoading={isActive && isSaving}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Validation Result */}
