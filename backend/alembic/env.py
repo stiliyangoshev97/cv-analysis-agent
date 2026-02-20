@@ -9,12 +9,13 @@ from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
 
-# Import app configuration and models
+# Import app configuration, SSL helper, and models
 from app.config import get_settings
+from app.db.session import _build_engine_kwargs
 from app.db.base import Base
 
 # Import all models for autogenerate to detect them
@@ -84,11 +85,15 @@ async def run_async_migrations() -> None:
     
     Creates an async engine and runs migrations within
     an async connection context.
+    
+    Uses _build_engine_kwargs to handle SSL for Neon/cloud PostgreSQL,
+    since asyncpg does not accept sslmode as a query-string parameter.
     """
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    engine_kwargs = _build_engine_kwargs(settings.database_url)
+    connectable = create_async_engine(
+        engine_kwargs["url"],
         poolclass=pool.NullPool,
+        **({k: v for k, v in engine_kwargs.items() if k != "url"}),
     )
 
     async with connectable.connect() as connection:
