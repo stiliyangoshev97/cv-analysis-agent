@@ -147,6 +147,9 @@ export const NotificationSettingsPanel = () => {
 
   // Save settings
   const handleSave = () => {
+    // Detect masked values (contain ***) and send null to preserve server-side values
+    const isMasked = (val: string) => val.includes('***') || val.includes('•••');
+    
     const updateData: {
       email_enabled: boolean;
       whatsapp_enabled: boolean;
@@ -157,7 +160,7 @@ export const NotificationSettingsPanel = () => {
     } = {
       email_enabled: emailEnabled,
       whatsapp_enabled: whatsappEnabled,
-      whatsapp_number: whatsappNumber || null,
+      whatsapp_number: (whatsappNumber && !isMasked(whatsappNumber)) ? whatsappNumber : null,
       threshold_score: threshold,
     };
     
