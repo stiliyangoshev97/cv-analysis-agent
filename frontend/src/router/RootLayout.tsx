@@ -165,14 +165,14 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
           <div className="flex items-center justify-center gap-4">
             <Link
               to="/settings/models"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="inline-link text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-normal"
             >
               AI Models Guide
             </Link>
             <span className="text-gray-300 dark:text-gray-600">•</span>
-            <Text variant="muted" size="sm" className="dark:text-gray-400">
+            <span className="text-sm text-gray-500 dark:text-gray-400 leading-normal">
               © 2026 CV Screening Agent
-            </Text>
+            </span>
           </div>
         </Container>
       </footer>
