@@ -381,7 +381,7 @@ export const LlmPreferencesTab = () => {
         <Button
           variant="primary"
           onClick={handleSave}
-          disabled={!hasChanges || isSaving}
+          disabled={isSaving}
           isLoading={isSaving}
         >
           {isSaving ? 'Saving...' : 'Save Preferences'}
