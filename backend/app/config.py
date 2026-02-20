@@ -106,6 +106,9 @@ class Settings(BaseSettings):
     # Frontend URL for OAuth redirects
     frontend_url: str = "http://localhost:5173"
     
+    # CORS allowed origins (comma-separated)
+    cors_origins: str = "http://localhost:5173"
+    
     # ==========================================================================
     # DEPRECATED: Server-level notification config removed
     # ==========================================================================

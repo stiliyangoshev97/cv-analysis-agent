@@ -108,8 +108,8 @@ In the Render web service settings, add these environment variables:
 
 | Variable | Value |
 |----------|-------|
-| `GOOGLE_OAUTH_CLIENT_ID` | Your Google OAuth client ID |
-| `GOOGLE_OAUTH_CLIENT_SECRET` | Your Google OAuth client secret |
+| `GOOGLE_CLIENT_ID` | Your Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Your Google OAuth client secret |
 
 #### CORS Configuration
 
@@ -240,8 +240,8 @@ SECRET_KEY=your-64-char-hex-string
 ENVIRONMENT=production
 
 # === Google OAuth (Optional) ===
-GOOGLE_OAUTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
 
 # === CORS ===
 CORS_ORIGINS=https://your-app.vercel.app

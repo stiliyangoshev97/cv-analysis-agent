@@ -116,14 +116,17 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Configure CORS for frontend communication
+# All allowed origins come from settings.cors_origins (comma-separated)
+_settings = get_settings()
+_allowed_origins = [o.strip() for o in _settings.cors_origins.split(",") if o.strip()]
+
+# Fallback: if cors_origins is empty, use frontend_url
+if not _allowed_origins and _settings.frontend_url:
+    _allowed_origins = [_settings.frontend_url]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite default
-        "http://localhost:3000",  # Alternative
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
