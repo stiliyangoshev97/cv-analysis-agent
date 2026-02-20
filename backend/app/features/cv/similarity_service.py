@@ -229,9 +229,9 @@ class SimilarityService:
                     result.similarity
                 )
         
-        # Calculate average similarity per CV
+        # Calculate average similarity per CV (cast to float for serialization)
         cv_avg_similarities = {
-            cv_id: sum(sims) / len(sims)
+            cv_id: float(sum(sims) / len(sims))
             for cv_id, sims in cv_similarities.items()
         }
         
@@ -482,9 +482,9 @@ class SimilarityService:
                 result.similarity
             )
         
-        # Calculate max similarity per CV (best matching chunk)
+        # Calculate max similarity per CV (best matching chunk, cast for serialization)
         cv_max_similarities = {
-            cv_id: max(sims)
+            cv_id: float(max(sims))
             for cv_id, sims in cv_similarities.items()
         }
         
@@ -548,7 +548,8 @@ class SimilarityService:
             for i in range(dim):
                 avg[i] += emb[i]
         
-        return [v / n for v in avg]
+        # Cast to native float to avoid numpy.float32 serialization issues
+        return [float(v / n) for v in avg]
     
     def _cosine_similarity(
         self,
@@ -574,7 +575,7 @@ class SimilarityService:
         if norm1 == 0 or norm2 == 0:
             return 0.0
         
-        return dot_product / (norm1 * norm2)
+        return float(dot_product / (norm1 * norm2))
     
     async def _get_all_user_evaluations(
         self,
