@@ -59,6 +59,9 @@ This document outlines the tasks needed to transform the MVP into a full-feature
 ### ℹ️ Known Limitations
 - **Email notifications**: Work locally but not on Render free tier (SMTP ports 25/465/587 blocked). This is a platform limitation, not a code issue. WhatsApp notifications work perfectly in production. Production apps typically use email APIs (SendGrid, Resend) instead of direct SMTP.
 
+### 🔧 Future Considerations (Optional)
+- **Backend security headers**: Consider adding `secure` middleware (Python's Helmet equivalent) to add headers like `X-Content-Type-Options`, `Strict-Transport-Security`, etc. **Not critical** for a JSON API since responses aren't rendered in browsers (no XSS/clickjacking risk). Frontend already has full security headers via `vercel.json`. Would be a nice hardening step if pursuing SOC2 or enterprise compliance.
+
 ---
 
 ## ✅ Bug Fixes (Feb 2026)
