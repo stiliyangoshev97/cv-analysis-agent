@@ -290,6 +290,67 @@ Request → Routes → Controller → Service → Repository → Database
 | **Rate Limiting** | slowapi | Request throttling per user/IP |
 | **Encryption** | cryptography (Fernet) | AES-256 for API keys |
 
+### Logging
+
+The application uses **Python's built-in `logging` module** - the standard library logger for Python applications.
+
+#### Configuration
+
+Logging is configured in `app/main.py`:
+
+```python
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+```
+
+#### Log Format
+
+```
+2026-02-21 14:30:45,123 - app.features.cv.cv_service - INFO - Processing CV upload...
+```
+
+| Component | Description |
+|-----------|-------------|
+| `asctime` | Timestamp (ISO format) |
+| `name` | Logger name (module path) |
+| `levelname` | Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL) |
+| `message` | Log message |
+
+#### Per-Module Loggers
+
+Each module creates its own logger for proper namespacing:
+
+```python
+# In any service/controller
+logger = logging.getLogger(__name__)
+
+logger.info("Processing CV...")
+logger.warning("Rate limit approaching")
+logger.error(f"Failed to send email: {error}")
+```
+
+#### Log Levels Used
+
+| Level | Use Case |
+|-------|----------|
+| `DEBUG` | Detailed debugging (disabled in production) |
+| `INFO` | Normal operations (startup, CV processed, notification sent) |
+| `WARNING` | Non-critical issues (rate limit approached, retry attempted) |
+| `ERROR` | Failures requiring attention (API call failed, database error) |
+
+#### Production Considerations
+
+For production deployments, consider:
+- **structlog** - Structured JSON logging (better for log aggregation)
+- **python-json-logger** - JSON formatter for existing logging
+- **Sentry** - Error tracking and monitoring
+- Cloud logging services (CloudWatch, Stackdriver, Datadog)
+
 ### AI Provider Architecture
 
 ```
